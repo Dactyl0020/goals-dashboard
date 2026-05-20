@@ -362,6 +362,7 @@
   .theme-kokiri-income { --accent: var(--kokiri-income); --accent-deep: #D89A50; --accent-soft: rgba(240,181,112,0.12); }
   .theme-coaching-tasks { --accent: var(--coaching); --accent-deep: var(--coaching-deep); --accent-soft: rgba(255,170,148,0.12); }
   .theme-personal-goals { --accent: #F08BB8; --accent-deep: #D472A0; --accent-soft: rgba(240,139,184,0.12); }
+  .theme-kokiri-sourcing { --accent: #E89F6A; --accent-deep: #CC8550; --accent-soft: rgba(232,159,106,0.12); }
 
   .panel.theme-coaching,
   .panel.theme-nuvo,
@@ -370,7 +371,8 @@
   .panel.theme-nuvo-systems,
   .panel.theme-kokiri-income,
   .panel.theme-coaching-tasks,
-  .panel.theme-personal-goals { border-left: 4px solid var(--accent); }
+  .panel.theme-personal-goals,
+  .panel.theme-kokiri-sourcing { border-left: 4px solid var(--accent); }
   .metric-card.theme-health { border-left: 4px solid var(--accent); }
 
   .panel.theme-coaching .panel-head h3,
@@ -381,6 +383,7 @@
   .panel.theme-kokiri-income .panel-head h3,
   .panel.theme-coaching-tasks .panel-head h3,
   .panel.theme-personal-goals .panel-head h3,
+  .panel.theme-kokiri-sourcing .panel-head h3,
   .metric-card.theme-health .metric-head h4 { color: var(--accent); }
 
   /* Pastel palette for personal-goals headlines — each headline gets a different pastel */
@@ -2078,6 +2081,301 @@
   .habit-row.subtask.subtask-misc .h-check:hover { border-color: #8B9AAB; }
   .habit-row.subtask.subtask-misc .h-check.on { border-color: #B4C0CB; }
   .habit-row.subtask.subtask-misc .subtask-meta .from { color: #B4C0CB; }
+  /* Content subtask in tracker (lavender) */
+  .habit-row.subtask.subtask-content { border-color: rgba(184,158,255,0.3); }
+  .habit-row.subtask.subtask-content.done {
+    background: rgba(184,158,255,0.06);
+    border-color: rgba(184,158,255,0.4);
+  }
+  .habit-row.subtask.subtask-content .h-check { border-color: var(--content); }
+  .habit-row.subtask.subtask-content .h-check::before { background: var(--content); }
+  .habit-row.subtask.subtask-content .h-check:hover { border-color: var(--content-deep); }
+  .habit-row.subtask.subtask-content .h-check.on { border-color: var(--content); }
+  .habit-row.subtask.subtask-content .subtask-meta .from { color: var(--content); }
+
+  /* Content card headlines (mini task system inside each pillar) */
+  .content-headlines {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--surface-edge);
+    display: flex; flex-direction: column;
+    gap: 6px;
+  }
+  .content-headlines .ns-headline {
+    --accent: var(--content);
+    --accent-soft: rgba(184,158,255,0.12);
+    background: var(--bg);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .content-headlines .ns-headline-head { padding: 8px 10px; }
+  .content-headlines .ns-headline-title { font-size: 13px; }
+  .content-headlines .ns-progress-track { display: none; }
+  .content-headlines .ns-body { padding: 4px 10px 8px 10px; }
+  .content-headlines .ns-subtask { padding: 4px 4px; }
+  .content-headlines .ns-subtask-text { font-size: 12px; }
+  .content-headlines .ns-add-sub { padding: 4px 0 0 0; }
+  .content-headlines .ns-add-sub input[type="text"] { font-size: 12px; padding: 6px 8px; }
+  .content-headlines .ns-empty-subs { padding: 6px 0; }
+  .content-add-headline {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .content-add-headline input {
+    flex: 1;
+    background: transparent;
+    border: 1px dashed var(--surface-edge);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text);
+    outline: none;
+  }
+  .content-add-headline input:focus {
+    border-style: solid;
+    border-color: var(--content);
+    background: var(--surface-2);
+  }
+  .content-add-headline input::placeholder { color: var(--text-faint); }
+  .content-add-headline button {
+    background: var(--content);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .content-add-headline button:hover { background: var(--content-deep); }
+
+  /* ============ KOKIRI SOURCING ============ */
+  .ks-toolbar {
+    display: flex; flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--surface-edge);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+  .ks-deal-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .ks-deal-link:hover { background: var(--accent-deep); color: var(--bg); }
+  .ks-deal-link.empty {
+    background: transparent;
+    color: var(--text-soft);
+    border: 1px dashed var(--surface-edge);
+  }
+  .ks-deal-link.empty:hover { border-color: var(--accent); color: var(--accent); }
+  .ks-deal-edit {
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .ks-deal-edit:hover { color: var(--accent); }
+  .ks-deal-toolbar-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .ks-section-head {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 18px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--surface-edge);
+  }
+  .ks-section-head::before {
+    content: '~';
+    color: var(--text-faint);
+    font-weight: 400;
+  }
+  .ks-section-head::after {
+    content: '~';
+    color: var(--text-faint);
+    font-weight: 400;
+    margin-left: auto;
+  }
+
+  .ks-properties {
+    display: flex; flex-direction: column;
+    gap: 12px;
+  }
+  .ks-property {
+    background: var(--bg);
+    border: 1px solid var(--surface-edge);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .ks-property-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+    flex-wrap: wrap;
+  }
+  .ks-property-head:hover { background: var(--surface-2); }
+  .ks-chevron {
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: var(--text-faint);
+    flex-shrink: 0;
+  }
+  .ks-property.collapsed .ks-chevron { transform: rotate(-90deg); }
+  .ks-property-info {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column;
+    gap: 2px;
+  }
+  .ks-property-name {
+    font-family: var(--sans);
+    font-size: 15px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.005em;
+    line-height: 1.3;
+    cursor: text;
+    padding: 1px 4px;
+    margin: -1px -4px;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+  .ks-property-name:hover { background: rgba(255,255,255,0.04); }
+  .ks-property-name-edit {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: var(--sans);
+    font-size: 15px; font-weight: 700;
+    color: var(--text); outline: none;
+    letter-spacing: -0.005em;
+  }
+  .ks-property-counts {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
+    padding-left: 4px;
+  }
+  .ks-property-counts.complete { color: var(--health); }
+  .ks-property-actions {
+    display: flex; align-items: center; gap: 6px;
+    flex-shrink: 0;
+  }
+  .ks-rightmove {
+    background: transparent;
+    border: 1px solid var(--surface-edge);
+    color: var(--text-soft);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+  }
+  .ks-rightmove:hover { color: var(--accent); border-color: var(--accent); }
+  .ks-rightmove.empty { font-style: normal; }
+  .ks-property-del {
+    background: transparent; border: none;
+    color: var(--text-faint); cursor: pointer;
+    padding: 4px 6px; border-radius: 4px;
+    opacity: 0; transition: opacity 0.15s;
+    font-size: 14px;
+  }
+  .ks-property-head:hover .ks-property-del { opacity: 1; }
+  .ks-property-del:hover { color: var(--coaching); }
+  .ks-property.collapsed .ks-body { display: none; }
+  .ks-body {
+    border-top: 1px solid var(--surface-edge);
+    padding: 10px 14px;
+  }
+  .ks-add-property {
+    background: transparent;
+    border: 1px dashed var(--surface-edge);
+    color: var(--text-soft);
+    border-radius: 10px;
+    padding: 12px;
+    width: 100%;
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s;
+  }
+  .ks-add-property:hover {
+    border-color: var(--accent);
+    border-style: solid;
+    color: var(--accent);
+  }
+  .ks-empty {
+    text-align: center;
+    padding: 18px 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
+  }
+
+  /* Sourcing subtask in tracker */
+  .habit-row.subtask.subtask-sourcing { border-color: rgba(232,159,106,0.3); }
+  .habit-row.subtask.subtask-sourcing.done {
+    background: rgba(232,159,106,0.06);
+    border-color: rgba(232,159,106,0.4);
+  }
+  .habit-row.subtask.subtask-sourcing .h-check { border-color: #E89F6A; }
+  .habit-row.subtask.subtask-sourcing .h-check::before { background: #E89F6A; }
+  .habit-row.subtask.subtask-sourcing .h-check:hover { border-color: #CC8550; }
+  .habit-row.subtask.subtask-sourcing .h-check.on { border-color: #E89F6A; }
+  .habit-row.subtask.subtask-sourcing .subtask-meta .from { color: #E89F6A; }
   .subtask-meta {
     font-family: var(--sans);
     font-size: 12px; font-weight: 500;
@@ -3099,16 +3397,12 @@
   </div>
 
   <section class="stats">
-    <div class="stat streak" id="stat-streak">
-      <div class="label">Streak</div>
-      <div class="value"><span id="streak-count">0</span><span class="flame">🔥</span></div>
-    </div>
     <div class="stat" id="stat-today">
       <div class="label">Today</div>
       <div class="value"><span id="today-count">0</span></div>
     </div>
     <div class="stat" id="stat-total">
-      <div class="label">Total Wins</div>
+      <div class="label">Total Done</div>
       <div class="value"><span id="total-count">0</span></div>
     </div>
     <div class="stat" id="stat-rate">
@@ -3117,16 +3411,14 @@
     </div>
   </section>
 
-  <!-- HEALTH TRACKER -->
+  <!-- DAILY TASKS -->
   <section class="panel" id="tracker">
     <div class="tracker-head">
       <div>
-        <h3>Daily Tracker</h3>
-        <div class="sub">Posting rhythm · weekly rotation</div>
+        <h3>Daily Tasks</h3>
+        <div class="sub">Today's posts, subtasks &amp; habits</div>
       </div>
       <div class="controls">
-        <button class="pill-btn" id="rest-btn">Rest day</button>
-        <button class="pill-btn unwell" id="unwell-btn">Unwell</button>
         <button class="pill-btn" id="sound-btn" title="Toggle sound">🔊</button>
         <button class="pill-btn" id="edit-btn">Edit ⚙</button>
         <button class="collapse-btn" data-collapse="tracker" aria-label="Collapse">
@@ -3141,32 +3433,6 @@
     </div>
     <div class="habits-grid" id="habits-grid"></div>
     <button class="add-habit" id="add-habit">+ Add habit</button>
-    <div class="stamp-zone">
-      <div class="stamp-placeholder" id="stamp-placeholder">
-        <span id="placeholder-text">~ tick everything to earn the day's stamp ~</span>
-        <div class="progress" id="progress-text">0 of 6</div>
-      </div>
-      <svg class="stamp" id="stamp" viewBox="0 0 130 130">
-        <circle cx="65" cy="65" r="58" fill="none" stroke="#5BE091" stroke-width="2.5" stroke-dasharray="3 4"/>
-        <circle cx="65" cy="65" r="50" fill="none" stroke="#5BE091" stroke-width="1.5"/>
-        <text x="65" y="50" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="7" letter-spacing="2" fill="#5BE091" font-weight="700">CERTIFIED</text>
-        <text x="65" y="78" text-anchor="middle" font-family="Outfit, sans-serif" font-size="24" fill="#5BE091" font-weight="800" letter-spacing="0.02em">DONE</text>
-        <text x="65" y="94" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" letter-spacing="1" fill="#5BE091" font-weight="500" id="stamp-date">—</text>
-        <text x="65" y="109" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6" letter-spacing="2" fill="#5BE091">·  ·  ·</text>
-      </svg>
-      <svg class="stamp stamp-unwell" id="stamp-unwell" viewBox="0 0 130 130">
-        <circle cx="65" cy="65" r="58" fill="none" stroke="#E8A87C" stroke-width="2.5" stroke-dasharray="3 4"/>
-        <circle cx="65" cy="65" r="50" fill="none" stroke="#E8A87C" stroke-width="1.5"/>
-        <text x="65" y="50" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="7" letter-spacing="2" fill="#E8A87C" font-weight="700">REST &amp; HEAL</text>
-        <text x="65" y="78" text-anchor="middle" font-family="Outfit, sans-serif" font-size="22" fill="#E8A87C" font-weight="800" letter-spacing="0.02em">UNWELL</text>
-        <text x="65" y="94" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" letter-spacing="1" fill="#E8A87C" font-weight="500" id="stamp-unwell-date">—</text>
-        <text x="65" y="109" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6" letter-spacing="2" fill="#E8A87C">·  ·  ·</text>
-      </svg>
-    </div>
-    <div class="strip">
-      <div class="strip-label">First 14 days</div>
-      <div class="strip-days" id="strip-days"></div>
-    </div>
   </section>
 
   <!-- QUARTERLY GOALS -->
@@ -3326,6 +3592,30 @@
     <button class="ki-add-property" id="ki-add-property-btn">+ Add property</button>
   </section>
 
+  <!-- KOKIRI SOURCING -->
+  <section class="panel theme-kokiri-sourcing" id="kokiri-sourcing-panel">
+    <div class="panel-head">
+      <h3>KOKIRI | SOURCING<span class="panel-sub">New deals · prospects · pipeline</span></h3>
+      <div class="head-controls">
+        <button class="collapse-btn" data-collapse="kokiri-sourcing-panel" aria-label="Collapse">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="ks-toolbar" id="ks-toolbar"></div>
+
+    <div class="ns-headlines" id="ks-headlines"></div>
+    <div class="ns-add-headline">
+      <input type="text" id="ks-new-headline" placeholder="+ Add sourcing task (e.g. Reach out to agents)" maxlength="120"/>
+      <button id="ks-add-headline-btn">Add</button>
+    </div>
+
+    <div class="ks-section-head">Properties being sourced</div>
+    <div class="ks-properties" id="ks-properties"></div>
+    <button class="ks-add-property" id="ks-add-property-btn">+ Add property</button>
+  </section>
+
   <!-- CONTENT SCHEDULE -->
   <section class="panel theme-content" id="content-panel">
     <div class="panel-head">
@@ -3464,13 +3754,13 @@
 // ============ CONFIG ============
 const TABS = [
   { id: 'q1-2026', label: 'Q1 2026', subtitle: 'January · February · March', title: 'The First Quarter',  group: 'quarter',
-    panels: ['coaching', 'nuvo', 'kokiri_income', 'personal_goals', 'misc_tasks'], monthIndices: [0,1,2] },
+    panels: ['coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [0,1,2] },
   { id: 'q2-2026', label: 'Q2 2026', subtitle: 'April · May · June',         title: 'The Second Quarter', group: 'quarter',
-    panels: ['tracker', 'coaching', 'coaching_tasks', 'nuvo', 'nuvo_systems', 'kokiri', 'kokiri_income', 'content', 'personal_goals', 'misc_tasks'], monthIndices: [3,4,5] },
+    panels: ['tracker', 'coaching', 'coaching_tasks', 'nuvo', 'nuvo_systems', 'kokiri', 'kokiri_income', 'kokiri_sourcing', 'content', 'personal_goals', 'misc_tasks'], monthIndices: [3,4,5] },
   { id: 'q3-2026', label: 'Q3 2026', subtitle: 'July · August · September',  title: 'The Third Quarter',  group: 'quarter',
-    panels: ['coaching', 'nuvo', 'kokiri_income', 'personal_goals', 'misc_tasks'], monthIndices: [6,7,8] },
+    panels: ['coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [6,7,8] },
   { id: 'q4-2026', label: 'Q4 2026', subtitle: 'October · November · December', title: 'The Fourth Quarter', group: 'quarter',
-    panels: ['coaching', 'nuvo', 'kokiri_income', 'personal_goals', 'misc_tasks'], monthIndices: [9,10,11] },
+    panels: ['coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [9,10,11] },
   { id: 'annual-2026', label: 'Annual 2026', subtitle: 'The year in full', title: 'The Year', group: 'long' },
   { id: 'five-year',   label: '5-Year Plan', subtitle: 'The long horizon',  title: 'The Long Horizon', group: 'long' },
 ];
@@ -3585,6 +3875,51 @@ function ensureShape(s) {
       if (typeof p.done !== 'boolean') p.done = false;
     });
   });
+  // Headlines per pillar (full task-system pattern)
+  s.content.headlines = s.content.headlines || {};
+  s.content.schedule.forEach(c => {
+    if (!s.content.headlines[c.id]) s.content.headlines[c.id] = [];
+    s.content.headlines[c.id].forEach(h => {
+      if (!h.subtasks) h.subtasks = [];
+      if (typeof h.collapsed !== 'boolean') h.collapsed = false;
+      h.subtasks.forEach(st => {
+        if (typeof st.done !== 'boolean') st.done = false;
+        if (!st.recurrence) st.recurrence = null;
+        if (!st.completions) st.completions = {};
+        if (!st.children) st.children = [];
+        st.children.forEach(c2 => {
+          if (typeof c2.done !== 'boolean') c2.done = false;
+          if (!c2.completions) c2.completions = {};
+        });
+      });
+    });
+  });
+  // One-time migration: convert any existing simple posts into subtasks under a default headline
+  if (!s.contentMigratedToHeadlinesV1) {
+    s.content.schedule.forEach(c => {
+      const posts = s.content.posts[c.id] || [];
+      if (posts.length === 0) return;
+      let target = s.content.headlines[c.id].find(h => h.title === 'Posts');
+      if (!target) {
+        target = { id: uid(), title: 'Posts', collapsed: false, subtasks: [], createdAt: Date.now() };
+        s.content.headlines[c.id].unshift(target);
+      }
+      posts.forEach(p => {
+        target.subtasks.push({
+          id: uid(),
+          text: p.text,
+          date: p.date || null,
+          recurrence: null,
+          done: !!p.done,
+          completedAt: p.completedAt || null,
+          completions: {},
+          children: [],
+          createdAt: p.createdAt || Date.now()
+        });
+      });
+    });
+    s.contentMigratedToHeadlinesV1 = true;
+  }
 
   // Daily tasks per category (persistent until done)
   s.tasksByCategory = s.tasksByCategory || {};
@@ -3701,6 +4036,47 @@ function ensureShape(s) {
     if (!p.income) p.income = [];
     if (!p.costs) p.costs = [];
     if (typeof p.collapsed !== 'boolean') p.collapsed = false;
+  });
+
+  // Kokiri Sourcing: general headlines/subtasks + property cards each with their own headlines/subtasks
+  s.kokiriSourcing = s.kokiriSourcing || { dealAnalyserUrl: 'https://docs.google.com/spreadsheets/d/1Enu1ZZLfXa_pu8nBOkIaXYv3dQZM5UcyTGzz2Onr5n8/edit?pli=1&gid=1646477706#gid=1646477706', headlines: [], properties: [] };
+  if (s.kokiriSourcing.dealAnalyserUrl == null) s.kokiriSourcing.dealAnalyserUrl = '';
+  if (!s.kokiriSourcing.headlines) s.kokiriSourcing.headlines = [];
+  if (!s.kokiriSourcing.properties) s.kokiriSourcing.properties = [];
+  // Ensure shape on general headlines
+  s.kokiriSourcing.headlines.forEach(h => {
+    if (!h.subtasks) h.subtasks = [];
+    if (typeof h.collapsed !== 'boolean') h.collapsed = false;
+    h.subtasks.forEach(st => {
+      if (typeof st.done !== 'boolean') st.done = false;
+      if (!st.recurrence) st.recurrence = null;
+      if (!st.completions) st.completions = {};
+      if (!st.children) st.children = [];
+      st.children.forEach(c => {
+        if (typeof c.done !== 'boolean') c.done = false;
+        if (!c.completions) c.completions = {};
+      });
+    });
+  });
+  // Ensure shape on each property and its headlines
+  s.kokiriSourcing.properties.forEach(p => {
+    if (typeof p.collapsed !== 'boolean') p.collapsed = false;
+    if (p.url == null) p.url = '';
+    if (!p.headlines) p.headlines = [];
+    p.headlines.forEach(h => {
+      if (!h.subtasks) h.subtasks = [];
+      if (typeof h.collapsed !== 'boolean') h.collapsed = false;
+      h.subtasks.forEach(st => {
+        if (typeof st.done !== 'boolean') st.done = false;
+        if (!st.recurrence) st.recurrence = null;
+        if (!st.completions) st.completions = {};
+        if (!st.children) st.children = [];
+        st.children.forEach(c => {
+          if (typeof c.done !== 'boolean') c.done = false;
+          if (!c.completions) c.completions = {};
+        });
+      });
+    });
   });
 
   return s;
@@ -3971,6 +4347,7 @@ function renderTabs() {
   setPanelVisible('misc-tasks-panel', panels.includes('misc_tasks'));
   setPanelVisible('kokiri-panel', panels.includes('kokiri'));
   setPanelVisible('kokiri-income-panel', panels.includes('kokiri_income'));
+  setPanelVisible('kokiri-sourcing-panel', panels.includes('kokiri_sourcing'));
   setPanelVisible('content-panel', panels.includes('content'));
   setPanelVisible('qgoals-panel', panels.includes('qgoals'));
 
@@ -4027,6 +4404,7 @@ function renderStats(animate = false) {
 
 function setNum(id, val, animate) {
   const el = document.getElementById(id);
+  if (!el) return;
   if (el.textContent != String(val)) {
     el.textContent = val;
     if (animate) {
@@ -4157,11 +4535,15 @@ function renderTracker(justEarned = false) {
   document.getElementById('prev-day').disabled = false;
   document.getElementById('next-day').disabled = viewDate >= todayKey();
   const restBtn = document.getElementById('rest-btn');
-  restBtn.classList.toggle('on', d.rest);
-  restBtn.textContent = d.rest ? 'Resting ✓' : 'Rest day';
+  if (restBtn) {
+    restBtn.classList.toggle('on', d.rest);
+    restBtn.textContent = d.rest ? 'Resting ✓' : 'Rest day';
+  }
   const unwellBtn = document.getElementById('unwell-btn');
-  unwellBtn.classList.toggle('on', d.unwell);
-  unwellBtn.textContent = d.unwell ? 'Unwell ✓' : 'Unwell';
+  if (unwellBtn) {
+    unwellBtn.classList.toggle('on', d.unwell);
+    unwellBtn.textContent = d.unwell ? 'Unwell ✓' : 'Unwell';
+  }
 
   const grid = document.getElementById('habits-grid');
   grid.innerHTML = '';
@@ -4231,49 +4613,7 @@ function renderTracker(justEarned = false) {
     renderTaskGroups(grid);
   }
 
-  // Scheduled social posts for today (drives the daily stamp)
-  const todaysContent = scheduledForDay(viewDate);
-  if (todaysContent.length > 0 && !d.rest && !d.unwell) {
-    todaysContent.forEach(cat => {
-      const done = isContentDone(cat.id, viewDate);
-      const theme = currentThemeFor(cat.id, viewDate);
-      const row = document.createElement('div');
-      row.className = 'habit-row bonus' + (done ? ' done' : '');
-      row.innerHTML = `
-        <div class="habit-circles">
-          <button class="h-check ${done ? 'on' : ''}" data-content="${cat.id}" aria-label="Toggle">
-            <svg viewBox="0 0 24 24"><polyline points="5,13 10,18 19,7"></polyline></svg>
-          </button>
-        </div>
-        <div class="habit-body">
-          <div class="habit-label">${escapeHTML(cat.label)}</div>
-          <div class="bonus-theme">${theme ? `<em>Theme:</em> ${escapeHTML(theme.idea)}` : '<span style="color:var(--text-faint)">no theme set</span>'}</div>
-        </div>
-      `;
-      grid.appendChild(row);
-    });
-  }
-
-  // Individual content posts dated for today (or overdue)
-  const todaysPosts = (!d.rest && !d.unwell) ? contentPostsForDate(viewDate) : [];
-  todaysPosts.forEach(item => {
-    const p = item.post;
-    const row = document.createElement('div');
-    row.className = 'habit-row bonus' + (p.done ? ' done' : '');
-    const overdueTag = item.overdue ? `<span class="overdue-tag">Overdue${p.date ? ' · ' + formatSubtaskDate(p.date) : ''}</span>` : '';
-    row.innerHTML = `
-      <div class="habit-circles">
-        <button class="h-check ${p.done ? 'on' : ''}" data-post-tracker="${p.id}" data-pillar="${item.pillar.id}" aria-label="Toggle">
-          <svg viewBox="0 0 24 24"><polyline points="5,13 10,18 19,7"></polyline></svg>
-        </button>
-      </div>
-      <div class="habit-body">
-        <div class="habit-label">${escapeHTML(p.text)}</div>
-        <div class="bonus-theme"><em style="color:var(--content); font-style:normal; font-weight:600">${escapeHTML(item.pillar.label.replace(/ post$/i, ''))} post</em> ${overdueTag}</div>
-      </div>
-    `;
-    grid.appendChild(row);
-  });
+  // (Removed: old weekday-pillar slots and theme display — content panel now uses headlines.)
 
   // NUVO Systems subtasks scheduled for today (or overdue)
   const todaysSubs = (!d.rest && !d.unwell) ? subtasksForTrackerDate(viewDate) : [];
@@ -4294,6 +4634,10 @@ function renderTracker(justEarned = false) {
       row.classList.add('subtask-personal');
     } else if (item.sysKey === 'miscTasks') {
       row.classList.add('subtask-misc');
+    } else if (item.sysKey === 'content') {
+      row.classList.add('subtask-content');
+    } else if (item.sysKey === 'kokiriSourcing') {
+      row.classList.add('subtask-sourcing');
     }
     const overdueTag = item.overdue ? `<span class="overdue-tag">Overdue${st.date ? ' · ' + formatSubtaskDate(st.date) : ''}</span>` : '';
     row.innerHTML = `
@@ -4321,47 +4665,45 @@ function renderTracker(justEarned = false) {
   const stamp = document.getElementById('stamp');
   const stampUnwell = document.getElementById('stamp-unwell');
   const placeholder = document.getElementById('stamp-placeholder');
-  const earned = isStickerEarned(viewDate);
-  const required = dailyRequiredCount(viewDate);
-  const done = dailyDoneCount(viewDate);
-  const stampDateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }).toUpperCase().replace(/\./g, '');
-  document.getElementById('stamp-date').textContent = stampDateStr;
-  document.getElementById('stamp-unwell-date').textContent = stampDateStr;
-
-  // Reset all stamps first
-  stamp.classList.remove('earned', 'just-earned');
-  stampUnwell.classList.remove('earned', 'just-earned');
-  stamp.style.display = 'none';
-  stampUnwell.style.display = 'none';
-
-  if (d.unwell) {
-    // Unwell stamp takes precedence
-    if (justEarned) { void stampUnwell.offsetWidth; stampUnwell.classList.add('just-earned'); }
-    stampUnwell.classList.add('earned');
-    stampUnwell.style.display = '';
-    placeholder.style.display = 'none';
-  } else if (earned) {
-    if (justEarned) { void stamp.offsetWidth; stamp.classList.add('just-earned', 'earned'); }
-    else stamp.classList.add('earned');
-    placeholder.style.display = 'none';
-    stamp.style.display = '';
-  } else {
-    placeholder.style.display = '';
-    const noHabits = state.habits.config.length === 0;
-    if (noHabits) {
-      document.getElementById('placeholder-text').textContent =
-        done === 0 ? '~ tick today\'s posts to earn the stamp ~' : '~ keep going ~';
+  // Stamp/streak UI was removed — these elements no longer exist. Safe-guard with null checks.
+  if (stamp && stampUnwell && placeholder) {
+    const earned = isStickerEarned(viewDate);
+    const required = dailyRequiredCount(viewDate);
+    const done = dailyDoneCount(viewDate);
+    const stampDateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }).toUpperCase().replace(/\./g, '');
+    document.getElementById('stamp-date').textContent = stampDateStr;
+    document.getElementById('stamp-unwell-date').textContent = stampDateStr;
+    stamp.classList.remove('earned', 'just-earned');
+    stampUnwell.classList.remove('earned', 'just-earned');
+    stamp.style.display = 'none';
+    stampUnwell.style.display = 'none';
+    if (d.unwell) {
+      if (justEarned) { void stampUnwell.offsetWidth; stampUnwell.classList.add('just-earned'); }
+      stampUnwell.classList.add('earned');
+      stampUnwell.style.display = '';
+      placeholder.style.display = 'none';
+    } else if (earned) {
+      if (justEarned) { void stamp.offsetWidth; stamp.classList.add('just-earned', 'earned'); }
+      else stamp.classList.add('earned');
+      placeholder.style.display = 'none';
+      stamp.style.display = '';
     } else {
-      document.getElementById('placeholder-text').textContent =
-        done === 0 ? '~ tick everything to earn the day\'s stamp ~' : '~ almost there ~';
+      placeholder.style.display = '';
+      const noHabits = state.habits.config.length === 0;
+      const ptEl = document.getElementById('placeholder-text');
+      if (ptEl) ptEl.textContent = noHabits
+        ? (done === 0 ? '~ tick today\'s posts to earn the stamp ~' : '~ keep going ~')
+        : (done === 0 ? '~ tick everything to earn the day\'s stamp ~' : '~ almost there ~');
+      const prEl = document.getElementById('progress-text');
+      if (prEl) prEl.textContent = `${done} of ${required}`;
     }
-    document.getElementById('progress-text').textContent = `${done} of ${required}`;
   }
   renderStrip();
 }
 
 function renderStrip() {
   const wrap = document.getElementById('strip-days');
+  if (!wrap) return; // strip UI was removed
   wrap.innerHTML = '';
   const start = new Date(state.startDate);
   start.setHours(0,0,0,0);
@@ -5237,6 +5579,49 @@ function subtasksForTrackerDate(dateKey) {
     });
   }
 
+  // Content headlines (per pillar) — dated subtasks
+  for (const pillarId in state.content.headlines) {
+    const pillar = state.content.schedule.find(p => p.id === pillarId);
+    const pillarLabel = pillar ? pillar.label.replace(/ post$/i, '').toUpperCase() : pillarId.toUpperCase();
+    state.content.headlines[pillarId].forEach(h => {
+      h.subtasks.forEach(st => {
+        if (isSubtaskScheduledFor(st, dateKey)) {
+          result.push({ headline: h, subtask: st, overdue: false, sysLabel: `CONTENT · ${pillarLabel}`, sysKey: 'content' });
+        } else if (
+          !st.recurrence &&
+          st.date &&
+          st.date < dateKey &&
+          !st.done &&
+          dateKey === todayKey()
+        ) {
+          result.push({ headline: h, subtask: st, overdue: true, sysLabel: `CONTENT · ${pillarLabel}`, sysKey: 'content' });
+        }
+      });
+    });
+  }
+
+  // Kokiri Sourcing — general headlines + per-property
+  const pushSourcing = (h, label) => {
+    h.subtasks.forEach(st => {
+      if (isSubtaskScheduledFor(st, dateKey)) {
+        result.push({ headline: h, subtask: st, overdue: false, sysLabel: label, sysKey: 'kokiriSourcing' });
+      } else if (
+        !st.recurrence &&
+        st.date &&
+        st.date < dateKey &&
+        !st.done &&
+        dateKey === todayKey()
+      ) {
+        result.push({ headline: h, subtask: st, overdue: true, sysLabel: label, sysKey: 'kokiriSourcing' });
+      }
+    });
+  };
+  state.kokiriSourcing.headlines.forEach(h => pushSourcing(h, 'KOKIRI · SOURCING'));
+  state.kokiriSourcing.properties.forEach(prop => {
+    const propLabel = (prop.name || 'Property').toUpperCase();
+    prop.headlines.forEach(h => pushSourcing(h, `SOURCING · ${propLabel}`));
+  });
+
   return result;
 }
 
@@ -5411,11 +5796,20 @@ function deleteNuvoSystemsHeadline(id) {
   if (!confirm('Delete this headline and all its subtasks?')) return;
   if (found.system === 'miscTasks') {
     state.miscTasks[found.tabId].headlines = state.miscTasks[found.tabId].headlines.filter(h => h.id !== id);
+  } else if (found.system === 'content') {
+    state.content.headlines[found.pillarId] = state.content.headlines[found.pillarId].filter(h => h.id !== id);
+  } else if (found.system === 'kokiriSourcing' && found.propertyId) {
+    const prop = state.kokiriSourcing.properties.find(p => p.id === found.propertyId);
+    if (prop) prop.headlines = prop.headlines.filter(h => h.id !== id);
+  } else if (found.system === 'kokiriSourcing') {
+    state.kokiriSourcing.headlines = state.kokiriSourcing.headlines.filter(h => h.id !== id);
   } else {
     state[found.system].headlines = state[found.system].headlines.filter(h => h.id !== id);
   }
   saveState();
   renderTaskSystems();
+  renderContent();
+  renderKokiriSourcing();
   renderTracker();
 }
 
@@ -5425,14 +5819,23 @@ function toggleNuvoSystemsHeadline(id) {
   found.headline.collapsed = !found.headline.collapsed;
   saveState();
   renderTaskSystems();
+  renderContent();
+  renderKokiriSourcing();
 }
 
 function moveHeadline(id, direction) {
   const found = findHeadlineById(id);
   if (!found) return;
-  const arr = found.system === 'miscTasks'
-    ? state.miscTasks[found.tabId].headlines
-    : state[found.system].headlines;
+  let arr;
+  if (found.system === 'miscTasks') arr = state.miscTasks[found.tabId].headlines;
+  else if (found.system === 'content') arr = state.content.headlines[found.pillarId];
+  else if (found.system === 'kokiriSourcing' && found.propertyId) {
+    const prop = state.kokiriSourcing.properties.find(p => p.id === found.propertyId);
+    arr = prop ? prop.headlines : null;
+  }
+  else if (found.system === 'kokiriSourcing') arr = state.kokiriSourcing.headlines;
+  else arr = state[found.system].headlines;
+  if (!arr) return;
   const idx = arr.findIndex(h => h.id === id);
   if (idx === -1) return;
   const newIdx = direction === 'up' ? idx - 1 : idx + 1;
@@ -5441,6 +5844,8 @@ function moveHeadline(id, direction) {
   arr.splice(newIdx, 0, moved);
   saveState();
   renderTaskSystems();
+  renderContent();
+  renderKokiriSourcing();
 }
 
 function toggleSubtaskChildren(subtaskId) {
@@ -5468,6 +5873,8 @@ function addSubSubtask(parentSubtaskId, text) {
   });
   saveState();
   renderTaskSystems();
+  renderContent();
+  renderKokiriSourcing();
   renderTracker();
 }
 
@@ -5481,6 +5888,8 @@ function toggleSubSubtask(childId, parentId) {
   saveState();
   if (child.done) popSoundSoft();
   renderTaskSystems();
+  renderContent();
+  renderKokiriSourcing();
   renderTracker();
 }
 
@@ -5490,6 +5899,8 @@ function deleteSubSubtask(childId, parentId) {
   found.subtask.children = (found.subtask.children || []).filter(c => c.id !== childId);
   saveState();
   renderTaskSystems();
+  renderContent();
+  renderKokiriSourcing();
   renderTracker();
 }
 
@@ -5518,6 +5929,8 @@ function startEditingHeadline(textEl) {
       saveState();
     }
     renderTaskSystems();
+    renderContent();
+    renderKokiriSourcing();
   }
   input.addEventListener('blur', () => finish(true));
   input.addEventListener('keydown', e => {
@@ -5545,6 +5958,8 @@ function addNuvoSystemsSubtask(headlineId, text, date, isWeekly) {
   });
   saveState();
   renderTaskSystems();
+  renderContent();
+  renderKokiriSourcing();
   renderTracker();
 }
 
@@ -5568,6 +5983,25 @@ function findSubtaskById(id) {
       if (st) return { headline: h, subtask: st, system: 'miscTasks', tabId };
     }
   }
+  // Content headlines per pillar
+  for (const pillarId in state.content.headlines) {
+    for (const h of state.content.headlines[pillarId]) {
+      const st = h.subtasks.find(x => x.id === id);
+      if (st) return { headline: h, subtask: st, system: 'content', pillarId };
+    }
+  }
+  // Kokiri Sourcing — general headlines
+  for (const h of state.kokiriSourcing.headlines) {
+    const st = h.subtasks.find(x => x.id === id);
+    if (st) return { headline: h, subtask: st, system: 'kokiriSourcing' };
+  }
+  // Kokiri Sourcing — per property headlines
+  for (const prop of state.kokiriSourcing.properties) {
+    for (const h of prop.headlines) {
+      const st = h.subtasks.find(x => x.id === id);
+      if (st) return { headline: h, subtask: st, system: 'kokiriSourcing', propertyId: prop.id };
+    }
+  }
   return null;
 }
 
@@ -5582,6 +6016,19 @@ function findHeadlineById(id) {
   for (const tabId in state.miscTasks) {
     h = state.miscTasks[tabId].headlines.find(x => x.id === id);
     if (h) return { headline: h, system: 'miscTasks', tabId };
+  }
+  // Content headlines per pillar
+  for (const pillarId in state.content.headlines) {
+    h = state.content.headlines[pillarId].find(x => x.id === id);
+    if (h) return { headline: h, system: 'content', pillarId };
+  }
+  // Kokiri Sourcing — general
+  h = state.kokiriSourcing.headlines.find(x => x.id === id);
+  if (h) return { headline: h, system: 'kokiriSourcing' };
+  // Kokiri Sourcing — per property
+  for (const prop of state.kokiriSourcing.properties) {
+    h = prop.headlines.find(x => x.id === id);
+    if (h) return { headline: h, system: 'kokiriSourcing', propertyId: prop.id };
   }
   return null;
 }
@@ -6147,6 +6594,8 @@ function toggleNuvoSystemsSubtask(id, dateKey) {
     saveState();
     if (!currentlyDone && (dateKey || todayKey()) === todayKey()) popSoundSoft();
     renderTaskSystems();
+    renderContent();
+    renderKokiriSourcing();
     renderTracker();
     return;
   }
@@ -6197,6 +6646,44 @@ function deleteNuvoSystemsSubtask(id) {
       }
     }
   }
+  // Content (per-pillar)
+  for (const pillarId in state.content.headlines) {
+    for (const h of state.content.headlines[pillarId]) {
+      const idx = h.subtasks.findIndex(x => x.id === id);
+      if (idx !== -1) {
+        h.subtasks.splice(idx, 1);
+        saveState();
+        renderTaskSystems();
+        renderContent();
+        renderTracker();
+        return;
+      }
+    }
+  }
+  // Kokiri Sourcing — general
+  for (const h of state.kokiriSourcing.headlines) {
+    const idx = h.subtasks.findIndex(x => x.id === id);
+    if (idx !== -1) {
+      h.subtasks.splice(idx, 1);
+      saveState();
+      renderKokiriSourcing();
+      renderTracker();
+      return;
+    }
+  }
+  // Kokiri Sourcing — per property
+  for (const prop of state.kokiriSourcing.properties) {
+    for (const h of prop.headlines) {
+      const idx = h.subtasks.findIndex(x => x.id === id);
+      if (idx !== -1) {
+        h.subtasks.splice(idx, 1);
+        saveState();
+        renderKokiriSourcing();
+        renderTracker();
+        return;
+      }
+    }
+  }
 }
 
 function startEditingSubtask(textEl) {
@@ -6225,6 +6712,8 @@ function startEditingSubtask(textEl) {
       saveState();
     }
     renderTaskSystems();
+    renderContent();
+    renderKokiriSourcing();
     renderTracker();
   }
   input.addEventListener('blur', () => finish(true));
@@ -6268,6 +6757,8 @@ function editSubtaskDate(id, currentTagEl) {
     if (!st.completions) st.completions = {};
     saveState();
     renderTaskSystems();
+    renderContent();
+    renderKokiriSourcing();
     renderTracker();
   });
   const cancelBtn = document.createElement('button');
@@ -6277,6 +6768,8 @@ function editSubtaskDate(id, currentTagEl) {
   cancelBtn.addEventListener('click', e => {
     e.stopPropagation();
     renderTaskSystems();
+    renderContent();
+    renderKokiriSourcing();
   });
   wrap.appendChild(dateInput);
   wrap.appendChild(recurBtn);
@@ -6350,88 +6843,184 @@ function renderContent() {
   const grid = document.getElementById('content-grid');
   grid.innerHTML = '';
 
-  // Sort schedule by day of week for consistent display
   const sorted = state.content.schedule.slice().sort((a, b) => a.day - b.day);
   sorted.forEach(cat => {
-    const theme = currentThemeFor(cat.id, todayKey());
     const isToday = cat.day === todayDow;
-    const posts = (state.content.posts[cat.id] || []).slice();
-    // Sort posts: undated first, then by date asc; done at the bottom
-    posts.sort((a, b) => {
-      if (a.done !== b.done) return a.done ? 1 : -1;
-      const ad = a.date || '9999-12-31';
-      const bd = b.date || '9999-12-31';
-      return ad.localeCompare(bd);
-    });
-    const totalPosts = posts.length;
-    const donePosts = posts.filter(p => p.done).length;
+    const headlines = state.content.headlines[cat.id] || [];
 
     const card = document.createElement('div');
     card.className = 'content-card' + (isToday ? ' today' : '');
     card.dataset.pillar = cat.id;
 
-    const postsHTML = posts.map(p => {
-      const isTodayPost = p.date === todayKey();
-      const dateLabel = p.date ? formatSubtaskDate(p.date) : 'no date';
-      const dateClass = p.date ? (isTodayPost ? 'today' : '') : 'no-date';
-      return `
-        <div class="content-post ${p.done ? 'done' : ''}" data-post-id="${p.id}" data-pillar="${cat.id}">
-          <button class="post-check ${p.done ? 'on' : ''}" aria-label="Toggle">
-            <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
-          </button>
-          <span class="post-text">${escapeHTML(p.text)}</span>
-          <span class="post-date ${dateClass}" data-edit-post-date="${p.id}" data-pillar="${cat.id}">${escapeHTML(dateLabel)}</span>
-          <button class="post-del" data-post-del="${p.id}" data-pillar="${cat.id}" aria-label="Remove">✕</button>
-        </div>
-      `;
-    }).join('');
+    // Render each headline (using same shape as nuvoSystems but data-pillar tags it)
+    let headlinesHTML = '';
+    if (headlines.length === 0) {
+      headlinesHTML = '<div class="ns-empty-subs" style="padding: 12px 0; font-size: 10px;">~ no headlines yet · add one below ~</div>';
+    } else {
+      headlines.forEach((h, idx) => {
+        const totalSubs = h.subtasks.length;
+        const doneSubs = h.subtasks.filter(st => st.recurrence ? false : st.done).length;
+        const allDone = totalSubs > 0 && doneSubs === totalSubs;
+        const pct = totalSubs > 0 ? Math.round((doneSubs / totalSubs) * 100) : 0;
+        const isFirst = idx === 0;
+        const isLast = idx === headlines.length - 1;
+
+        let subtasksHTML = '';
+        if (totalSubs === 0) {
+          subtasksHTML = '<div class="ns-empty-subs">~ no subtasks yet ~</div>';
+        } else {
+          h.subtasks.forEach(st => {
+            const done = st.recurrence ? false : st.done;
+            const isTodaySt = st.date === todayKey();
+            const isOverdue = !st.recurrence && st.date && st.date < todayKey() && !st.done;
+            let dateClass = '';
+            let dateLabel = '';
+            if (st.recurrence === 'weekly' && st.date) {
+              const dow = new Date(st.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
+              dateClass = 'recurring';
+              dateLabel = `Every ${dow}`;
+            } else if (st.date) {
+              if (isOverdue) dateClass = 'overdue';
+              else if (isTodaySt) dateClass = 'today';
+              dateLabel = formatSubtaskDate(st.date);
+              if (isOverdue) dateLabel += ' · overdue';
+            } else {
+              dateLabel = 'no date';
+            }
+
+            const childCount = (st.children || []).length;
+            const childDone = (st.children || []).filter(c => c.done).length;
+            const childToggleLabel = childCount > 0 ? `${childDone}/${childCount} ▾` : '+ Sub';
+            const childToggleClass = childCount > 0 ? ' has-children' : '';
+            const childrenExpanded = st._childrenExpanded !== false;
+
+            let childrenHTML = '';
+            if (childCount > 0 && childrenExpanded) {
+              (st.children || []).forEach(c => {
+                childrenHTML += `
+                  <div class="ns-sub-subtask ${c.done ? 'done' : ''}" data-child-id="${c.id}" data-parent-id="${st.id}">
+                    <button class="ns-subtask-check ${c.done ? 'on' : ''}" aria-label="Toggle">
+                      <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
+                    </button>
+                    <span class="ns-subtask-text">${escapeHTML(c.text)}</span>
+                    <button class="ns-subtask-del" data-child-del="${c.id}" data-parent-id="${st.id}" aria-label="Remove">✕</button>
+                  </div>
+                `;
+              });
+            }
+            if (childrenExpanded) {
+              childrenHTML += `
+                <div class="ns-add-sub-sub">
+                  <input type="text" placeholder="Add a sub-task…" data-add-child="${st.id}" maxlength="160"/>
+                </div>
+              `;
+            }
+            const childrenBlock = (childCount > 0 || childrenExpanded)
+              ? `<div class="ns-sub-subtasks" data-children-of="${st.id}">${childrenHTML}</div>`
+              : '';
+
+            subtasksHTML += `
+              <div class="ns-subtask ${done ? 'done' : ''}" data-subtask-id="${st.id}">
+                <button class="ns-subtask-check ${done ? 'on' : ''}" aria-label="Toggle">
+                  <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
+                </button>
+                <span class="ns-subtask-text">${escapeHTML(st.text)}</span>
+                <button class="ns-sub-toggle-btn${childToggleClass}" data-toggle-children="${st.id}" aria-label="Toggle subtasks">${childToggleLabel}</button>
+                <div class="ns-subtask-meta">
+                  <span class="ns-date-tag ${dateClass}" data-edit-date="${st.id}">${escapeHTML(dateLabel)}</span>
+                  <button class="ns-subtask-del" data-subtask-del="${st.id}" aria-label="Remove">✕</button>
+                </div>
+              </div>
+              ${childrenBlock}
+            `;
+          });
+        }
+
+        headlinesHTML += `
+          <div class="ns-headline${h.collapsed ? ' collapsed' : ''}" data-id="${h.id}">
+            <div class="ns-headline-head" data-toggle-headline="${h.id}">
+              <svg class="ns-chevron" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
+              <div class="ns-headline-info">
+                <span class="ns-headline-title" data-edit-headline="${h.id}">${escapeHTML(h.title)}</span>
+                <div class="ns-progress-track"><div class="ns-progress-fill" style="width:${pct}%"></div></div>
+              </div>
+              <div class="ns-headline-reorder">
+                <button class="ns-reorder-btn" data-move="up" data-id="${h.id}" ${isFirst ? 'disabled' : ''} aria-label="Move up">▲</button>
+                <button class="ns-reorder-btn" data-move="down" data-id="${h.id}" ${isLast ? 'disabled' : ''} aria-label="Move down">▼</button>
+              </div>
+              <div class="ns-headline-actions">
+                <span class="ns-headline-count ${allDone ? 'complete' : ''}">${totalSubs === 0 ? '0' : `${doneSubs}/${totalSubs}`}${allDone ? ' ✓' : ''}</span>
+                <button class="ns-headline-del" data-headline-del="${h.id}" aria-label="Remove">✕</button>
+              </div>
+            </div>
+            <div class="ns-body">
+              ${subtasksHTML}
+              <div class="ns-add-sub">
+                <input type="text" placeholder="Add a subtask…" data-add-sub="${h.id}" maxlength="200"/>
+                <input type="date" data-add-sub-date="${h.id}"/>
+                <button type="button" class="recur-toggle" data-recur-toggle="${h.id}">Weekly</button>
+                <button type="button" class="add-btn" data-add-sub-btn="${h.id}">Add</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
 
     card.innerHTML = `
       <div class="content-card-head">
         <div class="content-card-name">${escapeHTML(cat.label.replace(/ post$/i, ''))}</div>
         <div class="content-card-day">${dayName(cat.day)}${isToday ? ' · today' : ''}</div>
       </div>
-      <div class="content-card-theme ${theme ? '' : 'empty'}">
-        ${theme ? escapeHTML(theme.idea) : '— no theme yet, tap edit to add'}
-      </div>
-      <div class="content-card-actions">
-        <button data-edit-themes="${cat.id}">Edit themes</button>
-      </div>
-      <div class="content-posts">
-        ${postsHTML}
-        <div class="post-add-form">
-          <input type="text" placeholder="+ Add a post idea…" data-add-post="${cat.id}" maxlength="200"/>
-          <input type="date" data-add-post-date="${cat.id}"/>
-          <button type="button" data-add-post-btn="${cat.id}">Add</button>
+      <div class="content-headlines" data-pillar="${cat.id}">
+        ${headlinesHTML}
+        <div class="content-add-headline">
+          <input type="text" placeholder="+ Add headline" data-add-content-headline="${cat.id}" maxlength="120"/>
+          <button type="button" data-add-content-headline-btn="${cat.id}">Add</button>
         </div>
-        ${totalPosts > 0 ? `<div class="posts-summary"><strong>${donePosts}</strong>/${totalPosts} posts done</div>` : ''}
       </div>
     `;
     grid.appendChild(card);
   });
 
-  // This week's tally — combine scheduled-pillar slots + dated posts this week
+  // This week's tally — count dated subtasks across all pillars
   const weekStart = startOfWeek(todayKey());
   let weekScheduled = 0, weekDone = 0;
   for (let i = 0; i < 7; i++) {
     const d = new Date(weekStart);
     d.setDate(weekStart.getDate() + i);
     const dk = ymd(d);
-    const items = scheduledForDay(dk);
-    weekScheduled += items.length;
-    items.forEach(c => { if (isContentDone(c.id, dk)) weekDone++; });
-    // Posts dated this week
     sorted.forEach(cat => {
-      const dayPosts = (state.content.posts[cat.id] || []).filter(p => p.date === dk);
-      weekScheduled += dayPosts.length;
-      weekDone += dayPosts.filter(p => p.done).length;
+      (state.content.headlines[cat.id] || []).forEach(h => {
+        h.subtasks.forEach(st => {
+          if (isSubtaskScheduledFor(st, dk)) {
+            weekScheduled++;
+            if (isSubtaskDone(st, dk)) weekDone++;
+          }
+        });
+      });
     });
   }
   const summary = document.getElementById('content-summary');
   summary.innerHTML = `
     <span>This week</span>
-    <span><strong>${weekDone}</strong> of ${weekScheduled} posts done</span>
+    <span><strong>${weekDone}</strong> of ${weekScheduled} scheduled</span>
   `;
+}
+
+function addContentHeadline(pillarId, title) {
+  if (!title.trim()) return;
+  if (!state.content.headlines[pillarId]) state.content.headlines[pillarId] = [];
+  state.content.headlines[pillarId].push({
+    id: uid(),
+    title: title.trim(),
+    collapsed: false,
+    subtasks: [],
+    createdAt: Date.now()
+  });
+  saveState();
+  renderContent();
+  renderTaskSystems();
 }
 
 function addContentPost(pillarId, text, date) {
@@ -6622,6 +7211,348 @@ function kiPortfolioIncome() {
 }
 function kiPortfolioCosts() {
   return state.kokiriIncome.properties.reduce((s, p) => s + kiPropertyCosts(p), 0);
+}
+
+// ============ KOKIRI SOURCING ============
+// Helper: builds the inner HTML for a single headline (used both in general sourcing and per-property)
+function renderSourcingHeadlineHTML(h, idx, total) {
+  const totalSubs = h.subtasks.length;
+  const doneSubs = h.subtasks.filter(st => st.recurrence ? false : st.done).length;
+  const allDone = totalSubs > 0 && doneSubs === totalSubs;
+  const pct = totalSubs > 0 ? Math.round((doneSubs / totalSubs) * 100) : 0;
+  const isFirst = idx === 0;
+  const isLast = idx === total - 1;
+
+  let subtasksHTML = '';
+  if (totalSubs === 0) {
+    subtasksHTML = '<div class="ns-empty-subs">~ no subtasks yet ~</div>';
+  } else {
+    h.subtasks.forEach(st => {
+      const done = st.recurrence ? false : st.done;
+      const isTodaySt = st.date === todayKey();
+      const isOverdue = !st.recurrence && st.date && st.date < todayKey() && !st.done;
+      let dateClass = '';
+      let dateLabel = '';
+      if (st.recurrence === 'weekly' && st.date) {
+        const dow = new Date(st.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
+        dateClass = 'recurring';
+        dateLabel = `Every ${dow}`;
+      } else if (st.date) {
+        if (isOverdue) dateClass = 'overdue';
+        else if (isTodaySt) dateClass = 'today';
+        dateLabel = formatSubtaskDate(st.date);
+        if (isOverdue) dateLabel += ' · overdue';
+      } else {
+        dateLabel = 'no date';
+      }
+
+      const childCount = (st.children || []).length;
+      const childDone = (st.children || []).filter(c => c.done).length;
+      const childToggleLabel = childCount > 0 ? `${childDone}/${childCount} ▾` : '+ Sub';
+      const childToggleClass = childCount > 0 ? ' has-children' : '';
+      const childrenExpanded = st._childrenExpanded !== false;
+
+      let childrenHTML = '';
+      if (childCount > 0 && childrenExpanded) {
+        (st.children || []).forEach(c => {
+          childrenHTML += `
+            <div class="ns-sub-subtask ${c.done ? 'done' : ''}" data-child-id="${c.id}" data-parent-id="${st.id}">
+              <button class="ns-subtask-check ${c.done ? 'on' : ''}" aria-label="Toggle">
+                <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
+              </button>
+              <span class="ns-subtask-text">${escapeHTML(c.text)}</span>
+              <button class="ns-subtask-del" data-child-del="${c.id}" data-parent-id="${st.id}" aria-label="Remove">✕</button>
+            </div>
+          `;
+        });
+      }
+      if (childrenExpanded) {
+        childrenHTML += `
+          <div class="ns-add-sub-sub">
+            <input type="text" placeholder="Add a sub-task…" data-add-child="${st.id}" maxlength="160"/>
+          </div>
+        `;
+      }
+      const childrenBlock = (childCount > 0 || childrenExpanded)
+        ? `<div class="ns-sub-subtasks" data-children-of="${st.id}">${childrenHTML}</div>`
+        : '';
+
+      subtasksHTML += `
+        <div class="ns-subtask ${done ? 'done' : ''}" data-subtask-id="${st.id}">
+          <button class="ns-subtask-check ${done ? 'on' : ''}" aria-label="Toggle">
+            <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
+          </button>
+          <span class="ns-subtask-text">${escapeHTML(st.text)}</span>
+          <button class="ns-sub-toggle-btn${childToggleClass}" data-toggle-children="${st.id}" aria-label="Toggle subtasks">${childToggleLabel}</button>
+          <div class="ns-subtask-meta">
+            <span class="ns-date-tag ${dateClass}" data-edit-date="${st.id}">${escapeHTML(dateLabel)}</span>
+            <button class="ns-subtask-del" data-subtask-del="${st.id}" aria-label="Remove">✕</button>
+          </div>
+        </div>
+        ${childrenBlock}
+      `;
+    });
+  }
+
+  return `
+    <div class="ns-headline${h.collapsed ? ' collapsed' : ''}" data-id="${h.id}">
+      <div class="ns-headline-head" data-toggle-headline="${h.id}">
+        <svg class="ns-chevron" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
+        <div class="ns-headline-info">
+          <span class="ns-headline-title" data-edit-headline="${h.id}">${escapeHTML(h.title)}</span>
+          <div class="ns-progress-track"><div class="ns-progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="ns-headline-reorder">
+          <button class="ns-reorder-btn" data-move="up" data-id="${h.id}" ${isFirst ? 'disabled' : ''} aria-label="Move up">▲</button>
+          <button class="ns-reorder-btn" data-move="down" data-id="${h.id}" ${isLast ? 'disabled' : ''} aria-label="Move down">▼</button>
+        </div>
+        <div class="ns-headline-actions">
+          <span class="ns-headline-count ${allDone ? 'complete' : ''}">${totalSubs === 0 ? '0' : `${doneSubs}/${totalSubs}`}${allDone ? ' ✓' : ''}</span>
+          <button class="ns-headline-del" data-headline-del="${h.id}" aria-label="Remove">✕</button>
+        </div>
+      </div>
+      <div class="ns-body">
+        ${subtasksHTML}
+        <div class="ns-add-sub">
+          <input type="text" placeholder="Add a subtask…" data-add-sub="${h.id}" maxlength="200"/>
+          <input type="date" data-add-sub-date="${h.id}"/>
+          <button type="button" class="recur-toggle" data-recur-toggle="${h.id}">Weekly</button>
+          <button type="button" class="add-btn" data-add-sub-btn="${h.id}">Add</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderKokiriSourcing() {
+  const t = activeTab();
+  if (!t.panels?.includes('kokiri_sourcing')) return;
+  const toolbar = document.getElementById('ks-toolbar');
+  if (!toolbar) return;
+
+  // Toolbar — Deal Analyser link + edit
+  const url = (state.kokiriSourcing.dealAnalyserUrl || '').trim();
+  if (url) {
+    toolbar.innerHTML = `
+      <span class="ks-deal-toolbar-label">Tools</span>
+      <a class="ks-deal-link" href="${escapeAttr(url)}" target="_blank" rel="noopener noreferrer">Deal Analyser ↗</a>
+      <button class="ks-deal-edit" id="ks-deal-edit-btn">Edit link</button>
+    `;
+  } else {
+    toolbar.innerHTML = `
+      <span class="ks-deal-toolbar-label">Tools</span>
+      <button class="ks-deal-link empty" id="ks-deal-edit-btn">+ Add Deal Analyser link</button>
+    `;
+  }
+
+  // General sourcing headlines
+  const wrap = document.getElementById('ks-headlines');
+  wrap.innerHTML = '';
+  if (state.kokiriSourcing.headlines.length === 0) {
+    wrap.innerHTML = '<div class="ns-empty-subs" style="padding: 14px 0;">~ no sourcing tasks yet · add one below ~</div>';
+  } else {
+    state.kokiriSourcing.headlines.forEach((h, idx) => {
+      const block = document.createElement('div');
+      block.innerHTML = renderSourcingHeadlineHTML(h, idx, state.kokiriSourcing.headlines.length);
+      wrap.appendChild(block.firstElementChild);
+    });
+  }
+
+  // Properties being sourced
+  const propsWrap = document.getElementById('ks-properties');
+  propsWrap.innerHTML = '';
+  if (state.kokiriSourcing.properties.length === 0) {
+    propsWrap.innerHTML = '<div class="ks-empty">~ no properties yet · add one below ~</div>';
+  } else {
+    state.kokiriSourcing.properties.forEach(prop => {
+      const card = document.createElement('div');
+      card.className = 'ks-property' + (prop.collapsed ? ' collapsed' : '');
+      card.dataset.id = prop.id;
+
+      // Property task counts
+      let totalSubs = 0, doneSubs = 0;
+      prop.headlines.forEach(h => {
+        h.subtasks.forEach(st => {
+          if (st.recurrence) return;
+          totalSubs++;
+          if (st.done) doneSubs++;
+        });
+      });
+      const allDone = totalSubs > 0 && doneSubs === totalSubs;
+
+      let headlinesHTML = '';
+      if (prop.headlines.length === 0) {
+        headlinesHTML = '<div class="ns-empty-subs" style="padding: 10px 0;">~ no tasks yet · add one below ~</div>';
+      } else {
+        prop.headlines.forEach((h, idx) => {
+          headlinesHTML += renderSourcingHeadlineHTML(h, idx, prop.headlines.length);
+        });
+      }
+
+      const rmUrl = (prop.url || '').trim();
+      const rmBtnHTML = rmUrl
+        ? `<a class="ks-rightmove" href="${escapeAttr(rmUrl)}" target="_blank" rel="noopener noreferrer" data-ks-prop-link="${prop.id}">Rightmove ↗</a>`
+        : `<button class="ks-rightmove empty" data-ks-prop-link="${prop.id}">+ Add link</button>`;
+
+      card.innerHTML = `
+        <div class="ks-property-head" data-ks-toggle-property="${prop.id}">
+          <svg class="ks-chevron" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
+          <div class="ks-property-info">
+            <span class="ks-property-name" data-ks-edit-property-name="${prop.id}">${escapeHTML(prop.name || 'Untitled property')}</span>
+            ${totalSubs > 0 ? `<span class="ks-property-counts ${allDone ? 'complete' : ''}">${doneSubs}/${totalSubs} tasks${allDone ? ' ✓' : ''}</span>` : ''}
+          </div>
+          <div class="ks-property-actions">
+            ${rmBtnHTML}
+            <button class="ks-property-del" data-ks-prop-del="${prop.id}" aria-label="Remove">✕</button>
+          </div>
+        </div>
+        <div class="ks-body">
+          ${headlinesHTML}
+          <div class="ns-add-headline" data-ks-prop-add="${prop.id}">
+            <input type="text" placeholder="+ Add task for this property" data-ks-new-prop-headline="${prop.id}" maxlength="120"/>
+            <button data-ks-add-prop-headline="${prop.id}">Add</button>
+          </div>
+        </div>
+      `;
+      propsWrap.appendChild(card);
+    });
+  }
+}
+
+function addKokiriSourcingHeadline(title) {
+  if (!title.trim()) return;
+  state.kokiriSourcing.headlines.push({
+    id: uid(),
+    title: title.trim(),
+    collapsed: false,
+    subtasks: [],
+    createdAt: Date.now()
+  });
+  saveState();
+  renderKokiriSourcing();
+}
+
+function addKokiriSourcingProperty() {
+  state.kokiriSourcing.properties.push({
+    id: uid(),
+    name: '',
+    url: '',
+    collapsed: false,
+    headlines: [],
+    createdAt: Date.now()
+  });
+  saveState();
+  renderKokiriSourcing();
+  // Focus the new property's name
+  setTimeout(() => {
+    const cards = document.querySelectorAll('#ks-properties .ks-property');
+    const last = cards[cards.length - 1];
+    if (last) {
+      const nameEl = last.querySelector('[data-ks-edit-property-name]');
+      if (nameEl) startEditingKsPropertyName(nameEl);
+    }
+  }, 50);
+}
+
+function deleteKokiriSourcingProperty(id) {
+  const prop = state.kokiriSourcing.properties.find(p => p.id === id);
+  if (!prop) return;
+  const label = prop.name || 'this property';
+  if (!confirm(`Delete ${label}? All its tasks will be lost.`)) return;
+  state.kokiriSourcing.properties = state.kokiriSourcing.properties.filter(p => p.id !== id);
+  saveState();
+  renderKokiriSourcing();
+  renderTracker();
+}
+
+function toggleKsPropertyCollapse(id) {
+  const prop = state.kokiriSourcing.properties.find(p => p.id === id);
+  if (!prop) return;
+  prop.collapsed = !prop.collapsed;
+  saveState();
+  renderKokiriSourcing();
+}
+
+function startEditingKsPropertyName(textEl) {
+  if (textEl.classList.contains('editing')) return;
+  const id = textEl.dataset.ksEditPropertyName;
+  const prop = state.kokiriSourcing.properties.find(p => p.id === id);
+  if (!prop) return;
+  textEl.classList.add('editing');
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'ks-property-name-edit';
+  input.value = prop.name || '';
+  input.maxLength = 80;
+  input.placeholder = 'e.g. 70 Eaton Road';
+  textEl.parentNode.insertBefore(input, textEl);
+  textEl.style.display = 'none';
+  input.focus();
+  input.select();
+  let finished = false;
+  function finish(save) {
+    if (finished) return;
+    finished = true;
+    const newText = input.value.trim();
+    if (save && newText !== (prop.name || '')) {
+      prop.name = newText;
+      saveState();
+    }
+    renderKokiriSourcing();
+    renderTracker();
+  }
+  input.addEventListener('blur', () => finish(true));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    e.stopPropagation();
+  });
+  input.addEventListener('click', e => e.stopPropagation());
+}
+
+function editKsPropertyUrl(id) {
+  const prop = state.kokiriSourcing.properties.find(p => p.id === id);
+  if (!prop) return;
+  const current = prop.url || '';
+  const next = prompt('Rightmove URL for ' + (prop.name || 'this property'), current);
+  if (next == null) return; // cancel
+  const trimmed = next.trim();
+  if (trimmed && !/^https?:\/\//i.test(trimmed)) {
+    prop.url = 'https://' + trimmed;
+  } else {
+    prop.url = trimmed;
+  }
+  saveState();
+  renderKokiriSourcing();
+}
+
+function addKsPropertyHeadline(propId, title) {
+  if (!title.trim()) return;
+  const prop = state.kokiriSourcing.properties.find(p => p.id === propId);
+  if (!prop) return;
+  prop.headlines.push({
+    id: uid(),
+    title: title.trim(),
+    collapsed: false,
+    subtasks: [],
+    createdAt: Date.now()
+  });
+  saveState();
+  renderKokiriSourcing();
+}
+
+function editKsDealAnalyserUrl() {
+  const current = state.kokiriSourcing.dealAnalyserUrl || '';
+  const next = prompt('Deal Analyser URL', current);
+  if (next == null) return;
+  const trimmed = next.trim();
+  if (trimmed && !/^https?:\/\//i.test(trimmed)) {
+    state.kokiriSourcing.dealAnalyserUrl = 'https://' + trimmed;
+  } else {
+    state.kokiriSourcing.dealAnalyserUrl = trimmed;
+  }
+  saveState();
+  renderKokiriSourcing();
 }
 
 function renderKokiriIncome() {
@@ -7252,6 +8183,7 @@ function renderAll(animate = false, stickerJustEarned = false) {
   renderTaskSystems();
   renderKokiri();
   renderKokiriIncome();
+  renderKokiriSourcing();
   renderContent();
   renderQuarterlyGoals();
   renderGoals();
@@ -7827,6 +8759,82 @@ document.getElementById('ns-headlines').addEventListener('keydown', taskSystemKe
 document.getElementById('ct-headlines').addEventListener('keydown', taskSystemKeydownHandler);
 document.getElementById('pg-headlines').addEventListener('keydown', taskSystemKeydownHandler);
 document.getElementById('mt-headlines').addEventListener('keydown', taskSystemKeydownHandler);
+document.getElementById('ks-headlines').addEventListener('click', taskSystemClickHandler);
+document.getElementById('ks-headlines').addEventListener('keydown', taskSystemKeydownHandler);
+
+// Kokiri Sourcing
+document.getElementById('ks-add-headline-btn').addEventListener('click', () => {
+  const input = document.getElementById('ks-new-headline');
+  addKokiriSourcingHeadline(input.value);
+  input.value = '';
+});
+document.getElementById('ks-new-headline').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const input = e.target;
+    addKokiriSourcingHeadline(input.value);
+    input.value = '';
+  }
+});
+document.getElementById('ks-add-property-btn').addEventListener('click', addKokiriSourcingProperty);
+
+// Toolbar (Deal Analyser link edit)
+document.getElementById('ks-toolbar').addEventListener('click', e => {
+  if (e.target.closest('#ks-deal-edit-btn')) {
+    editKsDealAnalyserUrl();
+  }
+});
+
+// Properties area (per-property headlines + property-level controls)
+document.getElementById('ks-properties').addEventListener('click', e => {
+  // Rightmove link button — if empty, intercept and prompt; if filled, let the <a> default
+  const linkBtn = e.target.closest('[data-ks-prop-link]');
+  if (linkBtn && linkBtn.classList.contains('empty')) {
+    e.preventDefault();
+    editKsPropertyUrl(linkBtn.dataset.ksPropLink);
+    e.stopPropagation();
+    return;
+  }
+  // Add headline for this property
+  const addHB = e.target.closest('[data-ks-add-prop-headline]');
+  if (addHB) {
+    const pid = addHB.dataset.ksAddPropHeadline;
+    const inp = document.querySelector(`[data-ks-new-prop-headline="${pid}"]`);
+    addKsPropertyHeadline(pid, inp.value);
+    inp.value = '';
+    e.stopPropagation();
+    return;
+  }
+  // Delete property
+  const propDel = e.target.closest('[data-ks-prop-del]');
+  if (propDel) { deleteKokiriSourcingProperty(propDel.dataset.ksPropDel); e.stopPropagation(); return; }
+  // Edit property name
+  const nameEl = e.target.closest('[data-ks-edit-property-name]');
+  if (nameEl) { startEditingKsPropertyName(nameEl); e.stopPropagation(); return; }
+  // If click is inside the property body (.ks-body) — it's a headline/subtask action, defer to shared handler
+  if (e.target.closest('.ks-body')) {
+    taskSystemClickHandler(e);
+    return;
+  }
+  // Otherwise it's a click on the property head — toggle collapse
+  const head = e.target.closest('[data-ks-toggle-property]');
+  if (head) {
+    toggleKsPropertyCollapse(head.dataset.ksToggleProperty);
+  }
+});
+document.getElementById('ks-properties').addEventListener('keydown', e => {
+  // Enter to add a property headline
+  const propHeadInput = e.target.closest('[data-ks-new-prop-headline]');
+  if (propHeadInput && e.key === 'Enter') {
+    e.preventDefault();
+    const pid = propHeadInput.dataset.ksNewPropHeadline;
+    addKsPropertyHeadline(pid, propHeadInput.value);
+    propHeadInput.value = '';
+    return;
+  }
+  // Defer to shared task-system handler for subtask/child inputs
+  taskSystemKeydownHandler(e);
+});
 
 // Kokiri Income
 document.getElementById('ki-add-property-btn').addEventListener('click', addKokiriProperty);
@@ -7970,13 +8978,16 @@ document.getElementById('qgoals-list').addEventListener('keydown', e => {
     input.value = '';
   }
 });
-document.getElementById('rest-btn').addEventListener('click', toggleRestDay);
-document.getElementById('unwell-btn').addEventListener('click', toggleUnwellDay);
+const restBtnEl = document.getElementById('rest-btn');
+if (restBtnEl) restBtnEl.addEventListener('click', toggleRestDay);
+const unwellBtnEl = document.getElementById('unwell-btn');
+if (unwellBtnEl) unwellBtnEl.addEventListener('click', toggleUnwellDay);
 document.getElementById('edit-btn').addEventListener('click', toggleEditMode);
 document.getElementById('add-habit').addEventListener('click', addHabit);
 document.getElementById('prev-day').addEventListener('click', () => navigateDay(-1));
 document.getElementById('next-day').addEventListener('click', () => navigateDay(1));
-document.getElementById('strip-days').addEventListener('click', e => {
+const stripEl = document.getElementById('strip-days');
+if (stripEl) stripEl.addEventListener('click', e => {
   const day = e.target.closest('.strip-day');
   if (!day || day.classList.contains('future')) return;
   viewDate = day.dataset.date;
@@ -8094,47 +9105,30 @@ document.getElementById('target-modal-save').addEventListener('click', saveTarge
 
 // Content schedule events
 document.getElementById('content-grid').addEventListener('click', e => {
-  const editBtn = e.target.closest('[data-edit-themes]');
-  if (editBtn) { openThemesModal(editBtn.dataset.editThemes); return; }
-
-  // Post tick
-  const pCheck = e.target.closest('.post-check');
-  if (pCheck) {
-    const row = pCheck.closest('.content-post');
-    if (row) toggleContentPost(row.dataset.pillar, row.dataset.postId);
+  // Add headline button per pillar
+  const addHB = e.target.closest('[data-add-content-headline-btn]');
+  if (addHB) {
+    const pid = addHB.dataset.addContentHeadlineBtn;
+    const inp = document.querySelector(`[data-add-content-headline="${pid}"]`);
+    addContentHeadline(pid, inp.value);
+    inp.value = '';
     return;
   }
-  // Post delete
-  const pDel = e.target.closest('[data-post-del]');
-  if (pDel) { deleteContentPost(pDel.dataset.pillar, pDel.dataset.postDel); return; }
-  // Post date edit
-  const pDate = e.target.closest('[data-edit-post-date]');
-  if (pDate) { editContentPostDate(pDate.dataset.pillar, pDate.dataset.editPostDate, pDate); return; }
-  // Post text inline edit
-  const pText = e.target.closest('.post-text');
-  if (pText) { startEditingContentPost(pText); return; }
-  // Add post button
-  const addBtn = e.target.closest('[data-add-post-btn]');
-  if (addBtn) {
-    const pillarId = addBtn.dataset.addPostBtn;
-    const txtInput = document.querySelector(`[data-add-post="${pillarId}"]`);
-    const dateInput = document.querySelector(`[data-add-post-date="${pillarId}"]`);
-    addContentPost(pillarId, txtInput.value, dateInput.value);
-    txtInput.value = '';
-    dateInput.value = '';
-    return;
-  }
+  // Fall through to the shared task-system handler for headlines/subtasks inside content cards
+  taskSystemClickHandler(e);
 });
 document.getElementById('content-grid').addEventListener('keydown', e => {
-  const txtInput = e.target.closest('[data-add-post]');
-  if (txtInput && e.key === 'Enter') {
+  // Enter on add-headline input
+  const hInput = e.target.closest('[data-add-content-headline]');
+  if (hInput && e.key === 'Enter') {
     e.preventDefault();
-    const pillarId = txtInput.dataset.addPost;
-    const dateInput = document.querySelector(`[data-add-post-date="${pillarId}"]`);
-    addContentPost(pillarId, txtInput.value, dateInput.value);
-    txtInput.value = '';
-    dateInput.value = '';
+    const pid = hInput.dataset.addContentHeadline;
+    addContentHeadline(pid, hInput.value);
+    hInput.value = '';
+    return;
   }
+  // Shared keydown for subtask/child inputs
+  taskSystemKeydownHandler(e);
 });
 document.getElementById('theme-list').addEventListener('click', e => {
   const del = e.target.closest('[data-theme-del]');
