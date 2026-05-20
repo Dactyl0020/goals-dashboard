@@ -7864,10 +7864,6 @@ document.getElementById('ki-properties').addEventListener('input', e => {
     kiUpdateTimer = setTimeout(() => kiRefreshTotals(), 200);
   }
 });
-// Stop click on inputs from collapsing the card
-document.getElementById('ki-properties').addEventListener('click', e => {
-  if (e.target.matches('input, button')) e.stopPropagation();
-}, true);
 
 function kiRefreshTotals() {
   // Update only the totals (summary, status badge, column totals, headline, footer) without re-rendering inputs
