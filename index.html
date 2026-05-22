@@ -1050,12 +1050,137 @@
   .week-progress.complete { color: var(--accent); }
   .week-tasks { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
   .week-task {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 6px; border-radius: 6px;
+    display: flex; flex-direction: column; gap: 0;
+    padding: 4px 6px; border-radius: 6px;
     transition: background 0.15s;
+  }
+  .week-task-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 0;
   }
   .week-task:hover { background: var(--surface-2); }
   .week-task.done .task-text { text-decoration: line-through; color: var(--text-faint); }
+
+  /* Kokiri Active Projects subtasks */
+  .kokiri-sub-toggle {
+    background: transparent; border: none;
+    color: var(--text-faint); cursor: pointer;
+    font-family: var(--mono);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+    flex-shrink: 0;
+  }
+  .week-task:hover .kokiri-sub-toggle { opacity: 0.7; }
+  .kokiri-sub-toggle:hover { color: var(--kokiri); opacity: 1; }
+  .kokiri-sub-toggle.has-children { opacity: 1; color: var(--kokiri); }
+
+  .kokiri-subs {
+    margin-left: 28px;
+    padding-left: 10px;
+    border-left: 1px dashed var(--surface-edge);
+    margin-top: 2px;
+    margin-bottom: 4px;
+    display: flex; flex-direction: column;
+    gap: 2px;
+  }
+  .kokiri-sub {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 5px;
+    border-radius: 5px;
+    transition: background 0.15s;
+  }
+  .kokiri-sub:hover { background: rgba(255,255,255,0.03); }
+  .kokiri-sub.done .kokiri-sub-text {
+    text-decoration: line-through;
+    color: var(--text-faint);
+  }
+  .kokiri-sub-check {
+    width: 15px; height: 15px;
+    border: 1.5px solid var(--text-soft);
+    border-radius: 50%; cursor: pointer; background: transparent;
+    transition: all 0.2s; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+  }
+  .kokiri-sub-check::before {
+    content: ''; width: 0; height: 0;
+    background: var(--kokiri); border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .kokiri-sub-check:hover { border-color: var(--kokiri); transform: scale(1.1); }
+  .kokiri-sub-check.on { border-color: var(--kokiri); }
+  .kokiri-sub-check.on::before { width: 9px; height: 9px; }
+  .kokiri-sub-check svg {
+    position: absolute; width: 8px; height: 8px;
+    stroke: var(--bg); stroke-width: 3; fill: none;
+    stroke-linecap: round; stroke-linejoin: round;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .kokiri-sub-check.on svg { opacity: 1; }
+  .kokiri-sub-text {
+    flex: 1; min-width: 0;
+    font-family: var(--sans);
+    font-size: 12px; font-weight: 500;
+    color: var(--text); line-height: 1.35;
+    word-break: break-word;
+  }
+  .kokiri-sub-del {
+    background: transparent; border: none;
+    color: var(--text-faint); cursor: pointer;
+    padding: 2px 5px; border-radius: 4px;
+    font-size: 12px;
+    opacity: 0; transition: opacity 0.15s;
+    flex-shrink: 0;
+  }
+  .kokiri-sub:hover .kokiri-sub-del { opacity: 1; }
+  .kokiri-sub-del:hover { color: var(--coaching); }
+  .kokiri-sub-add {
+    display: flex; gap: 5px; flex-wrap: wrap;
+    margin-top: 4px;
+    align-items: center;
+  }
+  .kokiri-sub-add input[type="text"] {
+    flex: 1; min-width: 120px;
+    background: transparent;
+    border: 1px dashed var(--surface-edge);
+    border-radius: 5px;
+    padding: 5px 8px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text); outline: none;
+  }
+  .kokiri-sub-add input[type="text"]:focus {
+    border-style: solid;
+    border-color: var(--kokiri);
+    background: var(--surface-2);
+  }
+  .kokiri-sub-add input[type="text"]::placeholder { color: var(--text-faint); }
+  .kokiri-sub-add input[type="date"] {
+    background: var(--surface-2);
+    border: 1px solid var(--surface-edge);
+    border-radius: 5px;
+    padding: 4px 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text); outline: none;
+    cursor: pointer;
+  }
+  .kokiri-sub-add input[type="date"]:focus { border-color: var(--kokiri); }
+  .kokiri-sub-add-btn {
+    background: var(--kokiri); color: var(--bg);
+    border: none; border-radius: 5px;
+    padding: 5px 10px;
+    font-family: var(--mono);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .kokiri-sub-add-btn:hover { background: var(--kokiri-deep); }
   .task-check {
     width: 18px; height: 18px;
     border: 1.5px solid var(--text-soft);
@@ -1980,6 +2105,17 @@
     background: var(--accent); color: var(--bg);
     border-color: var(--accent);
   }
+  .ns-add-sub .recur-toggle.on-4w {
+    background: transparent;
+    color: var(--accent);
+    border-color: var(--accent);
+    border-style: dashed;
+  }
+  /* Same modifier for kokiri/global recur buttons */
+  .recur-toggle.on-4w {
+    background: transparent !important;
+    border-style: dashed !important;
+  }
   .ns-add-sub .add-btn {
     background: transparent;
     border: 1px solid var(--surface-edge);
@@ -2376,6 +2512,26 @@
   .habit-row.subtask.subtask-sourcing .h-check:hover { border-color: #CC8550; }
   .habit-row.subtask.subtask-sourcing .h-check.on { border-color: #E89F6A; }
   .habit-row.subtask.subtask-sourcing .subtask-meta .from { color: #E89F6A; }
+  /* Kokiri Active Projects task in tracker (burnt orange) */
+  .habit-row.subtask.subtask-kokiri { border-color: rgba(255,136,85,0.3); }
+  .habit-row.subtask.subtask-kokiri.done {
+    background: rgba(255,136,85,0.06);
+    border-color: rgba(255,136,85,0.4);
+  }
+  .habit-row.subtask.subtask-kokiri .h-check { border-color: var(--kokiri); }
+  .habit-row.subtask.subtask-kokiri .h-check::before { background: var(--kokiri); }
+  .habit-row.subtask.subtask-kokiri .h-check:hover { border-color: var(--kokiri-deep); }
+  .habit-row.subtask.subtask-kokiri .h-check.on { border-color: var(--kokiri); }
+  .habit-row.subtask.subtask-kokiri .subtask-meta .from { color: var(--kokiri); }
+  /* "+ date" placeholder on kokiri tasks — faded so it doesn't look like real data */
+  .ns-date-tag.no-date {
+    color: var(--text-faint);
+    background: transparent;
+    border: 1px dashed var(--surface-edge);
+  }
+  .ns-date-tag.no-date:hover {
+    color: var(--text); border-color: var(--text-soft);
+  }
   .subtask-meta {
     font-family: var(--sans);
     font-size: 12px; font-weight: 500;
@@ -3845,6 +4001,20 @@ function ensureShape(s) {
   s.kokiri = s.kokiri || { projects: JSON.parse(JSON.stringify(DEFAULT_KOKIRI_PROJECTS)), tasks: [] };
   if (!s.kokiri.projects) s.kokiri.projects = JSON.parse(JSON.stringify(DEFAULT_KOKIRI_PROJECTS));
   if (!s.kokiri.tasks) s.kokiri.tasks = [];
+  // Ensure each task has the new date/recurrence/subtasks fields
+  s.kokiri.tasks.forEach(x => {
+    if (x.date === undefined) x.date = null;
+    if (x.recurrence === undefined) x.recurrence = null;
+    if (!x.completions) x.completions = {};
+    if (!x.subtasks) x.subtasks = [];
+    x.subtasks.forEach(st => {
+      if (typeof st.done !== 'boolean') st.done = false;
+      if (!st.recurrence) st.recurrence = null;
+      if (!st.completions) st.completions = {};
+      if (st.date === undefined) st.date = null;
+    });
+    if (typeof x.subsExpanded !== 'boolean') x.subsExpanded = false;
+  });
   s.collapsed = s.collapsed || {};
   s.startDate = s.startDate || todayKey();
 
@@ -4638,11 +4808,23 @@ function renderTracker(justEarned = false) {
       row.classList.add('subtask-content');
     } else if (item.sysKey === 'kokiriSourcing') {
       row.classList.add('subtask-sourcing');
+    } else if (item.sysKey === 'kokiriProjects') {
+      row.classList.add('subtask-kokiri');
+    } else if (item.sysKey === 'kokiriProjectsSub') {
+      row.classList.add('subtask-kokiri');
     }
     const overdueTag = item.overdue ? `<span class="overdue-tag">Overdue${st.date ? ' · ' + formatSubtaskDate(st.date) : ''}</span>` : '';
+    let tickAttr;
+    if (item.sysKey === 'kokiriProjects') {
+      tickAttr = `data-kokiri-tracker="${item.kokiriTaskId}"`;
+    } else if (item.sysKey === 'kokiriProjectsSub') {
+      tickAttr = `data-kokiri-sub-tracker="${item.kokiriSubId}" data-kokiri-parent-tracker="${item.kokiriParentId}"`;
+    } else {
+      tickAttr = `data-subtask-tracker="${st.id}"`;
+    }
     row.innerHTML = `
       <div class="habit-circles">
-        <button class="h-check ${done ? 'on' : ''}" data-subtask-tracker="${st.id}" aria-label="Toggle">
+        <button class="h-check ${done ? 'on' : ''}" ${tickAttr} aria-label="Toggle">
           <svg viewBox="0 0 24 24"><polyline points="5,13 10,18 19,7"></polyline></svg>
         </button>
       </div>
@@ -5370,14 +5552,98 @@ function renderKokiri() {
       const projTag = isBoth
         ? `<span class="task-project-tag" data-proj="${x.projectId}">${escapeHTML(projectsById[x.projectId]?.name || '?')}</span>`
         : '';
+      // For recurring tasks: "done" reflects today's completion only
+      const isDoneVisually = (x.recurrence === 'weekly' || x.recurrence === '4weekly')
+        ? !!(x.completions && x.completions[todayKey()])
+        : x.done;
+      // Date tag (optional)
+      const isTodayTask = x.date === todayKey();
+      const isOverdue = !x.recurrence && x.date && x.date < todayKey() && !x.done;
+      let dateClass = '';
+      let dateLabel = '';
+      if ((x.recurrence === 'weekly' || x.recurrence === '4weekly') && x.date) {
+            dateClass = 'recurring';
+            dateLabel = formatRecurringLabel(x);
+          } else if (x.date) {
+        if (isOverdue) dateClass = 'overdue';
+        else if (isTodayTask) dateClass = 'today';
+        dateLabel = formatSubtaskDate(x.date);
+        if (isOverdue) dateLabel += ' · overdue';
+      } else {
+        dateLabel = '+ date';
+        dateClass = 'no-date';
+      }
+      const dateTagHTML = `<span class="ns-date-tag ${dateClass}" data-edit-kokiri-date="${x.id}">${escapeHTML(dateLabel)}</span>`;
+
+      // Subtasks toggle button
+      const subCount = (x.subtasks || []).length;
+      const subDone = (x.subtasks || []).filter(s => s.recurrence ? !!(s.completions && s.completions[todayKey()]) : s.done).length;
+      const subToggleLabel = subCount > 0 ? `${subDone}/${subCount} ${x.subsExpanded ? '▾' : '▸'}` : '+ Sub';
+      const subToggleClass = subCount > 0 ? ' has-children' : '';
+
+      // Subtasks block (if expanded)
+      let subtasksHTML = '';
+      if (x.subsExpanded || subCount > 0) {
+        let rowsHTML = '';
+        (x.subtasks || []).forEach(st => {
+          const stDone = (st.recurrence === 'weekly' || st.recurrence === '4weekly')
+            ? !!(st.completions && st.completions[todayKey()])
+            : st.done;
+          const stIsToday = st.date === todayKey();
+          const stIsOverdue = !st.recurrence && st.date && st.date < todayKey() && !st.done;
+          let stDateClass = '';
+          let stDateLabel = '';
+          if ((st.recurrence === 'weekly' || st.recurrence === '4weekly') && st.date) {
+            stDateClass = 'recurring';
+            stDateLabel = formatRecurringLabel(st);
+          } else if (st.date) {
+            if (stIsOverdue) stDateClass = 'overdue';
+            else if (stIsToday) stDateClass = 'today';
+            stDateLabel = formatSubtaskDate(st.date);
+            if (stIsOverdue) stDateLabel += ' · overdue';
+          } else {
+            stDateLabel = '+ date';
+            stDateClass = 'no-date';
+          }
+          rowsHTML += `
+            <div class="kokiri-sub ${stDone ? 'done' : ''}" data-kokiri-sub="${st.id}" data-parent="${x.id}">
+              <button class="kokiri-sub-check ${stDone ? 'on' : ''}" aria-label="Toggle">
+                <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
+              </button>
+              <span class="kokiri-sub-text">${escapeHTML(st.text)}</span>
+              <span class="ns-date-tag ${stDateClass}" data-edit-kokiri-sub-date="${st.id}" data-parent="${x.id}">${escapeHTML(stDateLabel)}</span>
+              <button class="kokiri-sub-del" data-kokiri-sub-del="${st.id}" data-parent="${x.id}" aria-label="Remove">✕</button>
+            </div>
+          `;
+        });
+        if (x.subsExpanded) {
+          rowsHTML += `
+            <div class="kokiri-sub-add">
+              <input type="text" placeholder="Add a subtask…" data-kokiri-add-sub="${x.id}" maxlength="200"/>
+              <input type="date" data-kokiri-add-sub-date="${x.id}" title="Optional date"/>
+              <button type="button" class="recur-toggle" data-kokiri-add-sub-recur="${x.id}">Weekly</button>
+              <button type="button" class="kokiri-sub-add-btn" data-kokiri-add-sub-btn="${x.id}">Add</button>
+            </div>
+          `;
+        }
+        if (subCount > 0 || x.subsExpanded) {
+          subtasksHTML = `<div class="kokiri-subs" data-parent-task="${x.id}">${rowsHTML}</div>`;
+        }
+      }
+
       return `
-        <div class="week-task ${x.done ? 'done' : ''}" data-task="${x.id}">
-          <button class="task-check ${x.done ? 'on' : ''}" aria-label="Toggle done">
-            <svg viewBox="0 0 24 24"><polyline points="5,13 10,18 19,7"></polyline></svg>
-          </button>
-          ${projTag}
-          <span class="task-text" title="Click to edit">${escapeHTML(x.text)}</span>
-          <button class="task-del" data-task-del="${x.id}" aria-label="Remove">✕</button>
+        <div class="week-task ${isDoneVisually ? 'done' : ''}" data-task="${x.id}">
+          <div class="week-task-row">
+            <button class="task-check ${isDoneVisually ? 'on' : ''}" aria-label="Toggle done">
+              <svg viewBox="0 0 24 24"><polyline points="5,13 10,18 19,7"></polyline></svg>
+            </button>
+            ${projTag}
+            <span class="task-text" title="Click to edit">${escapeHTML(x.text)}</span>
+            <button class="kokiri-sub-toggle${subToggleClass}" data-toggle-kokiri-subs="${x.id}" aria-label="Toggle subtasks">${subToggleLabel}</button>
+            ${dateTagHTML}
+            <button class="task-del" data-task-del="${x.id}" aria-label="Remove">✕</button>
+          </div>
+          ${subtasksHTML}
         </div>
       `;
     }).join('');
@@ -5386,6 +5652,8 @@ function renderKokiri() {
     const addFormHTML = isBoth ? '' : `
       <div class="add-task-form">
         <input type="text" placeholder="Add a task for this week…" data-week="${weekStart}" maxlength="200"/>
+        <input type="date" data-week-date="${weekStart}" title="Optional date"/>
+        <button type="button" class="recur-toggle" data-week-recur="${weekStart}">Weekly</button>
         <button data-add-task="${weekStart}">Add</button>
       </div>
     `;
@@ -5410,35 +5678,106 @@ function weekLabel(d) {
   return `Week of ${startStr}`;
 }
 
-function addKokiriTask(weekStart, text) {
+function addKokiriTask(weekStart, text, date, recurMode) {
   if (!text.trim()) return;
+  // Backwards-compat: boolean true means 'weekly'
+  if (recurMode === true) recurMode = 'weekly';
+  if (recurMode === false) recurMode = null;
   state.kokiri.tasks.unshift({
     id: uid(),
     projectId: activeProject,
     weekStart,
     text: text.trim(),
+    date: date || null,
+    recurrence: (recurMode && date) ? recurMode : null,
+    completions: {},
     done: false,
     createdAt: Date.now(),
     completedAt: null
   });
   saveState();
   renderKokiri();
+  renderTracker();
+}
+
+function editKokiriTaskDate(id, currentTagEl) {
+  const t = state.kokiri.tasks.find(x => x.id === id);
+  if (!t) return;
+  const wrap = document.createElement('span');
+  wrap.style.cssText = 'display:inline-flex; gap:4px; align-items:center;';
+  const dateInput = document.createElement('input');
+  dateInput.type = 'date';
+  dateInput.value = t.date || '';
+  dateInput.style.cssText = 'background:var(--surface-2); border:1px solid var(--kokiri); border-radius:4px; padding:2px 6px; font-family:var(--mono); font-size:10px; color:var(--text); outline:none;';
+  const recurBtn = document.createElement('button');
+  recurBtn.type = 'button';
+  recurBtn.className = 'recur-toggle';
+  recurBtn.style.cssText = 'padding:2px 7px; font-size:8px; letter-spacing:0.1em;';
+  setRecurBtn(recurBtn, t.recurrence || null);
+  recurBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    cycleRecurBtn(recurBtn);
+  });
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.textContent = '✓';
+  saveBtn.style.cssText = 'background:var(--kokiri); color:var(--bg); border:none; border-radius:4px; padding:2px 7px; cursor:pointer; font-weight:700;';
+  saveBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    t.date = dateInput.value || null;
+    const mode = readRecurBtn(recurBtn);
+    t.recurrence = (mode && t.date) ? mode : null;
+    if (!t.completions) t.completions = {};
+    saveState();
+    renderKokiri();
+    renderTracker();
+  });
+  const clearBtn = document.createElement('button');
+  clearBtn.type = 'button';
+  clearBtn.textContent = '✕';
+  clearBtn.style.cssText = 'background:transparent; color:var(--text-faint); border:none; padding:2px 4px; cursor:pointer;';
+  clearBtn.title = 'Cancel';
+  clearBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    renderKokiri();
+  });
+  wrap.appendChild(dateInput);
+  wrap.appendChild(recurBtn);
+  wrap.appendChild(saveBtn);
+  wrap.appendChild(clearBtn);
+  currentTagEl.replaceWith(wrap);
+  dateInput.focus();
 }
 
 function toggleKokiriTask(id, x, y) {
   const t = state.kokiri.tasks.find(x => x.id === id);
   if (!t) return;
-  t.done = !t.done;
-  if (t.done) {
-    t.completedAt = Date.now();
-    state.history[todayKey()] = (state.history[todayKey()] || 0) + 1;
-    burstConfetti(x, y);
-    popSoundSoft();
+  if (t.recurrence === 'weekly' || t.recurrence === '4weekly') {
+    // Toggle today's completion for recurring task
+    if (!t.completions) t.completions = {};
+    const k = todayKey();
+    if (t.completions[k]) {
+      delete t.completions[k];
+    } else {
+      t.completions[k] = true;
+      state.history[k] = (state.history[k] || 0) + 1;
+      burstConfetti(x, y);
+      popSoundSoft();
+    }
   } else {
-    t.completedAt = null;
+    t.done = !t.done;
+    if (t.done) {
+      t.completedAt = Date.now();
+      state.history[todayKey()] = (state.history[todayKey()] || 0) + 1;
+      burstConfetti(x, y);
+      popSoundSoft();
+    } else {
+      t.completedAt = null;
+    }
   }
   saveState();
   renderKokiri();
+  renderTracker();
   renderStats(true);
 }
 
@@ -5446,6 +5785,117 @@ function deleteKokiriTask(id) {
   state.kokiri.tasks = state.kokiri.tasks.filter(t => t.id !== id);
   saveState();
   renderKokiri();
+  renderTracker();
+}
+
+function toggleKokiriSubsExpanded(taskId) {
+  const t = state.kokiri.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  t.subsExpanded = !t.subsExpanded;
+  saveState();
+  renderKokiri();
+}
+
+function addKokiriSubtask(taskId, text, date, recurMode) {
+  if (!text.trim()) return;
+  if (recurMode === true) recurMode = 'weekly';
+  if (recurMode === false) recurMode = null;
+  const t = state.kokiri.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  if (!t.subtasks) t.subtasks = [];
+  t.subtasks.push({
+    id: uid(),
+    text: text.trim(),
+    date: date || null,
+    recurrence: (recurMode && date) ? recurMode : null,
+    done: false,
+    completions: {},
+    completedAt: null,
+    createdAt: Date.now()
+  });
+  t.subsExpanded = true;
+  saveState();
+  renderKokiri();
+  renderTracker();
+}
+
+function toggleKokiriSubtask(taskId, subId) {
+  const t = state.kokiri.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  const st = (t.subtasks || []).find(s => s.id === subId);
+  if (!st) return;
+  if (st.recurrence === 'weekly' || st.recurrence === '4weekly') {
+    if (!st.completions) st.completions = {};
+    const k = todayKey();
+    if (st.completions[k]) delete st.completions[k];
+    else { st.completions[k] = true; popSoundSoft(); }
+  } else {
+    st.done = !st.done;
+    st.completedAt = st.done ? Date.now() : null;
+    if (st.done) popSoundSoft();
+  }
+  saveState();
+  renderKokiri();
+  renderTracker();
+}
+
+function deleteKokiriSubtask(taskId, subId) {
+  const t = state.kokiri.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  t.subtasks = (t.subtasks || []).filter(s => s.id !== subId);
+  saveState();
+  renderKokiri();
+  renderTracker();
+}
+
+function editKokiriSubtaskDate(taskId, subId, currentTagEl) {
+  const t = state.kokiri.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  const st = (t.subtasks || []).find(s => s.id === subId);
+  if (!st) return;
+  const wrap = document.createElement('span');
+  wrap.style.cssText = 'display:inline-flex; gap:4px; align-items:center;';
+  const dateInput = document.createElement('input');
+  dateInput.type = 'date';
+  dateInput.value = st.date || '';
+  dateInput.style.cssText = 'background:var(--surface-2); border:1px solid var(--kokiri); border-radius:4px; padding:2px 6px; font-family:var(--mono); font-size:10px; color:var(--text); outline:none;';
+  const recurBtn = document.createElement('button');
+  recurBtn.type = 'button';
+  recurBtn.className = 'recur-toggle';
+  recurBtn.style.cssText = 'padding:2px 7px; font-size:8px; letter-spacing:0.1em;';
+  setRecurBtn(recurBtn, st.recurrence || null);
+  recurBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    cycleRecurBtn(recurBtn);
+  });
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.textContent = '✓';
+  saveBtn.style.cssText = 'background:var(--kokiri); color:var(--bg); border:none; border-radius:4px; padding:2px 7px; cursor:pointer; font-weight:700;';
+  saveBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    st.date = dateInput.value || null;
+    const mode = readRecurBtn(recurBtn);
+    st.recurrence = (mode && st.date) ? mode : null;
+    if (!st.completions) st.completions = {};
+    saveState();
+    renderKokiri();
+    renderTracker();
+  });
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.textContent = '✕';
+  cancelBtn.style.cssText = 'background:transparent; color:var(--text-faint); border:none; padding:2px 4px; cursor:pointer;';
+  cancelBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    renderKokiri();
+  });
+  wrap.appendChild(dateInput);
+  wrap.appendChild(recurBtn);
+  wrap.appendChild(saveBtn);
+  wrap.appendChild(cancelBtn);
+  currentTagEl.replaceWith(wrap);
+  dateInput.focus();
 }
 
 function startEditingTask(textEl) {
@@ -5485,6 +5935,44 @@ function startEditingTask(textEl) {
 }
 
 // ============ NUVO SYSTEMS ============
+// Format a recurring date label (e.g. "Every Wed" / "Every 4 wks · Wed")
+function formatRecurringLabel(st) {
+  if (!st.date) return '';
+  const dow = new Date(st.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
+  if (st.recurrence === '4weekly') return `Every 4 wks · ${dow}`;
+  if (st.recurrence === 'weekly') return `Every ${dow}`;
+  return '';
+}
+
+// Cycle a recurrence toggle button between off → weekly → 4weekly → off
+function cycleRecurBtn(btn) {
+  const cur = btn.dataset.recur || '';
+  let next, label;
+  if (cur === '') { next = 'weekly'; label = 'Weekly'; }
+  else if (cur === 'weekly') { next = '4weekly'; label = 'Every 4 wks'; }
+  else { next = ''; label = 'Weekly'; }
+  btn.dataset.recur = next;
+  btn.textContent = label;
+  btn.classList.toggle('on', next !== '');
+  btn.classList.toggle('on-4w', next === '4weekly');
+}
+
+// Set a recurrence toggle button's state explicitly (used when reset)
+function setRecurBtn(btn, mode) {
+  if (!btn) return;
+  btn.dataset.recur = mode || '';
+  if (mode === '4weekly') { btn.textContent = 'Every 4 wks'; btn.classList.add('on', 'on-4w'); }
+  else if (mode === 'weekly') { btn.textContent = 'Weekly'; btn.classList.add('on'); btn.classList.remove('on-4w'); }
+  else { btn.textContent = 'Weekly'; btn.classList.remove('on', 'on-4w'); }
+}
+
+// Read recurrence from a toggle button
+function readRecurBtn(btn) {
+  if (!btn) return null;
+  const v = btn.dataset.recur || '';
+  return v || null;
+}
+
 function isSubtaskScheduledFor(st, dateKey) {
   if (!st.date && !st.recurrence) return false;
   if (st.recurrence === 'weekly' && st.date) {
@@ -5495,18 +5983,26 @@ function isSubtaskScheduledFor(st, dateKey) {
     // Don't show before the original date
     return dateKey >= st.date;
   }
+  if (st.recurrence === '4weekly' && st.date) {
+    // Recurring every 4 weeks on the same day-of-week as st.date
+    if (dateKey < st.date) return false;
+    const startDate = new Date(st.date + 'T00:00:00');
+    const targetDate = new Date(dateKey + 'T00:00:00');
+    const diffDays = Math.round((targetDate - startDate) / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays % 28 === 0;
+  }
   return st.date === dateKey;
 }
 
 function isSubtaskDone(st, dateKey) {
-  if (st.recurrence === 'weekly') {
+  if (st.recurrence === 'weekly' || st.recurrence === '4weekly') {
     return !!(st.completions && st.completions[dateKey]);
   }
   return !!st.done;
 }
 
 function setSubtaskDone(st, dateKey, doneVal) {
-  if (st.recurrence === 'weekly') {
+  if (st.recurrence === 'weekly' || st.recurrence === '4weekly') {
     if (!st.completions) st.completions = {};
     if (doneVal) st.completions[dateKey] = true;
     else delete st.completions[dateKey];
@@ -5622,6 +6118,56 @@ function subtasksForTrackerDate(dateKey) {
     prop.headlines.forEach(h => pushSourcing(h, `SOURCING · ${propLabel}`));
   });
 
+  // Kokiri Active Projects — dated tasks and their subtasks
+  state.kokiri.tasks.forEach(x => {
+    // Wrap kokiri task to match the {headline, subtask} shape so the tracker can render uniformly
+    const pseudo = {
+      id: x.id,
+      text: x.text,
+      date: x.date,
+      recurrence: x.recurrence,
+      done: x.done,
+      completions: x.completions || {},
+      children: []
+    };
+    const projName = (state.kokiri.projects.find(p => p.id === x.projectId)?.name || 'Kokiri');
+    const pseudoHeadline = { id: 'kokiri-' + x.projectId, title: projName, subtasks: [] };
+    if (isSubtaskScheduledFor(pseudo, dateKey)) {
+      result.push({ headline: pseudoHeadline, subtask: pseudo, overdue: false, sysLabel: `KOKIRI · ${projName.toUpperCase()}`, sysKey: 'kokiriProjects', kokiriTaskId: x.id });
+    } else if (
+      !pseudo.recurrence &&
+      pseudo.date &&
+      pseudo.date < dateKey &&
+      !pseudo.done &&
+      dateKey === todayKey()
+    ) {
+      result.push({ headline: pseudoHeadline, subtask: pseudo, overdue: true, sysLabel: `KOKIRI · ${projName.toUpperCase()}`, sysKey: 'kokiriProjects', kokiriTaskId: x.id });
+    }
+    // Subtasks
+    (x.subtasks || []).forEach(st => {
+      const stPseudo = {
+        id: st.id,
+        text: st.text,
+        date: st.date,
+        recurrence: st.recurrence,
+        done: st.done,
+        completions: st.completions || {},
+        children: []
+      };
+      if (isSubtaskScheduledFor(stPseudo, dateKey)) {
+        result.push({ headline: { id: 'kokiri-task-' + x.id, title: x.text, subtasks: [] }, subtask: stPseudo, overdue: false, sysLabel: `KOKIRI · ${projName.toUpperCase()}`, sysKey: 'kokiriProjectsSub', kokiriParentId: x.id, kokiriSubId: st.id });
+      } else if (
+        !stPseudo.recurrence &&
+        stPseudo.date &&
+        stPseudo.date < dateKey &&
+        !stPseudo.done &&
+        dateKey === todayKey()
+      ) {
+        result.push({ headline: { id: 'kokiri-task-' + x.id, title: x.text, subtasks: [] }, subtask: stPseudo, overdue: true, sysLabel: `KOKIRI · ${projName.toUpperCase()}`, sysKey: 'kokiriProjectsSub', kokiriParentId: x.id, kokiriSubId: st.id });
+      }
+    });
+  });
+
   return result;
 }
 
@@ -5670,11 +6216,10 @@ function renderNuvoSystems() {
         const isOverdue = !st.recurrence && st.date && st.date < todayKey() && !st.done;
         let dateClass = '';
         let dateLabel = '';
-        if (st.recurrence === 'weekly' && st.date) {
-          const dow = new Date(st.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
-          dateClass = 'recurring';
-          dateLabel = `Every ${dow}`;
-        } else if (st.date) {
+        if ((st.recurrence === 'weekly' || st.recurrence === '4weekly') && st.date) {
+            dateClass = 'recurring';
+            dateLabel = formatRecurringLabel(st);
+          } else if (st.date) {
           if (isOverdue) dateClass = 'overdue';
           else if (isToday) dateClass = 'today';
           dateLabel = formatSubtaskDate(st.date);
@@ -5941,15 +6486,17 @@ function startEditingHeadline(textEl) {
   input.addEventListener('click', e => e.stopPropagation());
 }
 
-function addNuvoSystemsSubtask(headlineId, text, date, isWeekly) {
+function addNuvoSystemsSubtask(headlineId, text, date, recurMode) {
   if (!text.trim()) return;
+  if (recurMode === true) recurMode = 'weekly';
+  if (recurMode === false) recurMode = null;
   const found = findHeadlineById(headlineId);
   if (!found) return;
   found.headline.subtasks.push({
     id: uid(),
     text: text.trim(),
     date: date || null,
-    recurrence: (isWeekly && date) ? 'weekly' : null,
+    recurrence: (recurMode && date) ? recurMode : null,
     done: false,
     completedAt: null,
     completions: {},
@@ -6076,11 +6623,10 @@ function renderCoachingTasks() {
         const isOverdue = !st.recurrence && st.date && st.date < todayKey() && !st.done;
         let dateClass = '';
         let dateLabel = '';
-        if (st.recurrence === 'weekly' && st.date) {
-          const dow = new Date(st.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
-          dateClass = 'recurring';
-          dateLabel = `Every ${dow}`;
-        } else if (st.date) {
+        if ((st.recurrence === 'weekly' || st.recurrence === '4weekly') && st.date) {
+            dateClass = 'recurring';
+            dateLabel = formatRecurringLabel(st);
+          } else if (st.date) {
           if (isOverdue) dateClass = 'overdue';
           else if (isToday) dateClass = 'today';
           dateLabel = formatSubtaskDate(st.date);
@@ -6220,11 +6766,10 @@ function renderPersonalGoals() {
         const isOverdue = !st.recurrence && st.date && st.date < todayKey() && !st.done;
         let dateClass = '';
         let dateLabel = '';
-        if (st.recurrence === 'weekly' && st.date) {
-          const dow = new Date(st.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
-          dateClass = 'recurring';
-          dateLabel = `Every ${dow}`;
-        } else if (st.date) {
+        if ((st.recurrence === 'weekly' || st.recurrence === '4weekly') && st.date) {
+            dateClass = 'recurring';
+            dateLabel = formatRecurringLabel(st);
+          } else if (st.date) {
           if (isOverdue) dateClass = 'overdue';
           else if (isToday) dateClass = 'today';
           dateLabel = formatSubtaskDate(st.date);
@@ -6373,11 +6918,10 @@ function renderMiscTasks() {
     const headlineIsOverdue = !h.recurrence && h.date && h.date < todayKey() && !h.done;
     let headlineDateClass = '';
     let headlineDateLabel = '';
-    if (h.recurrence === 'weekly' && h.date) {
-      const dow = new Date(h.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
-      headlineDateClass = 'recurring';
-      headlineDateLabel = `Every ${dow}`;
-    } else if (h.date) {
+    if ((h.recurrence === 'weekly' || h.recurrence === '4weekly') && h.date) {
+            headlineDateClass = 'recurring';
+            headlineDateLabel = formatRecurringLabel(h);
+          } else if (h.date) {
       if (headlineIsOverdue) headlineDateClass = 'overdue';
       else if (headlineIsToday) headlineDateClass = 'today';
       headlineDateLabel = formatSubtaskDate(h.date);
@@ -6396,11 +6940,10 @@ function renderMiscTasks() {
         const isOverdue = !st.recurrence && st.date && st.date < todayKey() && !st.done;
         let dateClass = '';
         let dateLabel = '';
-        if (st.recurrence === 'weekly' && st.date) {
-          const dow = new Date(st.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
-          dateClass = 'recurring';
-          dateLabel = `Every ${dow}`;
-        } else if (st.date) {
+        if ((st.recurrence === 'weekly' || st.recurrence === '4weekly') && st.date) {
+            dateClass = 'recurring';
+            dateLabel = formatRecurringLabel(st);
+          } else if (st.date) {
           if (isOverdue) dateClass = 'overdue';
           else if (isToday) dateClass = 'today';
           dateLabel = formatSubtaskDate(st.date);
@@ -6495,14 +7038,16 @@ function renderMiscTasks() {
   });
 }
 
-function addMiscTasksHeadline(title, date, isWeekly) {
+function addMiscTasksHeadline(title, date, recurMode) {
   if (!title.trim()) return;
+  if (recurMode === true) recurMode = 'weekly';
+  if (recurMode === false) recurMode = null;
   const data = getMiscTasksForTab(activeTabId);
   data.headlines.push({
     id: uid(),
     title: title.trim(),
     date: date || null,
-    recurrence: (isWeekly && date) ? 'weekly' : null,
+    recurrence: (recurMode && date) ? recurMode : null,
     done: false,
     collapsed: false,
     subtasks: [],
@@ -6518,7 +7063,7 @@ function toggleMiscHeadlineDone(id) {
   const data = getMiscTasksForTab(activeTabId);
   const h = data.headlines.find(x => x.id === id);
   if (!h) return;
-  if (h.recurrence === 'weekly') {
+  if (h.recurrence === 'weekly' || h.recurrence === '4weekly') {
     // For recurring, toggle today's completion
     if (!h.completions) h.completions = {};
     const k = todayKey();
@@ -6546,14 +7091,12 @@ function editMiscHeadlineDate(id, currentTagEl) {
   dateInput.style.cssText = 'background:var(--surface-2); border:1px solid var(--accent); border-radius:4px; padding:2px 6px; font-family:var(--mono); font-size:10px; color:var(--text); outline:none;';
   const recurBtn = document.createElement('button');
   recurBtn.type = 'button';
-  recurBtn.className = 'recur-toggle' + (h.recurrence === 'weekly' ? ' on' : '');
-  recurBtn.textContent = 'Weekly';
+  recurBtn.className = 'recur-toggle';
   recurBtn.style.cssText = 'padding:2px 7px; font-size:8px; letter-spacing:0.1em;';
-  let isWeekly = h.recurrence === 'weekly';
+  setRecurBtn(recurBtn, h.recurrence || null);
   recurBtn.addEventListener('click', e => {
     e.stopPropagation();
-    isWeekly = !isWeekly;
-    recurBtn.classList.toggle('on', isWeekly);
+    cycleRecurBtn(recurBtn);
   });
   const saveBtn = document.createElement('button');
   saveBtn.type = 'button';
@@ -6562,7 +7105,8 @@ function editMiscHeadlineDate(id, currentTagEl) {
   saveBtn.addEventListener('click', e => {
     e.stopPropagation();
     h.date = dateInput.value || null;
-    h.recurrence = (isWeekly && h.date) ? 'weekly' : null;
+    const mode = readRecurBtn(recurBtn);
+    h.recurrence = (mode && h.date) ? mode : null;
     if (!h.completions) h.completions = {};
     saveState();
     renderTaskSystems();
@@ -6603,7 +7147,7 @@ function toggleNuvoSystemsSubtask(id, dateKey) {
   const foundH = findHeadlineById(id);
   if (foundH && foundH.system === 'miscTasks') {
     const h = foundH.headline;
-    if (h.recurrence === 'weekly') {
+    if (h.recurrence === 'weekly' || h.recurrence === '4weekly') {
       if (!h.completions) h.completions = {};
       const k = dateKey || todayKey();
       if (h.completions[k]) delete h.completions[k];
@@ -6737,14 +7281,12 @@ function editSubtaskDate(id, currentTagEl) {
   dateInput.style.cssText = 'background:var(--surface-2); border:1px solid var(--nuvo-systems); border-radius:4px; padding:2px 6px; font-family:var(--mono); font-size:10px; color:var(--text); outline:none;';
   const recurBtn = document.createElement('button');
   recurBtn.type = 'button';
-  recurBtn.className = 'recur-toggle' + (st.recurrence === 'weekly' ? ' on' : '');
-  recurBtn.textContent = 'Weekly';
+  recurBtn.className = 'recur-toggle';
   recurBtn.style.cssText = 'padding:2px 7px; font-size:8px; letter-spacing:0.1em;';
-  let isWeekly = st.recurrence === 'weekly';
+  setRecurBtn(recurBtn, st.recurrence || null);
   recurBtn.addEventListener('click', e => {
     e.stopPropagation();
-    isWeekly = !isWeekly;
-    recurBtn.classList.toggle('on', isWeekly);
+    cycleRecurBtn(recurBtn);
   });
   const saveBtn = document.createElement('button');
   saveBtn.type = 'button';
@@ -6753,7 +7295,8 @@ function editSubtaskDate(id, currentTagEl) {
   saveBtn.addEventListener('click', e => {
     e.stopPropagation();
     st.date = dateInput.value || null;
-    st.recurrence = (isWeekly && st.date) ? 'weekly' : null;
+    const mode = readRecurBtn(recurBtn);
+    st.recurrence = (mode && st.date) ? mode : null;
     if (!st.completions) st.completions = {};
     saveState();
     renderTaskSystems();
@@ -6875,11 +7418,10 @@ function renderContent() {
             const isOverdue = !st.recurrence && st.date && st.date < todayKey() && !st.done;
             let dateClass = '';
             let dateLabel = '';
-            if (st.recurrence === 'weekly' && st.date) {
-              const dow = new Date(st.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
-              dateClass = 'recurring';
-              dateLabel = `Every ${dow}`;
-            } else if (st.date) {
+            if ((st.recurrence === 'weekly' || st.recurrence === '4weekly') && st.date) {
+            dateClass = 'recurring';
+            dateLabel = formatRecurringLabel(st);
+          } else if (st.date) {
               if (isOverdue) dateClass = 'overdue';
               else if (isTodaySt) dateClass = 'today';
               dateLabel = formatSubtaskDate(st.date);
@@ -7233,11 +7775,10 @@ function renderSourcingHeadlineHTML(h, idx, total) {
       const isOverdue = !st.recurrence && st.date && st.date < todayKey() && !st.done;
       let dateClass = '';
       let dateLabel = '';
-      if (st.recurrence === 'weekly' && st.date) {
-        const dow = new Date(st.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
-        dateClass = 'recurring';
-        dateLabel = `Every ${dow}`;
-      } else if (st.date) {
+      if ((st.recurrence === 'weekly' || st.recurrence === '4weekly') && st.date) {
+            dateClass = 'recurring';
+            dateLabel = formatRecurringLabel(st);
+          } else if (st.date) {
         if (isOverdue) dateClass = 'overdue';
         else if (isTodaySt) dateClass = 'today';
         dateLabel = formatSubtaskDate(st.date);
@@ -8491,6 +9032,21 @@ document.getElementById('habits-grid').addEventListener('click', e => {
     return;
   }
 
+  // Kokiri Active Projects task tick (from Daily Tracker)
+  const kokiriCheck = e.target.closest('[data-kokiri-tracker]');
+  if (kokiriCheck) {
+    const r = kokiriCheck.getBoundingClientRect();
+    toggleKokiriTask(kokiriCheck.dataset.kokiriTracker, r.left + r.width/2, r.top + r.height/2);
+    return;
+  }
+
+  // Kokiri Active Projects SUBTASK tick (from Daily Tracker)
+  const kokiriSubCheck = e.target.closest('[data-kokiri-sub-tracker]');
+  if (kokiriSubCheck) {
+    toggleKokiriSubtask(kokiriSubCheck.dataset.kokiriParentTracker, kokiriSubCheck.dataset.kokiriSubTracker);
+    return;
+  }
+
   // NUVO Systems subtask tick (from Daily Tracker)
   const subCheck = e.target.closest('[data-subtask-tracker]');
   if (subCheck) {
@@ -8715,9 +9271,9 @@ function taskSystemClickHandler(e) {
   // Headline delete
   const hDel = e.target.closest('[data-headline-del]');
   if (hDel) { deleteNuvoSystemsHeadline(hDel.dataset.headlineDel); e.stopPropagation(); return; }
-  // Recurrence toggle in add form
+  // Recurrence toggle in add form — cycles off → weekly → 4weekly → off
   const recur = e.target.closest('[data-recur-toggle]');
-  if (recur) { recur.classList.toggle('on'); e.stopPropagation(); return; }
+  if (recur) { cycleRecurBtn(recur); e.stopPropagation(); return; }
   // Add subtask via button
   const addBtn = e.target.closest('[data-add-sub-btn]');
   if (addBtn) {
@@ -8725,7 +9281,7 @@ function taskSystemClickHandler(e) {
     const textInput = document.querySelector(`[data-add-sub="${hid}"]`);
     const dateInput = document.querySelector(`[data-add-sub-date="${hid}"]`);
     const recBtn = document.querySelector(`[data-recur-toggle="${hid}"]`);
-    addNuvoSystemsSubtask(hid, textInput.value, dateInput.value, recBtn.classList.contains('on'));
+    addNuvoSystemsSubtask(hid, textInput.value, dateInput.value, readRecurBtn(recBtn));
     return;
   }
   // Headline collapse toggle (last so it doesn't override clicks above)
@@ -8752,7 +9308,7 @@ function taskSystemKeydownHandler(e) {
     const hid = textInput.dataset.addSub;
     const dateInput = document.querySelector(`[data-add-sub-date="${hid}"]`);
     const recBtn = document.querySelector(`[data-recur-toggle="${hid}"]`);
-    addNuvoSystemsSubtask(hid, textInput.value, dateInput.value, recBtn.classList.contains('on'));
+    addNuvoSystemsSubtask(hid, textInput.value, dateInput.value, readRecurBtn(recBtn));
   }
 }
 document.getElementById('ns-headlines').addEventListener('keydown', taskSystemKeydownHandler);
@@ -9065,6 +9621,54 @@ document.getElementById('project-switcher').addEventListener('click', e => {
   renderKokiri();
 });
 document.getElementById('weeks-list').addEventListener('click', e => {
+  // Kokiri subtask tick
+  const subCheck = e.target.closest('.kokiri-sub-check');
+  if (subCheck) {
+    const row = subCheck.closest('.kokiri-sub');
+    if (row) toggleKokiriSubtask(row.dataset.parent, row.dataset.kokiriSub);
+    e.stopPropagation();
+    return;
+  }
+  // Kokiri subtask delete
+  const subDel = e.target.closest('[data-kokiri-sub-del]');
+  if (subDel) {
+    deleteKokiriSubtask(subDel.dataset.parent, subDel.dataset.kokiriSubDel);
+    e.stopPropagation();
+    return;
+  }
+  // Kokiri subtask date edit
+  const subDateTag = e.target.closest('[data-edit-kokiri-sub-date]');
+  if (subDateTag) {
+    editKokiriSubtaskDate(subDateTag.dataset.parent, subDateTag.dataset.editKokiriSubDate, subDateTag);
+    e.stopPropagation();
+    return;
+  }
+  // Kokiri add-subtask button
+  const subAddBtn = e.target.closest('[data-kokiri-add-sub-btn]');
+  if (subAddBtn) {
+    const tid = subAddBtn.dataset.kokiriAddSubBtn;
+    const inp = document.querySelector(`[data-kokiri-add-sub="${tid}"]`);
+    const dateInp = document.querySelector(`[data-kokiri-add-sub-date="${tid}"]`);
+    const recBtn = document.querySelector(`[data-kokiri-add-sub-recur="${tid}"]`);
+    addKokiriSubtask(tid, inp.value, dateInp?.value || null, readRecurBtn(recBtn));
+    e.stopPropagation();
+    return;
+  }
+  // Kokiri add-subtask recurrence toggle — cycles off → weekly → 4weekly → off
+  const subRecBtn = e.target.closest('[data-kokiri-add-sub-recur]');
+  if (subRecBtn) {
+    cycleRecurBtn(subRecBtn);
+    e.stopPropagation();
+    return;
+  }
+  // Toggle subtasks expanded
+  const subToggle = e.target.closest('[data-toggle-kokiri-subs]');
+  if (subToggle) {
+    toggleKokiriSubsExpanded(subToggle.dataset.toggleKokiriSubs);
+    e.stopPropagation();
+    return;
+  }
+
   const tc = e.target.closest('.task-check');
   if (tc) {
     const taskEl = tc.closest('.week-task');
@@ -9074,11 +9678,22 @@ document.getElementById('weeks-list').addEventListener('click', e => {
   }
   const del = e.target.closest('.task-del');
   if (del) { deleteKokiriTask(del.dataset.taskDel); return; }
+  // Date tag click → inline date editor
+  const dateTag = e.target.closest('[data-edit-kokiri-date]');
+  if (dateTag) { editKokiriTaskDate(dateTag.dataset.editKokiriDate, dateTag); e.stopPropagation(); return; }
+  // Recurrence toggle in add form — cycles off → weekly → 4weekly → off
+  const recBtn = e.target.closest('[data-week-recur]');
+  if (recBtn) { cycleRecurBtn(recBtn); e.stopPropagation(); return; }
   const add = e.target.closest('[data-add-task]');
   if (add) {
     const week = add.dataset.addTask;
     const input = document.querySelector(`#weeks-list input[data-week="${week}"]`);
-    addKokiriTask(week, input.value);
+    const dateInput = document.querySelector(`#weeks-list input[data-week-date="${week}"]`);
+    const recBtnEl = document.querySelector(`#weeks-list [data-week-recur="${week}"]`);
+    addKokiriTask(week, input.value, dateInput?.value || null, readRecurBtn(recBtnEl));
+    input.value = '';
+    if (dateInput) dateInput.value = '';
+    setRecurBtn(recBtnEl, null);
     return;
   }
   // Click on task text → start inline edit
@@ -9090,8 +9705,26 @@ document.getElementById('weeks-list').addEventListener('click', e => {
 });
 document.getElementById('weeks-list').addEventListener('keydown', e => {
   if (e.key === 'Enter') {
-    const inp = e.target.closest('input[data-week]');
-    if (inp) addKokiriTask(inp.dataset.week, inp.value);
+    // Add subtask via Enter
+    const subInp = e.target.closest('[data-kokiri-add-sub]');
+    if (subInp) {
+      e.preventDefault();
+      const tid = subInp.dataset.kokiriAddSub;
+      const dateInp = document.querySelector(`[data-kokiri-add-sub-date="${tid}"]`);
+      const recBtn = document.querySelector(`[data-kokiri-add-sub-recur="${tid}"]`);
+      addKokiriSubtask(tid, subInp.value, dateInp?.value || null, readRecurBtn(recBtn));
+      return;
+    }
+    const inp = e.target.closest('input[data-week]:not([data-week-date])');
+    if (inp) {
+      const week = inp.dataset.week;
+      const dateInput = document.querySelector(`#weeks-list input[data-week-date="${week}"]`);
+      const recBtnEl = document.querySelector(`#weeks-list [data-week-recur="${week}"]`);
+      addKokiriTask(week, inp.value, dateInput?.value || null, readRecurBtn(recBtnEl));
+      inp.value = '';
+      if (dateInput) dateInput.value = '';
+      setRecurBtn(recBtnEl, null);
+    }
   }
 });
 
