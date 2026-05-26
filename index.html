@@ -875,6 +875,126 @@
   .add-link.secondary { margin-top: 6px; }
   .add-link.secondary:hover { border-color: var(--coaching); color: var(--coaching); }
 
+  /* ====== Potential landlords pipeline ====== */
+  .nuvo-potentials-section {
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--surface-edge);
+  }
+  .nuvo-potentials-head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 12px;
+  }
+  .nuvo-potentials-head .title {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .nuvo-potentials-head .sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    margin-left: auto;
+  }
+  .potentials-list {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 8px;
+  }
+  .potential-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px dashed var(--surface-edge);
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+  .potential-row:hover { border-color: var(--accent); border-style: solid; }
+  .pot-status-badge {
+    font-family: var(--mono);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .pot-status-badge.enquired { background: rgba(180,192,203,0.18); color: #B4C0CB; }
+  .pot-status-badge.in_talks { background: rgba(245,200,70,0.15); color: #F5C846; }
+  .pot-status-badge.near_completion { background: rgba(76,217,143,0.15); color: var(--health); }
+  .pot-name {
+    flex: 1; min-width: 100px;
+    font-family: var(--sans);
+    font-size: 13px; font-weight: 600;
+    color: var(--text);
+    cursor: text;
+    padding: 1px 4px; margin: -1px -4px;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+  .pot-name:hover { background: rgba(255,255,255,0.04); }
+  .pot-fee {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 600;
+    color: var(--text-soft);
+    flex-shrink: 0;
+  }
+  .pot-fee strong { color: var(--accent); font-weight: 700; }
+  .pot-notes {
+    flex-basis: 100%;
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--text-faint);
+    font-style: italic;
+    padding: 0 4px;
+    cursor: text;
+    border-radius: 3px;
+  }
+  .pot-notes:hover { background: rgba(255,255,255,0.03); }
+  .pot-notes.empty::before { content: '+ add notes'; opacity: 0.6; }
+  .pot-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .pot-convert {
+    background: var(--accent); color: var(--bg);
+    border: none; border-radius: 5px;
+    padding: 5px 10px;
+    font-family: var(--mono);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .pot-convert:hover { background: var(--accent-deep); }
+  .pot-del {
+    background: transparent; border: none;
+    color: var(--text-faint); cursor: pointer;
+    padding: 4px 6px; border-radius: 4px;
+    font-size: 14px;
+  }
+  .pot-del:hover { color: var(--coaching); }
+  .potential-form { display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .potential-form.show { display: flex; }
+  .potential-form input.notes {
+    flex-basis: 100%;
+    background: transparent;
+    border: 1px solid var(--surface-edge);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text); outline: none;
+  }
+  .potential-form input.notes:focus { border-color: var(--accent); }
+  .potentials-empty {
+    text-align: center;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+  }
+
   /* Lost landlord rows */
   .landlord-row.lost {
     background: rgba(255,170,148,0.06);
@@ -2170,6 +2290,47 @@
   /* Daily tracker — scheduled subtasks row */
   .habit-row.subtask {
     border-color: rgba(91,196,224,0.3);
+  }
+
+  /* Priority pin star (left of every Daily Tasks row) */
+  .pin-star {
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: color 0.18s, transform 0.15s, background 0.15s;
+    opacity: 0.45;
+    margin-right: 2px;
+  }
+  .pin-star svg { width: 18px; height: 18px; display: block; }
+  .pin-star:hover {
+    color: #F5C846;
+    opacity: 1;
+    transform: scale(1.1);
+    background: rgba(245,200,70,0.08);
+  }
+  .pin-star.on {
+    color: #F5C846;
+    opacity: 1;
+  }
+  .pin-star.on:hover {
+    color: #E8B832;
+    transform: scale(1.05);
+  }
+
+  /* Pinned row — subtle gold glow on the left edge */
+  .habit-row.subtask.pinned {
+    background: linear-gradient(to right, rgba(245,200,70,0.06), transparent 30%);
+    box-shadow: inset 3px 0 0 #F5C846;
+  }
+  .habit-row.subtask.pinned.done {
+    box-shadow: inset 3px 0 0 rgba(245,200,70,0.5);
   }
   .habit-row.subtask.done {
     background: rgba(91,196,224,0.06);
@@ -3697,6 +3858,33 @@
     </div>
     <button class="add-link secondary" id="show-lost-form">− Mark a landlord as lost</button>
     <div class="nuvo-summary" id="nuvo-summary"></div>
+
+    <!-- Potential landlords pipeline -->
+    <div class="nuvo-potentials-section">
+      <div class="nuvo-potentials-head">
+        <span class="title">Potential landlords</span>
+        <span class="sub" id="potentials-sub"></span>
+      </div>
+      <div class="potentials-list" id="potentials-list"></div>
+      <div class="landlord-form potential-form" id="potential-form">
+        <input type="text" class="name" id="pot-name" placeholder="Name or source (e.g. John - cold email)" maxlength="80"/>
+        <input type="number" class="rent" id="pot-rent" placeholder="Est. rent £/mo" step="1"/>
+        <div class="pct-toggle" id="pot-pct">
+          <button type="button" data-pct="8">8%</button>
+          <button type="button" data-pct="10" class="active">10%</button>
+          <button type="button" data-pct="12">12%</button>
+        </div>
+        <div class="pct-toggle" id="pot-status">
+          <button type="button" data-status="enquired" class="active">Enquired</button>
+          <button type="button" data-status="in_talks">In talks</button>
+          <button type="button" data-status="near_completion">Near close</button>
+        </div>
+        <input type="text" class="notes" id="pot-notes" placeholder="Notes (optional)" maxlength="140"/>
+        <div class="ll-preview" id="pot-preview">= £0/mo</div>
+        <button class="save-ll" id="save-pot">Add</button>
+      </div>
+      <button class="add-link" id="show-potential-form">+ Add potential landlord</button>
+    </div>
   </section>
 
   <!-- NUVO SYSTEMS -->
@@ -3927,7 +4115,6 @@ const DEFAULT_HABITS = [
   { id: 'protein',  label: 'Protein',   target: '100 g',           kind: 'binary' },
   { id: 'calories', label: 'Calories',  target: '≤ 1,500',         kind: 'binary' },
   { id: 'workouts', label: 'Workouts',  target: '2 (one strength, 4× weekly)', kind: 'count', max: 2 },
-  { id: 'weighin',  label: 'Weigh-in',  target: 'log today\'s weight', kind: 'input', inputType: 'weight' },
 ];
 
 const DEFAULT_MEAS_FIELDS = ['chest', 'waist', 'hips', 'thigh', 'arm'];
@@ -3978,10 +4165,8 @@ function ensureShape(s) {
   s.history = s.history || {};
   s.habits = s.habits || {};
   s.habits.config = s.habits.config || JSON.parse(JSON.stringify(DEFAULT_HABITS));
-  // Migrate: ensure weigh-in habit exists
-  if (!s.habits.config.find(h => h.id === 'weighin')) {
-    s.habits.config.push({ id: 'weighin', label: 'Weigh-in', target: 'log today\'s weight', kind: 'input', inputType: 'weight' });
-  }
+  // Migrate: remove weigh-in habit if it's still in the list (now tracked elsewhere)
+  s.habits.config = s.habits.config.filter(h => h.id !== 'weighin');
   // Migrate: steps habit from binary to input
   const stepsHabit = s.habits.config.find(h => h.id === 'steps');
   if (stepsHabit && stepsHabit.kind === 'binary') {
@@ -3995,8 +4180,20 @@ function ensureShape(s) {
   s.coaching = s.coaching || { target: 1700, monthly: {} };
   if (!s.coaching.target) s.coaching.target = 1700;
   if (!s.coaching.monthly) s.coaching.monthly = {};
-  s.nuvo = s.nuvo || { growthTarget: 1500, byQuarter: {} };
+  s.nuvo = s.nuvo || { growthTarget: 1500, byQuarter: {}, potentials: [] };
   if (!s.nuvo.growthTarget) s.nuvo.growthTarget = 1500;
+  if (!s.nuvo.byQuarter) s.nuvo.byQuarter = {};
+  if (!s.nuvo.potentials) s.nuvo.potentials = [];
+  // Ensure shape on potentials — same as landlords (name/rent/pct/fee) plus pipeline fields
+  s.nuvo.potentials.forEach(p => {
+    if (!p.id) p.id = uid();
+    if (p.name == null) p.name = '';
+    if (p.rent == null) p.rent = 0;
+    if (p.pct == null) p.pct = 12;
+    if (p.notes == null) p.notes = '';
+    if (!p.status) p.status = 'enquired'; // 'enquired' | 'in_talks' | 'near_completion'
+    if (!p.createdAt) p.createdAt = Date.now();
+  });
   if (!s.nuvo.byQuarter) s.nuvo.byQuarter = {};
   s.kokiri = s.kokiri || { projects: JSON.parse(JSON.stringify(DEFAULT_KOKIRI_PROJECTS)), tasks: [] };
   if (!s.kokiri.projects) s.kokiri.projects = JSON.parse(JSON.stringify(DEFAULT_KOKIRI_PROJECTS));
@@ -4787,6 +4984,16 @@ function renderTracker(justEarned = false) {
 
   // NUVO Systems subtasks scheduled for today (or overdue)
   const todaysSubs = (!d.rest && !d.unwell) ? subtasksForTrackerDate(viewDate) : [];
+  // Sort so pinned (priority) tasks bubble to the top, then by overdue, then keep original order
+  todaysSubs.sort((a, b) => {
+    const aPinned = !!a.subtask.pinned ? 1 : 0;
+    const bPinned = !!b.subtask.pinned ? 1 : 0;
+    if (aPinned !== bPinned) return bPinned - aPinned;
+    const aOver = a.overdue ? 1 : 0;
+    const bOver = b.overdue ? 1 : 0;
+    if (aOver !== bOver) return bOver - aOver;
+    return 0;
+  });
   todaysSubs.forEach(item => {
     const st = item.subtask;
     const h = item.headline;
@@ -4813,16 +5020,24 @@ function renderTracker(justEarned = false) {
     } else if (item.sysKey === 'kokiriProjectsSub') {
       row.classList.add('subtask-kokiri');
     }
+    if (st.pinned) row.classList.add('pinned');
     const overdueTag = item.overdue ? `<span class="overdue-tag">Overdue${st.date ? ' · ' + formatSubtaskDate(st.date) : ''}</span>` : '';
     let tickAttr;
+    let starAttr;
     if (item.sysKey === 'kokiriProjects') {
       tickAttr = `data-kokiri-tracker="${item.kokiriTaskId}"`;
+      starAttr = `data-pin-kokiri="${item.kokiriTaskId}"`;
     } else if (item.sysKey === 'kokiriProjectsSub') {
       tickAttr = `data-kokiri-sub-tracker="${item.kokiriSubId}" data-kokiri-parent-tracker="${item.kokiriParentId}"`;
+      starAttr = `data-pin-kokiri-sub="${item.kokiriSubId}" data-pin-kokiri-parent="${item.kokiriParentId}"`;
     } else {
       tickAttr = `data-subtask-tracker="${st.id}"`;
+      starAttr = `data-pin-subtask="${st.id}"`;
     }
     row.innerHTML = `
+      <button class="pin-star ${st.pinned ? 'on' : ''}" ${starAttr} aria-label="${st.pinned ? 'Unpin priority' : 'Mark as priority'}" title="${st.pinned ? 'Unpin priority' : 'Mark as priority'}">
+        <svg viewBox="0 0 24 24" fill="${st.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 15,9 22,9.5 17,14.5 18.5,22 12,18.5 5.5,22 7,14.5 2,9.5 9,9"></polygon></svg>
+      </button>
       <div class="habit-circles">
         <button class="h-check ${done ? 'on' : ''}" ${tickAttr} aria-label="Toggle">
           <svg viewBox="0 0 24 24"><polyline points="5,13 10,18 19,7"></polyline></svg>
@@ -5226,8 +5441,14 @@ function renderNuvo() {
   const lostSum = lostThis.reduce((s, item) => s + landlordFee(item.landlord), 0);
   const netChange = addedSum - lostSum;
 
-  const isBaseline = prevTotal === 0;
-  const target = isBaseline ? growth : prevTotal + growth;
+  // Target is CUMULATIVE: total monthly management income needed by end of this quarter.
+  // Q1: 1×growth. Q2: 2×growth. Q3: 3×growth. Q4: 4×growth.
+  // This way, surplus from any prior quarter naturally counts toward the running target —
+  // i.e. if you hit £1,800/mo in Q1 (£300 ahead), Q2's target stays at £3,000 so you only
+  // need £1,200 more growth instead of £1,500.
+  const isBaseline = idx === 0;
+  const target = (idx + 1) * growth;
+  const previousTarget = idx > 0 ? idx * growth : 0;
   const pct = Math.min(100, Math.round((cumulative / target) * 100));
   const complete = cumulative >= target;
 
@@ -5249,11 +5470,11 @@ function renderNuvo() {
   const targetsWrap = document.getElementById('nuvo-targets');
   targetsWrap.innerHTML = `
     <div class="nuvo-target-box">
-      <div class="label">${isBaseline ? 'Starting point' : 'Running before this quarter'}</div>
-      <div class="val">${fmtMoney(prevTotal)}<span class="unit">/mo mgmt</span></div>
+      <div class="label">${isBaseline ? 'Starting point' : 'Where you should be by end of prev Q'}</div>
+      <div class="val">${fmtMoney(previousTarget)}<span class="unit">/mo mgmt</span></div>
     </div>
     <div class="nuvo-target-box target">
-      <div class="label">${isBaseline ? 'This quarter\'s target' : `Target (prev + ${fmtMoney(growth)})`}</div>
+      <div class="label">${isBaseline ? 'Q1 target' : `Cumulative target (${idx + 1} × ${fmtMoney(growth)})`}</div>
       <div class="val">${fmtMoney(target)}<span class="unit">/mo mgmt</span></div>
     </div>
   `;
@@ -5331,6 +5552,211 @@ function renderNuvo() {
 
   // Refresh the lost-landlord picker options
   refreshLostPicker();
+  renderPotentials();
+}
+
+function renderPotentials() {
+  const list = state.nuvo.potentials || [];
+  const wrap = document.getElementById('potentials-list');
+  if (!wrap) return;
+  const subEl = document.getElementById('potentials-sub');
+  // Pipeline totals
+  const totalFee = list.reduce((s, p) => s + (p.rent || 0) * (p.pct || 0) / 100, 0);
+  const nearCount = list.filter(p => p.status === 'near_completion').length;
+  if (list.length === 0) {
+    wrap.innerHTML = '<div class="potentials-empty">~ no potentials yet · landlords in your pipeline appear here ~</div>';
+    subEl.textContent = '';
+  } else {
+    let parts = [];
+    parts.push(`${list.length} in pipeline`);
+    if (totalFee > 0) parts.push(`${fmtMoney(totalFee)}/mo total`);
+    if (nearCount > 0) parts.push(`${nearCount} near close`);
+    subEl.textContent = parts.join(' · ');
+    // Sort: near_completion → in_talks → enquired
+    const statusOrder = { near_completion: 0, in_talks: 1, enquired: 2 };
+    const sorted = list.slice().sort((a, b) => {
+      const ao = statusOrder[a.status] ?? 99;
+      const bo = statusOrder[b.status] ?? 99;
+      if (ao !== bo) return ao - bo;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+    wrap.innerHTML = sorted.map(p => {
+      const fee = (p.rent || 0) * (p.pct || 0) / 100;
+      const statusLabel = { enquired: 'Enquired', in_talks: 'In talks', near_completion: 'Near close' }[p.status] || p.status;
+      const notesHTML = p.notes
+        ? `<div class="pot-notes" data-edit-pot-notes="${p.id}">${escapeHTML(p.notes)}</div>`
+        : `<div class="pot-notes empty" data-edit-pot-notes="${p.id}"></div>`;
+      return `
+        <div class="potential-row" data-pot="${p.id}">
+          <span class="pot-status-badge ${p.status}" data-cycle-pot-status="${p.id}" title="Click to change status">${statusLabel}</span>
+          <span class="pot-name" data-edit-pot-name="${p.id}">${escapeHTML(p.name || 'Untitled')}</span>
+          <span class="pot-fee">${fee > 0 ? `<strong>${fmtMoney(fee)}</strong>/mo<span style="color:var(--text-faint); margin-left:4px">(${fmtMoney(p.rent)} × ${p.pct}%)</span>` : '<span style="color:var(--text-faint)">no fee set</span>'}</span>
+          <div class="pot-actions">
+            <button class="pot-convert" data-pot-convert="${p.id}" title="Move to active landlords in current quarter">Convert →</button>
+            <button class="pot-del" data-pot-del="${p.id}" aria-label="Remove">✕</button>
+          </div>
+          ${notesHTML}
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function updatePotentialPreview() {
+  const rent = parseFloat(document.getElementById('pot-rent').value) || 0;
+  const pctBtn = document.querySelector('#pot-pct button.active');
+  const pct = pctBtn ? parseFloat(pctBtn.dataset.pct) : 10;
+  const fee = rent * pct / 100;
+  document.getElementById('pot-preview').textContent = `= ${fmtMoney(fee)}/mo`;
+}
+
+function showPotentialForm() {
+  document.getElementById('potential-form').classList.add('show');
+  document.getElementById('show-potential-form').style.display = 'none';
+  updatePotentialPreview();
+  setTimeout(() => document.getElementById('pot-name').focus(), 50);
+}
+
+function hidePotentialForm() {
+  document.getElementById('potential-form').classList.remove('show');
+  document.getElementById('show-potential-form').style.display = '';
+  document.getElementById('pot-name').value = '';
+  document.getElementById('pot-rent').value = '';
+  document.getElementById('pot-notes').value = '';
+  document.querySelectorAll('#pot-pct button').forEach(b => b.classList.toggle('active', b.dataset.pct === '10'));
+  document.querySelectorAll('#pot-status button').forEach(b => b.classList.toggle('active', b.dataset.status === 'enquired'));
+  updatePotentialPreview();
+}
+
+function savePotential() {
+  const name = document.getElementById('pot-name').value.trim();
+  const rent = parseFloat(document.getElementById('pot-rent').value) || 0;
+  const pctBtn = document.querySelector('#pot-pct button.active');
+  const pct = pctBtn ? parseFloat(pctBtn.dataset.pct) : 10;
+  const statusBtn = document.querySelector('#pot-status button.active');
+  const status = statusBtn ? statusBtn.dataset.status : 'enquired';
+  const notes = document.getElementById('pot-notes').value.trim();
+  if (!name) return;
+  state.nuvo.potentials.push({
+    id: uid(),
+    name,
+    rent,
+    pct,
+    notes,
+    status,
+    createdAt: Date.now()
+  });
+  saveState();
+  hidePotentialForm();
+  renderPotentials();
+}
+
+function deletePotential(id) {
+  const p = state.nuvo.potentials.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Remove ${p.name || 'this potential landlord'} from pipeline?`)) return;
+  state.nuvo.potentials = state.nuvo.potentials.filter(x => x.id !== id);
+  saveState();
+  renderPotentials();
+}
+
+function convertPotential(id) {
+  const p = state.nuvo.potentials.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Convert ${p.name} to an active landlord in ${activeTab().label}?`)) return;
+  // Move to current quarter's landlord list
+  if (!state.nuvo.byQuarter[activeTabId]) state.nuvo.byQuarter[activeTabId] = [];
+  state.nuvo.byQuarter[activeTabId].push({
+    id: uid(),
+    name: p.name,
+    rent: p.rent || 0,
+    pct: p.pct || 10,
+    fee: (p.rent || 0) * (p.pct || 10) / 100,
+    addedAt: Date.now()
+  });
+  // Remove from potentials
+  state.nuvo.potentials = state.nuvo.potentials.filter(x => x.id !== id);
+  saveState();
+  renderNuvo();
+  celebrateSmall(document.getElementById('show-potential-form'));
+}
+
+function cyclePotentialStatus(id) {
+  const p = state.nuvo.potentials.find(x => x.id === id);
+  if (!p) return;
+  const order = ['enquired', 'in_talks', 'near_completion'];
+  const idx = order.indexOf(p.status);
+  p.status = order[(idx + 1) % order.length];
+  saveState();
+  renderPotentials();
+}
+
+function startEditingPotentialName(textEl) {
+  if (textEl.classList.contains('editing')) return;
+  const id = textEl.dataset.editPotName;
+  const p = state.nuvo.potentials.find(x => x.id === id);
+  if (!p) return;
+  textEl.classList.add('editing');
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = p.name;
+  input.maxLength = 80;
+  input.style.cssText = 'flex:1; min-width:100px; background:var(--surface-2); border:1px solid var(--accent); border-radius:4px; padding:2px 6px; font-family:var(--sans); font-size:13px; font-weight:600; color:var(--text); outline:none;';
+  textEl.parentNode.insertBefore(input, textEl);
+  textEl.style.display = 'none';
+  input.focus();
+  input.select();
+  let finished = false;
+  function finish(save) {
+    if (finished) return;
+    finished = true;
+    if (save && input.value.trim() && input.value.trim() !== p.name) {
+      p.name = input.value.trim();
+      saveState();
+    }
+    renderPotentials();
+  }
+  input.addEventListener('blur', () => finish(true));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    e.stopPropagation();
+  });
+  input.addEventListener('click', e => e.stopPropagation());
+}
+
+function startEditingPotentialNotes(notesEl) {
+  if (notesEl.classList.contains('editing')) return;
+  const id = notesEl.dataset.editPotNotes;
+  const p = state.nuvo.potentials.find(x => x.id === id);
+  if (!p) return;
+  notesEl.classList.add('editing');
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = p.notes || '';
+  input.maxLength = 140;
+  input.placeholder = 'Notes (e.g. follow up Friday)';
+  input.style.cssText = 'flex-basis:100%; background:var(--surface-2); border:1px solid var(--accent); border-radius:4px; padding:4px 8px; font-family:var(--sans); font-size:11px; color:var(--text); outline:none;';
+  notesEl.parentNode.insertBefore(input, notesEl);
+  notesEl.style.display = 'none';
+  input.focus();
+  let finished = false;
+  function finish(save) {
+    if (finished) return;
+    finished = true;
+    if (save && input.value.trim() !== (p.notes || '')) {
+      p.notes = input.value.trim();
+      saveState();
+    }
+    renderPotentials();
+  }
+  input.addEventListener('blur', () => finish(true));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    e.stopPropagation();
+  });
+  input.addEventListener('click', e => e.stopPropagation());
 }
 
 function refreshLostPicker() {
@@ -5971,6 +6397,39 @@ function readRecurBtn(btn) {
   if (!btn) return null;
   const v = btn.dataset.recur || '';
   return v || null;
+}
+
+// ============ DAILY TASKS PRIORITY PIN ============
+// Toggle pinned (priority) state on a subtask. Marked tasks rise to top of Daily Tasks.
+function togglePinSubtask(id) {
+  const found = findSubtaskById(id);
+  if (!found) return;
+  found.subtask.pinned = !found.subtask.pinned;
+  saveState();
+  renderTracker();
+  renderTaskSystems();
+  renderContent();
+  renderKokiriSourcing();
+}
+
+function togglePinKokiriTask(id) {
+  const t = state.kokiri.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.pinned = !t.pinned;
+  saveState();
+  renderTracker();
+  renderKokiri();
+}
+
+function togglePinKokiriSubtask(taskId, subId) {
+  const t = state.kokiri.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  const st = (t.subtasks || []).find(s => s.id === subId);
+  if (!st) return;
+  st.pinned = !st.pinned;
+  saveState();
+  renderTracker();
+  renderKokiri();
 }
 
 function isSubtaskScheduledFor(st, dateKey) {
@@ -9025,6 +9484,26 @@ document.getElementById('tabs').addEventListener('click', e => {
 
 // Tracker
 document.getElementById('habits-grid').addEventListener('click', e => {
+  // Pin/unpin priority star — handle BEFORE everything else (early return)
+  const pinSub = e.target.closest('[data-pin-subtask]');
+  if (pinSub) {
+    e.stopPropagation();
+    togglePinSubtask(pinSub.dataset.pinSubtask);
+    return;
+  }
+  const pinKokiri = e.target.closest('[data-pin-kokiri]');
+  if (pinKokiri) {
+    e.stopPropagation();
+    togglePinKokiriTask(pinKokiri.dataset.pinKokiri);
+    return;
+  }
+  const pinKokiriSub = e.target.closest('[data-pin-kokiri-sub]');
+  if (pinKokiriSub) {
+    e.stopPropagation();
+    togglePinKokiriSubtask(pinKokiriSub.dataset.pinKokiriParent, pinKokiriSub.dataset.pinKokiriSub);
+    return;
+  }
+
   // Content post tick (from Daily Tracker)
   const postCheck = e.target.closest('[data-post-tracker]');
   if (postCheck) {
@@ -9601,6 +10080,42 @@ document.getElementById('nuvo-list').addEventListener('change', e => {
 });
 document.getElementById('show-lost-form').addEventListener('click', showLostForm);
 document.getElementById('save-lost').addEventListener('click', markLandlordLost);
+
+// Potential landlords
+document.getElementById('show-potential-form').addEventListener('click', showPotentialForm);
+document.getElementById('save-pot').addEventListener('click', savePotential);
+document.getElementById('pot-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') savePotential();
+});
+document.getElementById('pot-rent').addEventListener('keydown', e => {
+  if (e.key === 'Enter') savePotential();
+});
+document.getElementById('pot-rent').addEventListener('input', updatePotentialPreview);
+document.getElementById('pot-pct').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-pct]');
+  if (!btn) return;
+  document.querySelectorAll('#pot-pct button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updatePotentialPreview();
+});
+document.getElementById('pot-status').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-status]');
+  if (!btn) return;
+  document.querySelectorAll('#pot-status button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+});
+document.getElementById('potentials-list').addEventListener('click', e => {
+  const conv = e.target.closest('[data-pot-convert]');
+  if (conv) { convertPotential(conv.dataset.potConvert); return; }
+  const del = e.target.closest('[data-pot-del]');
+  if (del) { deletePotential(del.dataset.potDel); return; }
+  const cycle = e.target.closest('[data-cycle-pot-status]');
+  if (cycle) { cyclePotentialStatus(cycle.dataset.cyclePotStatus); return; }
+  const nameEl = e.target.closest('[data-edit-pot-name]');
+  if (nameEl) { startEditingPotentialName(nameEl); return; }
+  const notesEl = e.target.closest('[data-edit-pot-notes]');
+  if (notesEl) { startEditingPotentialNotes(notesEl); return; }
+});
 
 // Global collapse button handler (works for any .collapse-btn)
 document.addEventListener('click', e => {
