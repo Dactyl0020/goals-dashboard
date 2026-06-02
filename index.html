@@ -1172,7 +1172,18 @@
     border-radius: 10px; padding: 16px; transition: all 0.2s;
   }
   .week-block.current { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
-  .week-block.past { opacity: 0.55; }
+  .week-block.past {
+    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.015);
+    border-style: dashed;
+  }
+  .week-block.past .week-name .tag { color: var(--text-faint); }
+  /* Highlight unfinished tasks in past weeks (subtle amber tint) */
+  .week-block.past .week-task:not(.done) {
+    background: rgba(255, 200, 100, 0.04);
+    border-left: 2px solid rgba(255, 200, 100, 0.4);
+    padding-left: 8px;
+  }
   .week-header {
     display: flex; justify-content: space-between;
     align-items: baseline; margin-bottom: 12px;
@@ -2201,6 +2212,57 @@
     border-color: rgba(91,196,224,0.3);
   }
   .ns-date-tag.recurring::before { content: '↻ '; }
+
+  /* Link tag — compact, text-height inline tag */
+  .ns-link-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+    padding: 3px 7px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    color: var(--text-faint);
+    vertical-align: middle;
+  }
+  .ns-link-glyph {
+    line-height: 1;
+  }
+  .ns-link-tag.has-url {
+    color: var(--text-soft);
+    background: rgba(91,196,224,0.08);
+    border-color: rgba(91,196,224,0.2);
+  }
+  .ns-link-tag.has-url:hover {
+    color: var(--accent);
+    background: rgba(91,196,224,0.16);
+    border-color: var(--accent);
+  }
+  .ns-link-tag.empty {
+    opacity: 0.45;
+  }
+  .ns-link-tag.empty:hover {
+    opacity: 1;
+    color: var(--text-soft);
+    background: var(--surface-2);
+  }
+  .ns-link-edit {
+    font-size: 8px;
+    line-height: 1;
+    color: inherit;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .ns-link-tag:hover .ns-link-edit { opacity: 0.7; }
+  .ns-link-edit:hover { opacity: 1; }
   .ns-subtask-del {
     background: transparent; border: none;
     color: var(--text-faint); cursor: pointer;
@@ -4140,7 +4202,7 @@
   <!-- KOKIRI GROUP -->
   <section class="panel theme-kokiri" id="kokiri-panel">
     <div class="panel-head">
-      <h3>KOKIRI | ACTIVE PROJECTS<span class="panel-sub editable" data-edit-panel-sub="kokiri-projects" title="Click to edit">Two projects shipping by 30 June</span></h3>
+      <h3>KOKIRI | ACTIVE PROJECTS<span class="panel-sub editable" data-edit-panel-sub="kokiri-projects" title="Click to edit">Weekly tasks &amp; sub-tasks</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="kokiri-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -4447,6 +4509,10 @@ function ensureShape(s) {
   });
   s.collapsed = s.collapsed || {};
   s.panelSubs = s.panelSubs || {};
+  // Migrate: clear old defaults that were saved as overrides
+  if (s.panelSubs['kokiri-projects'] === 'Two projects shipping by 30 June') {
+    delete s.panelSubs['kokiri-projects'];
+  }
   s.startDate = s.startDate || todayKey();
 
   // ONE-TIME MIGRATION: clear all default habits to use posts-only mode
@@ -5513,7 +5579,7 @@ function renderHealth() {
         <span class="ws-val ${changeClass}">${arrow} ${sign}${Math.abs(diff).toFixed(1)}<span class="ws-unit">kg</span></span>
       </div>
     </div>
-    <div class="weight-chart">${weightBarChart(recent)}</div>
+    <div class="weight-chart">${weightLineChart(recent)}</div>
     <div class="weight-chart-caption">Last ${recent.length} weigh-in${recent.length === 1 ? '' : 's'}</div>
     <div class="health-entries-head">Recent entries</div>
     <div class="health-entries">${entriesHTML}</div>
@@ -5554,6 +5620,93 @@ function renderWeight() {
     </div>
     <div class="weight-chart">${weightBarChart(recent)}</div>
     <div class="weight-chart-caption">Last ${recent.length} weigh-in${recent.length === 1 ? '' : 's'}</div>
+  `;
+}
+
+function weightLineChart(entries) {
+  if (entries.length === 0) return '';
+  // Sort chronologically (oldest left → newest right)
+  const sorted = entries.slice().sort((a, b) => a.date.localeCompare(b.date));
+
+  const w = 320, h = 160;
+  const padTop = 14, padBottom = 28, padLeft = 32, padRight = 12;
+  const plotW = w - padLeft - padRight;
+  const plotH = h - padTop - padBottom;
+
+  const values = sorted.map(e => e.value);
+  const minV = Math.min(...values);
+  const maxV = Math.max(...values);
+  const rangeV = (maxV - minV) || 1;
+  // Pad the Y range a touch so the line doesn't sit on the edges
+  const yMin = minV - rangeV * 0.15;
+  const yMax = maxV + rangeV * 0.15;
+  const yRange = yMax - yMin || 1;
+
+  // X positions: evenly spaced (treating entries as ordinal positions on the X axis)
+  const n = sorted.length;
+  const xFor = i => padLeft + (n === 1 ? plotW / 2 : (i / (n - 1)) * plotW);
+  const yFor = v => padTop + plotH - ((v - yMin) / yRange) * plotH;
+
+  // Points + path
+  const points = sorted.map((e, i) => ({ x: xFor(i), y: yFor(e.value), entry: e }));
+  const linePath = points.map((p, i) => (i === 0 ? `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}` : `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)).join(' ');
+  // Smoothed area under the line for a subtle gradient fill
+  const areaPath = `${linePath} L ${points[points.length-1].x.toFixed(1)} ${(padTop + plotH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(padTop + plotH).toFixed(1)} Z`;
+
+  // Determine trend direction (overall: first vs last)
+  const trendDown = sorted[sorted.length - 1].value < sorted[0].value;
+  const trendUp = sorted[sorted.length - 1].value > sorted[0].value;
+  const lineColor = trendDown ? '#6FE0B5' : trendUp ? '#FFAA94' : '#B4C0CB';
+  const lineColorSoft = trendDown ? '#4FC494' : trendUp ? '#E08570' : '#8A99A8';
+
+  // Y-axis gridlines (3 values: min, mid, max of the original range)
+  const gridValues = [maxV, (maxV + minV) / 2, minV];
+  const gridLines = gridValues.map(v => {
+    const y = yFor(v);
+    return `
+      <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${w - padRight}" y2="${y.toFixed(1)}" stroke="#2A3340" stroke-width="0.5" stroke-dasharray="2,3" opacity="0.6"/>
+      <text x="${padLeft - 6}" y="${(y + 3).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9" fill="#6E8497">${v.toFixed(1)}</text>
+    `;
+  }).join('');
+
+  // Dots on each point with tooltip title
+  const dots = points.map((p, i) => {
+    const isLast = i === points.length - 1;
+    const r = isLast ? 3.5 : 2.5;
+    return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${isLast ? lineColor : lineColorSoft}" stroke="${isLast ? '#0A0E14' : 'none'}" stroke-width="${isLast ? 1.5 : 0}"><title>${p.entry.date}: ${p.entry.value.toFixed(1)} kg</title></circle>`;
+  }).join('');
+
+  // X-axis labels: first, middle, last
+  const fmtDate = s => {
+    const d = new Date(s + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  };
+  let xLabels = `<text x="${xFor(0).toFixed(1)}" y="${(h - 8).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6E8497">${fmtDate(sorted[0].date)}</text>`;
+  if (n > 2) {
+    const midIdx = Math.floor(n / 2);
+    xLabels += `<text x="${xFor(midIdx).toFixed(1)}" y="${(h - 8).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6E8497">${fmtDate(sorted[midIdx].date)}</text>`;
+  }
+  if (n > 1) {
+    xLabels += `<text x="${xFor(n-1).toFixed(1)}" y="${(h - 8).toFixed(1)}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#6E8497">${fmtDate(sorted[n-1].date)}</text>`;
+  }
+
+  // Gradient ID unique enough to avoid collision
+  const gradId = `wlc-grad-${Math.floor(Math.random() * 100000)}`;
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block" aria-label="Weight trend line chart">
+      <defs>
+        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${lineColor}" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="${lineColor}" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${gridLines}
+      ${n > 1 ? `<path d="${areaPath}" fill="url(#${gradId})"/>` : ''}
+      ${n > 1 ? `<path d="${linePath}" fill="none" stroke="${lineColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+      ${dots}
+      ${xLabels}
+    </svg>
   `;
 }
 
@@ -6287,16 +6440,29 @@ function toggleCollapse(panelId) {
 
 // ============ KOKIRI GROUP ============
 function getQ2Weeks() {
-  // Generate Mondays from start of current week through end of Q2
+  // Generate Mondays from the earliest week that has tasks (or this week, whichever is earlier)
+  // through end of Q2. This keeps past weeks visible so unfinished tasks from previous weeks
+  // are never lost.
   const today = new Date();
   const mondayOfThisWeek = new Date(today);
   const dow = today.getDay(); // 0=Sun, 1=Mon
   const diff = (dow === 0 ? -6 : 1 - dow);
   mondayOfThisWeek.setDate(today.getDate() + diff);
 
+  // Find the earliest weekStart among existing tasks
+  let earliest = mondayOfThisWeek;
+  (state.kokiri?.tasks || []).forEach(t => {
+    if (!t.weekStart) return;
+    const ts = new Date(t.weekStart + 'T00:00:00');
+    if (ts < earliest) earliest = ts;
+  });
+  // Hard floor: don't go before start of 2026
+  const yearStart = new Date(2026, 0, 5); // first Monday in Jan 2026
+  if (earliest < yearStart) earliest = yearStart;
+
   const q2End = new Date(2026, 5, 30); // June 30 2026
   const weeks = [];
-  const cursor = new Date(mondayOfThisWeek);
+  const cursor = new Date(earliest);
   while (cursor <= q2End) {
     weeks.push(ymd(cursor));
     cursor.setDate(cursor.getDate() + 7);
@@ -6334,13 +6500,11 @@ function renderKokiri() {
   if (isBoth) {
     meta.innerHTML = `
       <div class="progress-line"><strong>Both projects</strong> · ${doneTasks} of ${totalTasks} tasks done</div>
-      <div class="progress-line" style="color:var(--text-faint)">Shipping by 30 June</div>
     `;
   } else {
     const proj = state.kokiri.projects.find(p => p.id === activeProject);
     meta.innerHTML = `
       <div class="progress-line"><strong>${escapeHTML(proj.name)}</strong> · ${doneTasks} of ${totalTasks} tasks done</div>
-      <div class="progress-line" style="color:var(--text-faint)">Shipping by 30 June</div>
     `;
   }
 
@@ -6429,6 +6593,7 @@ function renderKokiri() {
               </button>
               <span class="kokiri-sub-text">${escapeHTML(st.text)}</span>
               <span class="ns-date-tag ${stDateClass}" data-edit-kokiri-sub-date="${st.id}" data-parent="${x.id}">${escapeHTML(stDateLabel)}</span>
+              
               <button class="kokiri-sub-del" data-kokiri-sub-del="${st.id}" data-parent="${x.id}" aria-label="Remove">✕</button>
             </div>
           `;
@@ -6475,9 +6640,20 @@ function renderKokiri() {
       </div>
     `;
 
+    const unfinishedInPast = isPast ? weekTasks.filter(x => {
+      // Same logic as isDoneVisually
+      if (x.recurrence === 'weekly' || x.recurrence === '4weekly') return false; // recurring tasks aren't "unfinished from past"
+      return !x.done;
+    }).length : 0;
+    const weekTagHTML = isCurrent
+      ? '<span class="tag">this week</span>'
+      : (isPast && unfinishedInPast > 0
+          ? `<span class="tag">past · ${unfinishedInPast} unfinished</span>`
+          : (isPast ? '<span class="tag">past</span>' : ''));
+
     block.innerHTML = `
       <div class="week-header">
-        <div class="week-name">${weekLabel(weekStartDate)}${isCurrent ? '<span class="tag">this week</span>' : ''}</div>
+        <div class="week-name">${weekLabel(weekStartDate)}${weekTagHTML}</div>
         <div class="week-progress ${allDone ? 'complete' : ''}">${weekTotal === 0 ? 'no tasks yet' : `${weekDone} / ${weekTotal}${allDone ? ' ✓' : ''}`}</div>
       </div>
       <div class="week-tasks">${tasksHTML}</div>
@@ -6759,6 +6935,26 @@ function formatRecurringLabel(st) {
   if (st.recurrence === '4weekly') return `Every 4 wks · ${dow}`;
   if (st.recurrence === 'weekly') return `Every ${dow}`;
   return '';
+}
+
+// Normalize a URL — auto-prepend https:// if missing
+function normalizeUrl(s) {
+  if (!s) return '';
+  const trimmed = s.trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return 'https://' + trimmed;
+}
+
+// Build the HTML for a link icon next to a task/headline/subtask.
+// `id` is the entity ID, `url` is the current URL (or empty). `mode` is 'task' (used as the
+// `data-edit-link-task` attribute) so the click handler can route to the right finder.
+function buildLinkIconHTML(id, url) {
+  if (url) {
+    // Filled — render as a link
+    return `<a class="ns-link-tag has-url" href="${escapeAttr(url)}" target="_blank" rel="noopener noreferrer" data-link-entity="${id}" title="${escapeAttr(url)}\nClick to open · ✎ to edit"><span class="ns-link-glyph">link</span><span class="ns-link-edit" data-edit-link="${id}" title="Edit link">✎</span></a>`;
+  }
+  return `<span class="ns-link-tag empty" data-edit-link="${id}" title="Add a link"><span class="ns-link-glyph">+ link</span></span>`;
 }
 
 // Cycle a recurrence toggle button between off → weekly → 4weekly → off
@@ -7358,6 +7554,75 @@ function addNuvoSystemsSubtask(headlineId, text, date, recurMode) {
   renderContent();
   renderKokiriSourcing();
   renderTracker();
+}
+
+// Find anything by ID (headline OR subtask) across every panel that supports URLs.
+// Returns { entity, refresh } where entity has a `url` field we can edit, and refresh()
+// re-renders the appropriate panels.
+function findEntityForLinkById(id) {
+  // Try subtask first
+  const sub = findSubtaskById(id);
+  if (sub) {
+    return {
+      entity: sub.subtask,
+      refresh: () => {
+        renderTaskSystems();
+        renderContent();
+        renderKokiriSourcing();
+        renderTracker();
+      }
+    };
+  }
+  // Try headline
+  const head = findHeadlineById(id);
+  if (head) {
+    return {
+      entity: head.headline,
+      refresh: () => {
+        renderTaskSystems();
+        renderContent();
+        renderKokiriSourcing();
+        renderTracker();
+      }
+    };
+  }
+  // Kokiri active-projects task
+  const kTask = state.kokiri.tasks.find(t => t.id === id);
+  if (kTask) {
+    return {
+      entity: kTask,
+      refresh: () => {
+        renderKokiri();
+        renderTracker();
+      }
+    };
+  }
+  // Kokiri active-projects subtask
+  for (const t of state.kokiri.tasks) {
+    const st = (t.subtasks || []).find(s => s.id === id);
+    if (st) {
+      return {
+        entity: st,
+        refresh: () => {
+          renderKokiri();
+          renderTracker();
+        }
+      };
+    }
+  }
+  return null;
+}
+
+// Open a small prompt to edit/clear the URL on any entity by ID.
+function editEntityUrl(id) {
+  const found = findEntityForLinkById(id);
+  if (!found) return;
+  const current = found.entity.url || '';
+  const next = prompt('Website link (paste a URL — https:// will be added if missing).\n\nLeave empty and click OK to remove the link.', current);
+  if (next == null) return; // cancelled
+  found.entity.url = normalizeUrl(next);
+  saveState();
+  found.refresh();
 }
 
 function findSubtaskById(id) {
@@ -8607,7 +8872,7 @@ function kiPortfolioCosts() {
 
 // ============ KOKIRI SOURCING ============
 // Helper: builds the inner HTML for a single headline (used both in general sourcing and per-property)
-function renderSourcingHeadlineHTML(h, idx, total) {
+function renderSourcingHeadlineHTML(h, idx, total, showHeadlineLink) {
   const totalSubs = h.subtasks.length;
   const doneSubs = h.subtasks.filter(st => st.recurrence ? false : st.done).length;
   const allDone = totalSubs > 0 && doneSubs === totalSubs;
@@ -8698,6 +8963,7 @@ function renderSourcingHeadlineHTML(h, idx, total) {
           <button class="ns-reorder-btn" data-move="down" data-id="${h.id}" ${isLast ? 'disabled' : ''} aria-label="Move down">▼</button>
         </div>
         <div class="ns-headline-actions">
+          ${showHeadlineLink ? buildLinkIconHTML(h.id, h.url || "") : ''}
           <span class="ns-headline-count ${allDone ? 'complete' : ''}">${totalSubs === 0 ? '0' : `${doneSubs}/${totalSubs}`}${allDone ? ' ✓' : ''}</span>
           <button class="ns-headline-del" data-headline-del="${h.id}" aria-label="Remove">✕</button>
         </div>
@@ -8776,14 +9042,11 @@ function renderKokiriSourcing() {
         headlinesHTML = '<div class="ns-empty-subs" style="padding: 10px 0;">~ no tasks yet · add one below ~</div>';
       } else {
         prop.headlines.forEach((h, idx) => {
-          headlinesHTML += renderSourcingHeadlineHTML(h, idx, prop.headlines.length);
+          headlinesHTML += renderSourcingHeadlineHTML(h, idx, prop.headlines.length, true);
         });
       }
 
-      const rmUrl = (prop.url || '').trim();
-      const rmBtnHTML = rmUrl
-        ? `<a class="ks-rightmove" href="${escapeAttr(rmUrl)}" target="_blank" rel="noopener noreferrer" data-ks-prop-link="${prop.id}">Rightmove ↗</a>`
-        : `<button class="ks-rightmove empty" data-ks-prop-link="${prop.id}">+ Add link</button>`;
+      const rmBtnHTML = '';
 
       card.innerHTML = `
         <div class="ks-property-head" data-ks-toggle-property="${prop.id}">
@@ -8793,7 +9056,6 @@ function renderKokiriSourcing() {
             ${totalSubs > 0 ? `<span class="ks-property-counts ${allDone ? 'complete' : ''}">${doneSubs}/${totalSubs} tasks${allDone ? ' ✓' : ''}</span>` : ''}
           </div>
           <div class="ks-property-actions">
-            ${rmBtnHTML}
             <button class="ks-property-del" data-ks-prop-del="${prop.id}" aria-label="Remove">✕</button>
           </div>
         </div>
@@ -10623,6 +10885,17 @@ document.addEventListener('click', e => {
   if (subEl && !subEl.classList.contains('editing')) {
     e.stopPropagation();
     startEditingPanelSub(subEl);
+    return;
+  }
+  // Universal link editor (works on every panel)
+  const editLink = e.target.closest('[data-edit-link]');
+  if (editLink) {
+    // If this is an empty link tag — start editor and DON'T treat as nav click.
+    // If this is the ✎ icon nested inside an <a> link tag, intercept the parent link.
+    e.preventDefault();
+    e.stopPropagation();
+    editEntityUrl(editLink.dataset.editLink);
+    return;
   }
 });
 document.getElementById('nuvo-edit').addEventListener('click', () => {
