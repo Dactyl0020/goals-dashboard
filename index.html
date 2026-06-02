@@ -313,6 +313,34 @@
     margin-left: 12px;
     font-style: normal;
   }
+  .panel-sub.editable {
+    cursor: text;
+    padding: 2px 6px;
+    margin-left: 8px;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+    border: 1px dashed transparent;
+  }
+  .panel-sub.editable:hover {
+    color: var(--text-soft);
+    background: rgba(255,255,255,0.04);
+    border-color: var(--surface-edge);
+  }
+  .panel-sub-edit {
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--text-soft);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-left: 8px;
+    outline: none;
+    min-width: 260px;
+  }
+  .panel-sub-edit:focus { border-color: var(--accent, var(--nuvo-systems)); }
 
   /* Status badge in panel header (ahead/behind/on-pace) */
   .panel-status {
@@ -363,6 +391,7 @@
   .theme-coaching-tasks { --accent: var(--coaching); --accent-deep: var(--coaching-deep); --accent-soft: rgba(255,170,148,0.12); }
   .theme-personal-goals { --accent: #F08BB8; --accent-deep: #D472A0; --accent-soft: rgba(240,139,184,0.12); }
   .theme-kokiri-sourcing { --accent: #E89F6A; --accent-deep: #CC8550; --accent-soft: rgba(232,159,106,0.12); }
+  .theme-health-panel { --accent: #6FE0B5; --accent-deep: #4FC494; --accent-soft: rgba(111,224,181,0.12); }
 
   .panel.theme-coaching,
   .panel.theme-nuvo,
@@ -372,7 +401,8 @@
   .panel.theme-kokiri-income,
   .panel.theme-coaching-tasks,
   .panel.theme-personal-goals,
-  .panel.theme-kokiri-sourcing { border-left: 4px solid var(--accent); }
+  .panel.theme-kokiri-sourcing,
+  .panel.theme-health-panel { border-left: 4px solid var(--accent); }
   .metric-card.theme-health { border-left: 4px solid var(--accent); }
 
   .panel.theme-coaching .panel-head h3,
@@ -384,6 +414,7 @@
   .panel.theme-coaching-tasks .panel-head h3,
   .panel.theme-personal-goals .panel-head h3,
   .panel.theme-kokiri-sourcing .panel-head h3,
+  .panel.theme-health-panel .panel-head h3,
   .metric-card.theme-health .metric-head h4 { color: var(--accent); }
 
   /* Pastel palette for personal-goals headlines — each headline gets a different pastel */
@@ -2296,7 +2327,7 @@
   .pin-star {
     background: transparent;
     border: none;
-    color: var(--text-faint);
+    color: var(--text-soft);
     cursor: pointer;
     padding: 4px;
     border-radius: 6px;
@@ -2305,32 +2336,43 @@
     justify-content: center;
     flex-shrink: 0;
     transition: color 0.18s, transform 0.15s, background 0.15s;
-    opacity: 0.45;
+    opacity: 0.7;
     margin-right: 2px;
   }
-  .pin-star svg { width: 18px; height: 18px; display: block; }
+  .pin-star svg { width: 20px; height: 20px; display: block; }
   .pin-star:hover {
     color: #F5C846;
     opacity: 1;
-    transform: scale(1.1);
-    background: rgba(245,200,70,0.08);
+    transform: scale(1.15);
+    background: rgba(245,200,70,0.1);
   }
   .pin-star.on {
     color: #F5C846;
     opacity: 1;
+    animation: pinPulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes pinPulse {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.35); }
+    100% { transform: scale(1); }
   }
   .pin-star.on:hover {
     color: #E8B832;
-    transform: scale(1.05);
+    transform: scale(1.1);
   }
 
-  /* Pinned row — subtle gold glow on the left edge */
+  /* Pinned row — stronger gold glow on the left edge */
   .habit-row.subtask.pinned {
-    background: linear-gradient(to right, rgba(245,200,70,0.06), transparent 30%);
-    box-shadow: inset 3px 0 0 #F5C846;
+    background: linear-gradient(to right, rgba(245,200,70,0.1), transparent 40%);
+    box-shadow: inset 4px 0 0 #F5C846;
+    border-color: rgba(245,200,70,0.35);
+  }
+  .habit-row.subtask.pinned .habit-label {
+    color: #FFE5A0;
+    font-weight: 700;
   }
   .habit-row.subtask.pinned.done {
-    box-shadow: inset 3px 0 0 rgba(245,200,70,0.5);
+    box-shadow: inset 4px 0 0 rgba(245,200,70,0.5);
   }
   .habit-row.subtask.done {
     background: rgba(91,196,224,0.06);
@@ -3075,6 +3117,184 @@
     font-size: 10px; font-weight: 500;
     color: var(--text-faint); margin-left: 3px;
   }
+
+  /* Health panel — recent weigh-ins list */
+  .health-empty {
+    text-align: center;
+    padding: 24px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.06em;
+    line-height: 1.5;
+  }
+  .health-entries-head {
+    margin-top: 18px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--surface-edge);
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .health-entries {
+    display: flex; flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .health-entry {
+    display: flex; align-items: center; gap: 14px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .health-entry:hover { background: var(--surface-2); }
+  .he-date {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 600;
+    color: var(--text-soft);
+    letter-spacing: 0.05em;
+    flex: 1;
+  }
+  .he-val {
+    font-family: var(--sans);
+    font-size: 14px; font-weight: 700;
+    color: var(--text);
+  }
+  .he-unit {
+    font-family: var(--mono);
+    font-size: 9px; font-weight: 500;
+    color: var(--text-faint);
+    margin-left: 3px;
+  }
+  .he-del {
+    background: transparent; border: none;
+    color: var(--text-faint);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .health-entry:hover .he-del { opacity: 1; }
+  .he-del:hover { color: var(--coaching); }
+
+  /* Daily weigh-in popup overlay */
+  .weighin-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10, 12, 18, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: weighFadeIn 0.18s ease-out;
+  }
+  @keyframes weighFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .weighin-popup {
+    background: var(--surface);
+    border: 1px solid var(--surface-edge);
+    border-left: 4px solid #6FE0B5;
+    border-radius: 12px;
+    padding: 22px 24px;
+    width: 100%; max-width: 360px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    display: flex; flex-direction: column; gap: 10px;
+    animation: weighSlideUp 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes weighSlideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .weighin-popup .wp-title {
+    font-family: var(--sans);
+    font-size: 16px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .weighin-popup .wp-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    font-style: italic;
+  }
+  .weighin-popup .wp-input {
+    background: var(--bg);
+    border: 1px solid var(--surface-edge);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: var(--sans);
+    font-size: 22px; font-weight: 700;
+    color: var(--text);
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    letter-spacing: -0.02em;
+  }
+  .weighin-popup .wp-input:focus { border-color: #6FE0B5; }
+  .weighin-popup .wp-input::placeholder { color: var(--text-faint); font-weight: 500; }
+  .weighin-popup .wp-unit {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    margin-top: -2px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .weighin-popup .wp-actions {
+    display: flex; gap: 8px;
+    margin-top: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  .weighin-popup .wp-actions button {
+    background: transparent;
+    border: 1px solid var(--surface-edge);
+    color: var(--text-soft);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .weighin-popup .wp-actions button:hover { color: var(--text); border-color: var(--text-soft); }
+  .weighin-popup .wp-actions .wp-save {
+    background: #6FE0B5;
+    color: var(--bg);
+    border-color: #6FE0B5;
+  }
+  .weighin-popup .wp-actions .wp-save:hover { background: #4FC494; border-color: #4FC494; color: var(--bg); }
+  .weighin-popup .wp-actions .wp-clear {
+    margin-right: auto;
+    color: var(--coaching);
+    border-color: rgba(255,170,148,0.3);
+  }
+  .weighin-popup .wp-actions .wp-clear:hover { color: var(--coaching); border-color: var(--coaching); }
+
+  /* Weigh-in row in Daily Tasks — uses health green for the tick */
+  .habit-row.weighin-row { border-color: rgba(111,224,181,0.3); }
+  .habit-row.weighin-row.done {
+    background: rgba(111,224,181,0.06);
+    border-color: rgba(111,224,181,0.4);
+  }
+  .habit-row.weighin-row .h-check { border-color: #6FE0B5; }
+  .habit-row.weighin-row .h-check::before { background: #6FE0B5; }
+  .habit-row.weighin-row .h-check:hover { border-color: #4FC494; }
+  .habit-row.weighin-row .h-check.on { border-color: #6FE0B5; }
+  .habit-row.weighin-row .subtask-meta .from { color: #6FE0B5; }
+
+  /* Fade-out animation when a Daily Task is ticked today */
+  .habit-row.fading-out {
+    animation: rowFadeOut 0.5s cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+    pointer-events: none;
+  }
+  @keyframes rowFadeOut {
+    0% { opacity: 1; transform: scale(1); max-height: 80px; }
+    40% { opacity: 0.6; transform: scale(0.98); }
+    100% { opacity: 0; transform: scale(0.96) translateX(8px); max-height: 0; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; border-width: 0; }
+  }
   .ws-val.down { color: var(--accent); }
   .ws-val.up { color: var(--coaching); }
   .ws-val.current { color: var(--accent); }
@@ -3765,6 +3985,19 @@
     <div id="qgoals-list"></div>
   </section>
 
+  <!-- HEALTH (weight + chart) -->
+  <section class="panel theme-health-panel" id="health-panel">
+    <div class="panel-head">
+      <h3>HEALTH<span class="panel-sub editable" data-edit-panel-sub="health" title="Click to edit">Daily weigh-ins · trend</span></h3>
+      <div class="head-controls">
+        <button class="collapse-btn" data-collapse="health-panel" aria-label="Collapse">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+    <div id="health-display"></div>
+  </section>
+
   <!-- METRICS -->
   <section class="metrics" id="metrics">
     <div class="metric-card theme-health" id="weight-card">
@@ -3810,7 +4043,7 @@
   <!-- COACHING TASKS -->
   <section class="panel theme-coaching-tasks" id="coaching-tasks-panel">
     <div class="panel-head">
-      <h3>COACHING | TASKS<span class="panel-sub">Build the coaching practice · headline tasks &amp; daily steps</span></h3>
+      <h3>COACHING | TASKS<span class="panel-sub editable" data-edit-panel-sub="coaching-tasks" title="Click to edit">Build the coaching practice · headline tasks &amp; daily steps</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="coaching-tasks-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -3890,7 +4123,7 @@
   <!-- NUVO SYSTEMS -->
   <section class="panel theme-nuvo-systems" id="nuvo-systems-panel">
     <div class="panel-head">
-      <h3>NUVO | SYSTEMS<span class="panel-sub">Build the engine · headline tasks &amp; daily steps</span></h3>
+      <h3>NUVO | SYSTEMS<span class="panel-sub editable" data-edit-panel-sub="nuvo-systems" title="Click to edit">Build the engine · headline tasks &amp; daily steps</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="nuvo-systems-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -3907,7 +4140,7 @@
   <!-- KOKIRI GROUP -->
   <section class="panel theme-kokiri" id="kokiri-panel">
     <div class="panel-head">
-      <h3>KOKIRI | ACTIVE PROJECTS<span class="panel-sub">Two projects shipping by 30 June</span></h3>
+      <h3>KOKIRI | ACTIVE PROJECTS<span class="panel-sub editable" data-edit-panel-sub="kokiri-projects" title="Click to edit">Two projects shipping by 30 June</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="kokiri-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -3939,7 +4172,7 @@
   <!-- KOKIRI SOURCING -->
   <section class="panel theme-kokiri-sourcing" id="kokiri-sourcing-panel">
     <div class="panel-head">
-      <h3>KOKIRI | SOURCING<span class="panel-sub">New deals · prospects · pipeline</span></h3>
+      <h3>KOKIRI | SOURCING<span class="panel-sub editable" data-edit-panel-sub="kokiri-sourcing" title="Click to edit">New deals · prospects · pipeline</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="kokiri-sourcing-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -3963,7 +4196,7 @@
   <!-- CONTENT SCHEDULE -->
   <section class="panel theme-content" id="content-panel">
     <div class="panel-head">
-      <h3>CONTENT CREATION<span class="panel-sub">Weekly rotation · themes every 4 weeks</span></h3>
+      <h3>CONTENT CREATION<span class="panel-sub editable" data-edit-panel-sub="content" title="Click to edit">Weekly rotation · themes every 4 weeks</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="content-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -3977,7 +4210,7 @@
   <!-- PERSONAL GOALS -->
   <section class="panel theme-personal-goals" id="personal-goals-panel">
     <div class="panel-head">
-      <h3>PERSONAL GOALS<span class="panel-sub">Your own headlines · life beyond business</span></h3>
+      <h3>PERSONAL GOALS<span class="panel-sub editable" data-edit-panel-sub="personal-goals" title="Click to edit">Your own headlines · life beyond business</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="personal-goals-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -4012,7 +4245,7 @@
   <!-- MISC TASKS -->
   <section class="panel" id="misc-tasks-panel" style="--accent: #B4C0CB; --accent-deep: #8B9AAB; --accent-soft: rgba(180,192,203,0.12); border-left: 4px solid #B4C0CB;">
     <div class="panel-head">
-      <h3 style="color: #B4C0CB;">MISC TASKS<span class="panel-sub">Anything else · dated or recurring</span></h3>
+      <h3 style="color: #B4C0CB;">MISC TASKS<span class="panel-sub editable" data-edit-panel-sub="misc-tasks" title="Click to edit">Anything else · dated or recurring</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="misc-tasks-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -4098,13 +4331,13 @@
 // ============ CONFIG ============
 const TABS = [
   { id: 'q1-2026', label: 'Q1 2026', subtitle: 'January · February · March', title: 'The First Quarter',  group: 'quarter',
-    panels: ['coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [0,1,2] },
+    panels: ['health', 'coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [0,1,2] },
   { id: 'q2-2026', label: 'Q2 2026', subtitle: 'April · May · June',         title: 'The Second Quarter', group: 'quarter',
-    panels: ['tracker', 'coaching', 'coaching_tasks', 'nuvo', 'nuvo_systems', 'kokiri', 'kokiri_income', 'kokiri_sourcing', 'content', 'personal_goals', 'misc_tasks'], monthIndices: [3,4,5] },
+    panels: ['tracker', 'health', 'coaching', 'coaching_tasks', 'nuvo', 'nuvo_systems', 'kokiri', 'kokiri_income', 'kokiri_sourcing', 'content', 'personal_goals', 'misc_tasks'], monthIndices: [3,4,5] },
   { id: 'q3-2026', label: 'Q3 2026', subtitle: 'July · August · September',  title: 'The Third Quarter',  group: 'quarter',
-    panels: ['coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [6,7,8] },
+    panels: ['health', 'coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [6,7,8] },
   { id: 'q4-2026', label: 'Q4 2026', subtitle: 'October · November · December', title: 'The Fourth Quarter', group: 'quarter',
-    panels: ['coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [9,10,11] },
+    panels: ['health', 'coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [9,10,11] },
   { id: 'annual-2026', label: 'Annual 2026', subtitle: 'The year in full', title: 'The Year', group: 'long' },
   { id: 'five-year',   label: '5-Year Plan', subtitle: 'The long horizon',  title: 'The Long Horizon', group: 'long' },
 ];
@@ -4213,6 +4446,7 @@ function ensureShape(s) {
     if (typeof x.subsExpanded !== 'boolean') x.subsExpanded = false;
   });
   s.collapsed = s.collapsed || {};
+  s.panelSubs = s.panelSubs || {};
   s.startDate = s.startDate || todayKey();
 
   // ONE-TIME MIGRATION: clear all default habits to use posts-only mode
@@ -4707,6 +4941,7 @@ function renderTabs() {
   setPanelVisible('tracker', panels.includes('tracker'));
   setPanelVisible('metrics', panels.includes('metrics'), true);
   setPanelVisible('coaching-panel', panels.includes('coaching'));
+  setPanelVisible('health-panel', panels.includes('health'));
   setPanelVisible('nuvo-panel', panels.includes('nuvo'));
   setPanelVisible('nuvo-systems-panel', panels.includes('nuvo_systems'));
   setPanelVisible('coaching-tasks-panel', panels.includes('coaching_tasks'));
@@ -4915,6 +5150,29 @@ function renderTracker(justEarned = false) {
   const grid = document.getElementById('habits-grid');
   grid.innerHTML = '';
 
+  const isViewingToday = viewDate === todayKey();
+
+  // Daily weigh-in row (always present, no number shown) — hidden when done on today
+  const todaysWeight = state.weights.find(w => w.date === viewDate);
+  const weighInDone = !!todaysWeight;
+  if (!(weighInDone && isViewingToday)) {
+    const weighRow = document.createElement('div');
+    weighRow.className = 'habit-row weighin-row' + (weighInDone ? ' done' : '');
+    if (d.rest) weighRow.classList.add('rest');
+    weighRow.innerHTML = `
+      <div class="habit-circles">
+        <button class="h-check ${weighInDone ? 'on' : ''}" data-weighin-tick aria-label="Log weight">
+          <svg viewBox="0 0 24 24"><polyline points="5,13 10,18 19,7"></polyline></svg>
+        </button>
+      </div>
+      <div class="habit-body">
+        <div class="habit-label">Weigh-in</div>
+        <div class="subtask-meta"><span class="from">HEALTH</span><span>${weighInDone ? '✓ Logged' : 'Step on the scales'}</span></div>
+      </div>
+    `;
+    grid.appendChild(weighRow);
+  }
+
   // Still render any legacy regular habits (if user re-adds via Edit ⚙)
   state.habits.config.forEach((h) => {
     const row = document.createElement('div');
@@ -4998,6 +5256,8 @@ function renderTracker(justEarned = false) {
     const st = item.subtask;
     const h = item.headline;
     const done = isSubtaskDone(st, viewDate);
+    // Hide ticked tasks when viewing today (they reappear next week / next cycle for recurring ones)
+    if (done && isViewingToday) return;
     const row = document.createElement('div');
     row.className = 'habit-row subtask' + (done ? ' done' : '');
     // Apply different border tint for coaching tasks vs nuvo systems vs personal
@@ -5129,6 +5389,137 @@ function escapeHTML(s) {
 function escapeAttr(s) { return escapeHTML(s); }
 
 // ============ WEIGHT ============
+// Daily weigh-in: opens an inline modal-style prompt so weight is entered privately
+// (the value never appears in the Daily Tasks list, only the tick state).
+function openWeighInPrompt(anchorBtn) {
+  const date = viewDate || todayKey();
+  const existing = state.weights.find(w => w.date === date);
+
+  // Build a tiny overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'weighin-overlay';
+  overlay.innerHTML = `
+    <div class="weighin-popup" role="dialog" aria-label="Log weight">
+      <div class="wp-title">Weigh-in${date !== todayKey() ? ' · ' + new Date(date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : ''}</div>
+      <div class="wp-hint">Private — only shown on the Health panel</div>
+      <input type="number" step="0.1" inputmode="decimal" placeholder="e.g. 72.4" class="wp-input" value="${existing ? existing.value : ''}" autocomplete="off"/>
+      <span class="wp-unit">kg</span>
+      <div class="wp-actions">
+        ${existing ? '<button class="wp-clear" type="button">Remove</button>' : ''}
+        <button class="wp-cancel" type="button">Cancel</button>
+        <button class="wp-save" type="button">Save</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const input = overlay.querySelector('.wp-input');
+  input.focus();
+  if (existing) input.select();
+
+  const close = () => {
+    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+  };
+  const save = () => {
+    const v = parseFloat(input.value);
+    if (isNaN(v) || v <= 0 || v > 500) { close(); return; }
+    state.weights = state.weights.filter(w => w.date !== date);
+    state.weights.push({ date, value: v });
+    saveState();
+    close();
+    popSoundSoft();
+    // If we're on today's view, fade out the weigh-in row before re-rendering
+    const isToday = (viewDate === todayKey());
+    const weighRow = document.querySelector('.weighin-row');
+    if (isToday && weighRow) {
+      const check = weighRow.querySelector('.h-check');
+      if (check) check.classList.add('on');
+      weighRow.classList.add('done', 'fading-out');
+      setTimeout(() => {
+        renderTracker();
+        renderHealth();
+        renderWeight();
+      }, 480);
+    } else {
+      renderTracker();
+      renderHealth();
+      renderWeight();
+    }
+  };
+  const clearEntry = () => {
+    state.weights = state.weights.filter(w => w.date !== date);
+    saveState();
+    close();
+    renderTracker();
+    renderHealth();
+    renderWeight();
+  };
+
+  overlay.querySelector('.wp-save').addEventListener('click', save);
+  overlay.querySelector('.wp-cancel').addEventListener('click', close);
+  if (existing) overlay.querySelector('.wp-clear').addEventListener('click', clearEntry);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); save(); }
+    else if (e.key === 'Escape') { e.preventDefault(); close(); }
+  });
+}
+
+function renderHealth() {
+  const t = activeTab();
+  if (!t.panels?.includes('health')) return;
+  const wrap = document.getElementById('health-display');
+  if (!wrap) return;
+  const w = state.weights
+    .filter(x => x.date >= state.startDate)
+    .slice()
+    .sort((a, b) => a.date.localeCompare(b.date));
+  if (w.length === 0) {
+    wrap.innerHTML = `<div class="health-empty">No weigh-ins yet. Tap the weigh-in task in Daily Tasks to log your first →</div>`;
+    return;
+  }
+  const first = w[0];
+  const last = w[w.length - 1];
+  const diff = last.value - first.value;
+  const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '·';
+  const changeClass = diff > 0 ? 'up' : diff < 0 ? 'down' : '';
+  const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+  const recent = w.slice(-30);
+  // Recent entries list (most recent first)
+  const recentList = w.slice(-10).reverse();
+  let entriesHTML = '';
+  recentList.forEach(entry => {
+    const d = new Date(entry.date + 'T00:00:00');
+    const dateLabel = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    entriesHTML += `
+      <div class="health-entry" data-health-date="${entry.date}">
+        <span class="he-date">${escapeHTML(dateLabel)}</span>
+        <span class="he-val">${entry.value.toFixed(1)}<span class="he-unit">kg</span></span>
+        <button class="he-del" data-health-del="${entry.date}" aria-label="Remove">✕</button>
+      </div>
+    `;
+  });
+  wrap.innerHTML = `
+    <div class="weight-stats">
+      <div class="weight-stat">
+        <span class="ws-label">Start</span>
+        <span class="ws-val">${first.value.toFixed(1)}<span class="ws-unit">kg</span></span>
+      </div>
+      <div class="weight-stat">
+        <span class="ws-label">Now</span>
+        <span class="ws-val current">${last.value.toFixed(1)}<span class="ws-unit">kg</span></span>
+      </div>
+      <div class="weight-stat">
+        <span class="ws-label">Change</span>
+        <span class="ws-val ${changeClass}">${arrow} ${sign}${Math.abs(diff).toFixed(1)}<span class="ws-unit">kg</span></span>
+      </div>
+    </div>
+    <div class="weight-chart">${weightBarChart(recent)}</div>
+    <div class="weight-chart-caption">Last ${recent.length} weigh-in${recent.length === 1 ? '' : 's'}</div>
+    <div class="health-entries-head">Recent entries</div>
+    <div class="health-entries">${entriesHTML}</div>
+  `;
+}
+
 function renderWeight() {
   const wrap = document.getElementById('weight-display');
   const w = state.weights
@@ -9172,11 +9563,74 @@ function formatTime(ts) {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
+// ============ EDITABLE PANEL SUBTITLES ============
+function renderPanelSubs() {
+  // Apply any user-saved overrides to the editable panel subtitles
+  document.querySelectorAll('[data-edit-panel-sub]').forEach(el => {
+    const key = el.dataset.editPanelSub;
+    const override = state.panelSubs && state.panelSubs[key];
+    if (override) {
+      // Remember the default once so we can restore via empty input
+      if (!el.dataset.defaultText) el.dataset.defaultText = el.textContent;
+      el.textContent = override;
+    } else if (el.dataset.defaultText) {
+      el.textContent = el.dataset.defaultText;
+    }
+  });
+}
+
+function startEditingPanelSub(spanEl) {
+  if (spanEl.classList.contains('editing')) return;
+  const key = spanEl.dataset.editPanelSub;
+  if (!spanEl.dataset.defaultText) spanEl.dataset.defaultText = spanEl.textContent;
+  const currentText = spanEl.textContent;
+  spanEl.classList.add('editing');
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = currentText;
+  input.maxLength = 120;
+  input.className = 'panel-sub-edit';
+  input.placeholder = spanEl.dataset.defaultText || 'Subtitle…';
+  spanEl.parentNode.insertBefore(input, spanEl);
+  spanEl.style.display = 'none';
+  input.focus();
+  input.select();
+  let finished = false;
+  function finish(save) {
+    if (finished) return;
+    finished = true;
+    if (save) {
+      const newText = input.value.trim();
+      if (!newText || newText === spanEl.dataset.defaultText) {
+        // Clearing or matching default → remove override (restore default)
+        if (state.panelSubs) delete state.panelSubs[key];
+      } else {
+        if (!state.panelSubs) state.panelSubs = {};
+        state.panelSubs[key] = newText;
+      }
+      saveState();
+    }
+    input.remove();
+    spanEl.classList.remove('editing');
+    spanEl.style.display = '';
+    renderPanelSubs();
+  }
+  input.addEventListener('blur', () => finish(true));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    e.stopPropagation();
+  });
+  input.addEventListener('click', e => e.stopPropagation());
+}
+
 function renderAll(animate = false, stickerJustEarned = false) {
+  renderPanelSubs();
   renderTabs();
   renderStats(animate);
   renderTracker(stickerJustEarned);
   renderWeight();
+  renderHealth();
   renderMeasurements();
   renderCoaching();
   renderNuvo();
@@ -9483,7 +9937,31 @@ document.getElementById('tabs').addEventListener('click', e => {
 });
 
 // Tracker
+// Helper: when a row is ticked on TODAY, play a fade-out animation, THEN actually toggle + re-render.
+// On past/future days, just toggle immediately (no fade, since the row stays visible).
+function tickWithFade(rowEl, doToggle) {
+  const isToday = (viewDate === todayKey());
+  if (!isToday || !rowEl) {
+    doToggle();
+    return;
+  }
+  // Immediate visual feedback: tick the check, add fade class
+  const check = rowEl.querySelector('.h-check');
+  if (check) check.classList.add('on');
+  rowEl.classList.add('done', 'fading-out');
+  // Wait for the animation to play out, then commit the toggle + re-render
+  setTimeout(() => { doToggle(); }, 480);
+}
+
 document.getElementById('habits-grid').addEventListener('click', e => {
+  // Daily weigh-in tick — open inline weight input (number never shown in main view)
+  const weighTick = e.target.closest('[data-weighin-tick]');
+  if (weighTick) {
+    e.stopPropagation();
+    openWeighInPrompt(weighTick);
+    return;
+  }
+
   // Pin/unpin priority star — handle BEFORE everything else (early return)
   const pinSub = e.target.closest('[data-pin-subtask]');
   if (pinSub) {
@@ -9507,22 +9985,25 @@ document.getElementById('habits-grid').addEventListener('click', e => {
   // Content post tick (from Daily Tracker)
   const postCheck = e.target.closest('[data-post-tracker]');
   if (postCheck) {
-    toggleContentPost(postCheck.dataset.pillar, postCheck.dataset.postTracker);
+    const row = postCheck.closest('.habit-row');
+    tickWithFade(row, () => toggleContentPost(postCheck.dataset.pillar, postCheck.dataset.postTracker));
     return;
   }
 
   // Kokiri Active Projects task tick (from Daily Tracker)
   const kokiriCheck = e.target.closest('[data-kokiri-tracker]');
   if (kokiriCheck) {
+    const row = kokiriCheck.closest('.habit-row');
     const r = kokiriCheck.getBoundingClientRect();
-    toggleKokiriTask(kokiriCheck.dataset.kokiriTracker, r.left + r.width/2, r.top + r.height/2);
+    tickWithFade(row, () => toggleKokiriTask(kokiriCheck.dataset.kokiriTracker, r.left + r.width/2, r.top + r.height/2));
     return;
   }
 
   // Kokiri Active Projects SUBTASK tick (from Daily Tracker)
   const kokiriSubCheck = e.target.closest('[data-kokiri-sub-tracker]');
   if (kokiriSubCheck) {
-    toggleKokiriSubtask(kokiriSubCheck.dataset.kokiriParentTracker, kokiriSubCheck.dataset.kokiriSubTracker);
+    const row = kokiriSubCheck.closest('.habit-row');
+    tickWithFade(row, () => toggleKokiriSubtask(kokiriSubCheck.dataset.kokiriParentTracker, kokiriSubCheck.dataset.kokiriSubTracker));
     return;
   }
 
@@ -9531,7 +10012,8 @@ document.getElementById('habits-grid').addEventListener('click', e => {
   if (subCheck) {
     const id = subCheck.dataset.subtaskTracker;
     popSoundSoft();
-    toggleNuvoSystemsSubtask(id, viewDate);
+    const row = subCheck.closest('.habit-row');
+    tickWithFade(row, () => toggleNuvoSystemsSubtask(id, viewDate));
     return;
   }
 
@@ -10081,6 +10563,21 @@ document.getElementById('nuvo-list').addEventListener('change', e => {
 document.getElementById('show-lost-form').addEventListener('click', showLostForm);
 document.getElementById('save-lost').addEventListener('click', markLandlordLost);
 
+// Health panel: delete a weight entry or click entry to edit
+document.getElementById('health-display').addEventListener('click', e => {
+  const del = e.target.closest('[data-health-del]');
+  if (del) {
+    e.stopPropagation();
+    if (!confirm(`Remove the entry for ${del.dataset.healthDel}?`)) return;
+    state.weights = state.weights.filter(w => w.date !== del.dataset.healthDel);
+    saveState();
+    renderHealth();
+    renderTracker();
+    renderWeight();
+    return;
+  }
+});
+
 // Potential landlords
 document.getElementById('show-potential-form').addEventListener('click', showPotentialForm);
 document.getElementById('save-pot').addEventListener('click', savePotential);
@@ -10120,7 +10617,13 @@ document.getElementById('potentials-list').addEventListener('click', e => {
 // Global collapse button handler (works for any .collapse-btn)
 document.addEventListener('click', e => {
   const btn = e.target.closest('.collapse-btn');
-  if (btn) toggleCollapse(btn.dataset.collapse);
+  if (btn) { toggleCollapse(btn.dataset.collapse); return; }
+  // Editable panel subtitle
+  const subEl = e.target.closest('[data-edit-panel-sub]');
+  if (subEl && !subEl.classList.contains('editing')) {
+    e.stopPropagation();
+    startEditingPanelSub(subEl);
+  }
 });
 document.getElementById('nuvo-edit').addEventListener('click', () => {
   openTargetModal('Edit NUVO growth target', 'Target increase per quarter (£/mo)', state.nuvo.growthTarget, v => {
