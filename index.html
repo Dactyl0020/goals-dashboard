@@ -24,19 +24,19 @@
     --text-faint:    #6E8497;
 
     /* Brand accents (mapped to projects) */
-    --nuvo:          #43E0B5;
-    --nuvo-deep:     #2DC79A;
+    --nuvo:          #5BC4E0;
+    --nuvo-deep:     #4AAFCB;
     --coaching:      #FFAA94;
     --coaching-deep: #FF8870;
-    --kokiri:        #FF8855;
-    --kokiri-deep:   #E26C3A;
+    --kokiri:        #E89F6A;
+    --kokiri-deep:   #CC8550;
     --health:        #5BE091;
     --health-deep:   #3FC576;
     --content:       #B89EFF;
     --content-deep:  #9B7EE8;
     /* Sub-categories and personal goals */
     --nuvo-systems:  #5BC4E0;
-    --kokiri-income: #F0B570;
+    --kokiri-income: #E89F6A;
     --friends:       #F4A8B0;
     --home-reno:     #E8B14C;
     --beauty:        #E875A8;
@@ -382,12 +382,12 @@
 
   /* ============ PANEL THEMES (project brand colors) ============ */
   .theme-coaching { --accent: var(--coaching); --accent-deep: var(--coaching-deep); --accent-soft: rgba(255,170,148,0.12); }
-  .theme-nuvo     { --accent: var(--nuvo);     --accent-deep: var(--nuvo-deep);     --accent-soft: rgba(67,224,181,0.12); }
-  .theme-kokiri   { --accent: var(--kokiri);   --accent-deep: var(--kokiri-deep);   --accent-soft: rgba(255,136,85,0.12); }
+  .theme-nuvo     { --accent: var(--nuvo);     --accent-deep: var(--nuvo-deep);     --accent-soft: rgba(91,196,224,0.12); }
+  .theme-kokiri   { --accent: var(--kokiri);   --accent-deep: var(--kokiri-deep);   --accent-soft: rgba(232,159,106,0.12); }
   .theme-health   { --accent: var(--health);   --accent-deep: var(--health-deep);   --accent-soft: rgba(91,224,145,0.12); }
   .theme-content  { --accent: var(--content);  --accent-deep: var(--content-deep);  --accent-soft: rgba(184,158,255,0.12); }
   .theme-nuvo-systems { --accent: var(--nuvo-systems); --accent-deep: #4AAFCB; --accent-soft: rgba(91,196,224,0.12); }
-  .theme-kokiri-income { --accent: var(--kokiri-income); --accent-deep: #D89A50; --accent-soft: rgba(240,181,112,0.12); }
+  .theme-kokiri-income { --accent: var(--kokiri-income); --accent-deep: #CC8550; --accent-soft: rgba(232,159,106,0.12); }
   .theme-coaching-tasks { --accent: var(--coaching); --accent-deep: var(--coaching-deep); --accent-soft: rgba(255,170,148,0.12); }
   .theme-personal-goals { --accent: #F08BB8; --accent-deep: #D472A0; --accent-soft: rgba(240,139,184,0.12); }
   .theme-kokiri-sourcing { --accent: #E89F6A; --accent-deep: #CC8550; --accent-soft: rgba(232,159,106,0.12); }
@@ -3243,6 +3243,455 @@
   .health-entry:hover .he-del { opacity: 1; }
   .he-del:hover { color: var(--coaching); }
 
+  /* Quarter Headline Goals — fixed-size grid of cards at the top of every quarter */
+  .qhg-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+    grid-auto-rows: 1fr;
+  }
+  @media (max-width: 1100px) {
+    .qhg-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 760px) {
+    .qhg-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  }
+  .qhg-card {
+    --qhg-color: #8a99a8;
+    background: var(--surface-2);
+    border: 1px solid var(--surface-edge);
+    border-left: 3px solid var(--qhg-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 110px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s, opacity 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .qhg-card.editing {
+    background: var(--surface);
+    border-color: var(--qhg-color);
+    cursor: default;
+    overflow: visible;
+    z-index: 2;
+  }
+  .qhg-card:hover {
+    background: var(--surface);
+    border-color: var(--qhg-color);
+  }
+  .qhg-card.hit {
+    background: color-mix(in srgb, var(--qhg-color) 12%, var(--surface-2));
+    border-color: var(--qhg-color);
+  }
+  .qhg-card.hit .qhg-text { text-decoration: line-through; opacity: 0.75; }
+  .qhg-card.dragging { opacity: 0.4; transform: scale(0.97); }
+  .qhg-card.drop-target {
+    border-color: var(--qhg-color);
+    box-shadow: 0 0 0 2px var(--qhg-color);
+    transform: scale(1.02);
+  }
+  .qhg-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 6px;
+    flex-shrink: 0;
+    min-width: 0;
+    height: 20px;
+  }
+  .qhg-drag {
+    color: var(--text-faint);
+    font-size: 11px;
+    letter-spacing: -1px;
+    cursor: grab;
+    user-select: none;
+    flex-shrink: 0;
+    padding: 0 4px;
+    opacity: 0.55;
+    transition: opacity 0.15s;
+    line-height: 1;
+  }
+  .qhg-card:hover .qhg-drag { opacity: 1; }
+  .qhg-drag:active { cursor: grabbing; }
+  .qhg-label {
+    font-family: var(--mono);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--qhg-color);
+    line-height: 1.2;
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .qhg-head-actions {
+    display: flex; align-items: center; gap: 4px;
+    flex-shrink: 0;
+  }
+  .qhg-hit {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--surface-edge);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: transparent;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .qhg-hit svg {
+    width: 10px; height: 10px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .qhg-card:hover .qhg-hit { border-color: var(--qhg-color); color: var(--qhg-color); opacity: 0.5; }
+  .qhg-card.hit .qhg-hit {
+    background: var(--qhg-color);
+    border-color: var(--qhg-color);
+    color: var(--bg);
+    opacity: 1;
+  }
+  .qhg-del {
+    width: 16px; height: 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-faint);
+    cursor: pointer;
+    padding: 0;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+  .qhg-card:hover .qhg-del { opacity: 0.7; }
+  .qhg-del:hover { opacity: 1; color: var(--coaching); background: rgba(255,170,148,0.12); }
+  .qhg-text {
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--text);
+    font-weight: 500;
+    flex: 1 1 auto;
+    word-break: break-word;
+    cursor: text;
+    overflow: hidden;
+    min-height: 20px;
+    padding: 2px 0;
+  }
+  .qhg-text.is-placeholder {
+    color: var(--text-faint);
+    font-style: italic;
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .qhg-card.empty .qhg-text { font-size: 11px; }
+  .qhg-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--qhg-color);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+    box-sizing: border-box;
+    min-height: 60px;
+    overflow: hidden;
+  }
+  .qhg-text {
+    white-space: pre-wrap;
+  }
+  .qhg-card.editing .qhg-text { display: block; }
+
+  /* Hidden cards row */
+  .qhg-hidden-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--surface-edge);
+  }
+  .qhg-hidden-label {
+    font-family: var(--mono);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-right: 4px;
+  }
+  .qhg-restore {
+    --qhg-color: #8a99a8;
+    background: transparent;
+    border: 1px dashed var(--qhg-color);
+    color: var(--qhg-color);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .qhg-restore:hover { background: color-mix(in srgb, var(--qhg-color) 15%, transparent); }
+
+  /* =========== ANNUAL GOALS =========== */
+  .ag-summary {
+    background: var(--surface-2);
+    border: 1px solid var(--surface-edge);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .ag-summary-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .ag-summary-label {
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .ag-summary-pct {
+    font-family: var(--sans);
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .ag-summary-bar {
+    height: 8px;
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .ag-summary-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6FE0B5 0%, #5BC4E0 50%, #E89F6A 100%);
+    border-radius: 4px;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ag-summary-meta {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .ag-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 760px) {
+    .ag-grid { grid-template-columns: 1fr; }
+  }
+  .ag-card {
+    --ag-color: #8a99a8;
+    background: var(--surface-2);
+    border: 1px solid var(--surface-edge);
+    border-left: 3px solid var(--ag-color);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 130px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s, opacity 0.15s;
+    position: relative;
+  }
+  .ag-card:hover { background: var(--surface); border-color: var(--ag-color); }
+  .ag-card.hit { background: color-mix(in srgb, var(--ag-color) 12%, var(--surface-2)); border-color: var(--ag-color); }
+  .ag-card.hit .ag-text { text-decoration: line-through; opacity: 0.75; }
+  .ag-card.dragging { opacity: 0.4; transform: scale(0.97); }
+  .ag-card.drop-target { box-shadow: 0 0 0 2px var(--ag-color); transform: scale(1.02); }
+  .ag-card.editing { background: var(--surface); border-color: var(--ag-color); cursor: default; }
+  .ag-head {
+    display: flex; align-items: center; gap: 8px;
+    min-width: 0;
+    height: 22px;
+    flex-shrink: 0;
+  }
+  .ag-drag {
+    color: var(--text-faint);
+    font-size: 12px;
+    letter-spacing: -1px;
+    cursor: grab;
+    user-select: none;
+    flex-shrink: 0;
+    padding: 0 4px;
+    opacity: 0.55;
+    transition: opacity 0.15s;
+    line-height: 1;
+  }
+  .ag-card:hover .ag-drag { opacity: 1; }
+  .ag-drag:active { cursor: grabbing; }
+  .ag-label {
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--ag-color);
+    line-height: 1.2;
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ag-dots {
+    display: flex; gap: 3px;
+    flex-shrink: 0;
+  }
+  .ag-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--surface-edge);
+    transition: background 0.2s;
+  }
+  .ag-dot.on { background: var(--ag-color); }
+  .ag-head-actions {
+    display: flex; align-items: center; gap: 4px;
+    flex-shrink: 0;
+  }
+  .ag-hit, .ag-del {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--surface-edge);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: transparent;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .ag-del {
+    border: none;
+    color: var(--text-faint);
+    font-size: 12px;
+    line-height: 1;
+    opacity: 0;
+  }
+  .ag-card:hover .ag-del { opacity: 0.7; }
+  .ag-del:hover { opacity: 1; color: var(--coaching); background: rgba(255,170,148,0.12); }
+  .ag-hit svg {
+    width: 10px; height: 10px;
+    fill: none; stroke: currentColor;
+    stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .ag-card:hover .ag-hit { border-color: var(--ag-color); color: var(--ag-color); opacity: 0.6; }
+  .ag-card.hit .ag-hit { background: var(--ag-color); border-color: var(--ag-color); color: var(--bg); opacity: 1; }
+  .ag-text {
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text);
+    font-weight: 500;
+    flex: 1 1 auto;
+    word-break: break-word;
+    cursor: text;
+    min-height: 22px;
+    white-space: pre-wrap;
+  }
+  .ag-text.is-placeholder {
+    color: var(--text-faint);
+    font-style: italic;
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .ag-autodata {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+    padding: 4px 8px;
+    background: color-mix(in srgb, var(--ag-color) 10%, transparent);
+    border-radius: 4px;
+    align-self: flex-start;
+  }
+  .ag-bar {
+    height: 5px;
+    background: var(--surface);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: auto;
+  }
+  .ag-bar-fill {
+    height: 100%;
+    background: var(--ag-color);
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ag-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--ag-color);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+    box-sizing: border-box;
+    min-height: 60px;
+    overflow: hidden;
+  }
+  .ag-hidden-row {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+    margin-top: 14px; padding-top: 12px;
+    border-top: 1px dashed var(--surface-edge);
+  }
+  .ag-hidden-label {
+    font-family: var(--mono);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-right: 4px;
+  }
+  .ag-restore {
+    --ag-color: #8a99a8;
+    background: transparent;
+    border: 1px dashed var(--ag-color);
+    color: var(--ag-color);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .ag-restore:hover { background: color-mix(in srgb, var(--ag-color) 15%, transparent); }
+
   /* Daily weigh-in popup overlay */
   .weighin-overlay {
     position: fixed; inset: 0;
@@ -4037,7 +4486,7 @@
   <!-- QUARTERLY GOALS -->
   <section class="panel" id="qgoals-panel">
     <div class="panel-head">
-      <h3>Quarterly Goals<span class="panel-sub" id="qgoals-sub">Big things to achieve this quarter</span></h3>
+      <h3>THIS QUARTER<span class="panel-sub" id="qgoals-sub">Headline goals · click any card to edit</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="qgoals-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -4045,6 +4494,19 @@
       </div>
     </div>
     <div id="qgoals-list"></div>
+  </section>
+
+  <!-- ANNUAL GOALS (only on Annual 2026 tab) -->
+  <section class="panel" id="annual-goals-panel">
+    <div class="panel-head">
+      <h3>ANNUAL 2026<span class="panel-sub">Year-end goals · progress across the year</span></h3>
+      <div class="head-controls">
+        <button class="collapse-btn" data-collapse="annual-goals-panel" aria-label="Collapse">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+    <div id="annual-goals-list"></div>
   </section>
 
   <!-- HEALTH (weight + chart) -->
@@ -4105,7 +4567,7 @@
   <!-- COACHING TASKS -->
   <section class="panel theme-coaching-tasks" id="coaching-tasks-panel">
     <div class="panel-head">
-      <h3>COACHING | TASKS<span class="panel-sub editable" data-edit-panel-sub="coaching-tasks" title="Click to edit">Build the coaching practice · headline tasks &amp; daily steps</span></h3>
+      <h3>COACHING | SYSTEMS<span class="panel-sub editable" data-edit-panel-sub="coaching-tasks" title="Click to edit">Build the coaching practice · headline tasks &amp; daily steps</span></h3>
       <div class="head-controls">
         <button class="collapse-btn" data-collapse="coaching-tasks-panel" aria-label="Collapse">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 8,11 13,6"></polyline></svg>
@@ -4393,14 +4855,15 @@
 // ============ CONFIG ============
 const TABS = [
   { id: 'q1-2026', label: 'Q1 2026', subtitle: 'January · February · March', title: 'The First Quarter',  group: 'quarter',
-    panels: ['health', 'coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [0,1,2] },
+    panels: ['qgoals', 'health', 'coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [0,1,2] },
   { id: 'q2-2026', label: 'Q2 2026', subtitle: 'April · May · June',         title: 'The Second Quarter', group: 'quarter',
-    panels: ['tracker', 'health', 'coaching', 'coaching_tasks', 'nuvo', 'nuvo_systems', 'kokiri', 'kokiri_income', 'kokiri_sourcing', 'content', 'personal_goals', 'misc_tasks'], monthIndices: [3,4,5] },
+    panels: ['qgoals', 'tracker', 'health', 'coaching', 'coaching_tasks', 'nuvo', 'nuvo_systems', 'kokiri', 'kokiri_income', 'kokiri_sourcing', 'content', 'personal_goals', 'misc_tasks'], monthIndices: [3,4,5] },
   { id: 'q3-2026', label: 'Q3 2026', subtitle: 'July · August · September',  title: 'The Third Quarter',  group: 'quarter',
-    panels: ['health', 'coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [6,7,8] },
+    panels: ['qgoals', 'tracker', 'health', 'coaching', 'coaching_tasks', 'nuvo', 'nuvo_systems', 'kokiri', 'kokiri_income', 'kokiri_sourcing', 'content', 'personal_goals', 'misc_tasks'], monthIndices: [6,7,8] },
   { id: 'q4-2026', label: 'Q4 2026', subtitle: 'October · November · December', title: 'The Fourth Quarter', group: 'quarter',
-    panels: ['health', 'coaching', 'nuvo', 'kokiri_income', 'kokiri_sourcing', 'personal_goals', 'misc_tasks'], monthIndices: [9,10,11] },
-  { id: 'annual-2026', label: 'Annual 2026', subtitle: 'The year in full', title: 'The Year', group: 'long' },
+    panels: ['qgoals', 'tracker', 'health', 'coaching', 'coaching_tasks', 'nuvo', 'nuvo_systems', 'kokiri', 'kokiri_income', 'kokiri_sourcing', 'content', 'personal_goals', 'misc_tasks'], monthIndices: [9,10,11] },
+  { id: 'annual-2026', label: 'Annual 2026', subtitle: 'The year in full', title: 'The Year', group: 'long',
+    panels: ['annual_goals'] },
   { id: 'five-year',   label: '5-Year Plan', subtitle: 'The long horizon',  title: 'The Long Horizon', group: 'long' },
 ];
 
@@ -4457,6 +4920,11 @@ function loadState() {
 function ensureShape(s) {
   s.goalsByTab = s.goalsByTab || {};
   TABS.forEach(t => { if (!s.goalsByTab[t.id]) s.goalsByTab[t.id] = []; });
+  // Quarter headline goals: state.quarterHeadlineGoals[quarterId][panelKey] = { text: '...', hit: false }
+  s.quarterHeadlineGoals = s.quarterHeadlineGoals || {};
+  // Annual goals: state.annualGoals[panelKey] = { text: '', hit: false }
+  s.annualGoals = s.annualGoals || {};
+  s.annualGoalsLayout = s.annualGoalsLayout || {};
   s.history = s.history || {};
   s.habits = s.habits || {};
   s.habits.config = s.habits.config || JSON.parse(JSON.stringify(DEFAULT_HABITS));
@@ -5018,6 +5486,7 @@ function renderTabs() {
   setPanelVisible('kokiri-sourcing-panel', panels.includes('kokiri_sourcing'));
   setPanelVisible('content-panel', panels.includes('content'));
   setPanelVisible('qgoals-panel', panels.includes('qgoals'));
+  setPanelVisible('annual-goals-panel', panels.includes('annual_goals'));
 
   // Hide "Other goals" divider if no other panels show (just goal list) — removed in v2
 }
@@ -7064,7 +7533,7 @@ function subtasksForTrackerDate(dateKey) {
   const result = [];
   const systems = [
     { key: 'nuvoSystems', label: 'NUVO | SYSTEMS', accent: 'var(--nuvo-systems)' },
-    { key: 'coachingTasks', label: 'COACHING | TASKS', accent: 'var(--coaching)' },
+    { key: 'coachingTasks', label: 'COACHING | SYSTEMS', accent: 'var(--coaching)' },
     { key: 'personalGoals', label: 'PERSONAL', accent: '#C9B6FF' },
   ];
   systems.forEach(sys => {
@@ -9656,58 +10125,504 @@ function getQuarterlyGoals(tabId, categoryId) {
   return state.quarterlyGoals[tabId][categoryId];
 }
 
+// === HEADLINE GOAL CARDS (top of every quarter tab) ===
+// One card per panel/area. Quarter-specific. Click to edit, ✓ to mark hit.
+const QUARTER_HEADLINE_PANELS = [
+  { key: 'health',          label: 'HEALTH',                  color: '#6FE0B5' },  // health-panel
+  { key: 'coaching',        label: 'COACHING | INCOME',       color: '#FFAA94' },  // coaching
+  { key: 'coaching_tasks',  label: 'COACHING | SYSTEMS',      color: '#FFAA94' },  // coaching-tasks
+  { key: 'nuvo',            label: 'NUVO | INCOME',           color: '#5BC4E0' },  // unified NUVO blue
+  { key: 'nuvo_systems',    label: 'NUVO | SYSTEMS',          color: '#5BC4E0' },  // unified NUVO blue
+  { key: 'kokiri',          label: 'KOKIRI | ACTIVE PROJECTS',color: '#E89F6A' },  // unified KOKIRI orange
+  { key: 'kokiri_income',   label: 'KOKIRI | INCOME',         color: '#E89F6A' },  // unified KOKIRI orange
+  { key: 'kokiri_sourcing', label: 'KOKIRI | SOURCING',       color: '#E89F6A' },  // unified KOKIRI orange
+  { key: 'content',         label: 'CONTENT CREATION',        color: '#B89EFF' },  // content
+  { key: 'personal_goals',  label: 'PERSONAL GOALS',          color: '#F08BB8' },  // personal-goals
+  { key: 'misc_tasks',      label: 'MISC TASKS',              color: '#B4C0CB' },  // misc (neutral)
+];
+
+function getQuarterHeadlineGoal(quarterId, panelKey) {
+  const q = state.quarterHeadlineGoals[quarterId] || {};
+  return q[panelKey] || { text: '', hit: false };
+}
+
+// Default layout for the quarter headline cards — applies to any quarter that hasn't been customized
+const QUARTER_HEADLINE_DEFAULT_ORDER = [
+  'health',
+  'nuvo',
+  'kokiri',
+  'coaching',
+  'content',
+  'nuvo_systems',
+  'kokiri_sourcing',
+  'coaching_tasks',
+];
+const QUARTER_HEADLINE_DEFAULT_HIDDEN = [
+  'misc_tasks',
+  'personal_goals',
+  'kokiri_income',
+];
+
+function getQuarterCardOrder(quarterId) {
+  // Returns array of panelKeys in display order. Initializes to the default layout
+  // if not yet set for this quarter.
+  state.quarterHeadlineGoals[quarterId] = state.quarterHeadlineGoals[quarterId] || {};
+  const q = state.quarterHeadlineGoals[quarterId];
+  if (!q._order || !Array.isArray(q._order)) {
+    const t = TABS.find(x => x.id === quarterId);
+    if (!t) return [];
+    // Use the default order, then append any panels the quarter has that aren't in the default
+    const validKeys = QUARTER_HEADLINE_PANELS.filter(p => t.panels.includes(p.key)).map(p => p.key);
+    const ordered = QUARTER_HEADLINE_DEFAULT_ORDER.filter(k => validKeys.includes(k));
+    QUARTER_HEADLINE_DEFAULT_HIDDEN.forEach(k => {
+      if (validKeys.includes(k) && !ordered.includes(k)) ordered.push(k);
+    });
+    // Append any other panels not yet placed
+    validKeys.forEach(k => { if (!ordered.includes(k)) ordered.push(k); });
+    q._order = ordered;
+  }
+  if (!q._hidden || !Array.isArray(q._hidden)) {
+    // First time: apply the default hidden set, filtered to panels this quarter has
+    const t = TABS.find(x => x.id === quarterId);
+    const validKeys = t ? QUARTER_HEADLINE_PANELS.filter(p => t.panels.includes(p.key)).map(p => p.key) : [];
+    q._hidden = QUARTER_HEADLINE_DEFAULT_HIDDEN.filter(k => validKeys.includes(k));
+  }
+  return q._order.filter(k => !q._hidden.includes(k));
+}
+
+function getQuarterHiddenCards(quarterId) {
+  state.quarterHeadlineGoals[quarterId] = state.quarterHeadlineGoals[quarterId] || {};
+  return state.quarterHeadlineGoals[quarterId]._hidden || [];
+}
+
+function hideQuarterCard(quarterId, panelKey) {
+  state.quarterHeadlineGoals[quarterId] = state.quarterHeadlineGoals[quarterId] || {};
+  const q = state.quarterHeadlineGoals[quarterId];
+  q._hidden = q._hidden || [];
+  if (!q._hidden.includes(panelKey)) q._hidden.push(panelKey);
+  saveState();
+}
+
+function restoreQuarterCard(quarterId, panelKey) {
+  const q = state.quarterHeadlineGoals[quarterId];
+  if (!q || !q._hidden) return;
+  q._hidden = q._hidden.filter(k => k !== panelKey);
+  saveState();
+}
+
+function reorderQuarterCards(quarterId, draggedKey, targetKey) {
+  state.quarterHeadlineGoals[quarterId] = state.quarterHeadlineGoals[quarterId] || {};
+  const q = state.quarterHeadlineGoals[quarterId];
+  if (!q._order) {
+    const t = TABS.find(x => x.id === quarterId);
+    if (!t) return;
+    q._order = QUARTER_HEADLINE_PANELS.filter(p => t.panels.includes(p.key)).map(p => p.key);
+  }
+  const order = q._order.slice();
+  const from = order.indexOf(draggedKey);
+  const to = order.indexOf(targetKey);
+  if (from < 0 || to < 0 || from === to) return;
+  order.splice(from, 1);
+  order.splice(to, 0, draggedKey);
+  q._order = order;
+  saveState();
+}
+
+function setQuarterHeadlineGoal(quarterId, panelKey, fields) {
+  state.quarterHeadlineGoals[quarterId] = state.quarterHeadlineGoals[quarterId] || {};
+  const current = state.quarterHeadlineGoals[quarterId][panelKey] || { text: '', hit: false };
+  state.quarterHeadlineGoals[quarterId][panelKey] = { ...current, ...fields };
+  saveState();
+}
+
 function renderQuarterlyGoals() {
   const t = activeTab();
   if (!t.panels?.includes('qgoals')) return;
-  document.getElementById('qgoals-sub').textContent = `Big things to achieve in ${t.label}`;
   const wrap = document.getElementById('qgoals-list');
+  if (!wrap) return;
   wrap.innerHTML = '';
 
-  let lastGroup = null;
-  TASK_CATEGORIES.forEach(cat => {
-    if (cat.group !== lastGroup) {
-      const header = document.createElement('div');
-      header.className = 'tg-section-head';
-      header.textContent = cat.group === 'business' ? 'Business' : 'Personal';
-      wrap.appendChild(header);
-      lastGroup = cat.group;
+  // Visible cards in user's chosen order, filtered to panels available on this quarter
+  const order = getQuarterCardOrder(t.id);
+  const visibleKeys = order.filter(k => {
+    if (!t.panels.includes(k)) return false;
+    return QUARTER_HEADLINE_PANELS.some(p => p.key === k);
+  });
+  // Also include any newly-available panels that aren't yet in the order
+  QUARTER_HEADLINE_PANELS.forEach(p => {
+    if (t.panels.includes(p.key) && !visibleKeys.includes(p.key)) {
+      const hidden = getQuarterHiddenCards(t.id);
+      if (!hidden.includes(p.key)) visibleKeys.push(p.key);
     }
-    const goals = getQuarterlyGoals(activeTabId, cat.id);
-    const active = goals.filter(g => !g.done);
-    const done = goals.filter(g => g.done);
-    const total = goals.length;
-    const doneCount = done.length;
+  });
 
-    const section = document.createElement('div');
-    section.className = 'task-group';
-    section.dataset.category = cat.id;
-    section.style.setProperty('--tg-accent', cat.accent);
-
-    let goalsHTML = '';
-    active.forEach(g => {
-      goalsHTML += quarterlyGoalRowHTML(g, false);
-    });
-    done.forEach(g => {
-      goalsHTML += quarterlyGoalRowHTML(g, true);
-    });
-    const empty = total === 0 ? '<div class="tg-empty">~ no goals yet · add one below ~</div>' : '';
-
-    section.innerHTML = `
-      <div class="task-group-head">
-        <div class="task-group-title">${cat.label}</div>
-        <div class="task-group-count ${total > 0 && doneCount === total ? 'done' : ''}">
-          ${total === 0 ? '' : `${doneCount} / ${total}${doneCount === total ? ' ✓' : ''}`}
+  const grid = document.createElement('div');
+  grid.className = 'qhg-grid';
+  visibleKeys.forEach(panelKey => {
+    const p = QUARTER_HEADLINE_PANELS.find(x => x.key === panelKey);
+    if (!p) return;
+    const goal = getQuarterHeadlineGoal(t.id, p.key);
+    const card = document.createElement('div');
+    card.className = 'qhg-card' + (goal.hit ? ' hit' : '') + (!goal.text ? ' empty' : '');
+    card.style.setProperty('--qhg-color', p.color);
+    card.dataset.quarter = t.id;
+    card.dataset.panel = p.key;
+    card.innerHTML = `
+      <div class="qhg-head">
+        <span class="qhg-drag" title="Drag to reorder" aria-hidden="true" draggable="true">⋮⋮</span>
+        <span class="qhg-label">${p.label}</span>
+        <div class="qhg-head-actions">
+          <button class="qhg-hit" data-qhg-hit="${p.key}" aria-label="Mark hit" title="${goal.hit ? 'Mark not hit' : 'Mark hit'}">
+            <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
+          </button>
+          <button class="qhg-del" data-qhg-del="${p.key}" aria-label="Remove card" title="Remove card">✕</button>
         </div>
       </div>
-      ${goalsHTML}
-      ${empty}
-      <div class="tg-add">
-        <input type="text" placeholder="Add a ${cat.label.toLowerCase()} quarterly goal…" data-qgoal-add="${cat.id}" maxlength="200"/>
-        <button data-qgoal-add-btn="${cat.id}">Add</button>
-      </div>
+      <div class="qhg-text${goal.text ? '' : ' is-placeholder'}" data-qhg-edit="${p.key}" tabindex="0" role="button" aria-label="Edit goal">${goal.text ? escapeHTML(goal.text) : '+ Set a goal for this quarter'}</div>
     `;
-    wrap.appendChild(section);
+    grid.appendChild(card);
   });
+  wrap.appendChild(grid);
+
+  // "Show hidden" link if any cards are hidden
+  const hidden = getQuarterHiddenCards(t.id).filter(k => {
+    return t.panels.includes(k) && QUARTER_HEADLINE_PANELS.some(p => p.key === k);
+  });
+  if (hidden.length > 0) {
+    const hiddenWrap = document.createElement('div');
+    hiddenWrap.className = 'qhg-hidden-row';
+    let btns = '';
+    hidden.forEach(k => {
+      const p = QUARTER_HEADLINE_PANELS.find(x => x.key === k);
+      if (!p) return;
+      btns += `<button class="qhg-restore" data-qhg-restore="${p.key}" style="--qhg-color:${p.color}">+ ${p.label}</button>`;
+    });
+    hiddenWrap.innerHTML = `<span class="qhg-hidden-label">Hidden:</span>${btns}`;
+    wrap.appendChild(hiddenWrap);
+  }
+}
+
+function startEditQHG(card) {
+  if (card.classList.contains('editing')) return;
+  card.classList.add('editing');
+  const panelKey = card.dataset.panel;
+  const quarterId = card.dataset.quarter;
+  const goal = getQuarterHeadlineGoal(quarterId, panelKey);
+  const textEl = card.querySelector('.qhg-text');
+  const input = document.createElement('textarea');
+  input.className = 'qhg-input';
+  input.value = goal.text || '';
+  input.rows = 3;
+  input.maxLength = 500;
+  input.placeholder = 'e.g. Get to 64kg by end of quarter\n(Shift+Enter for a new line)';
+  textEl.innerHTML = '';
+  textEl.appendChild(input);
+  // Auto-grow as the user types
+  function autoGrow() {
+    input.style.height = 'auto';
+    input.style.height = Math.max(60, input.scrollHeight) + 'px';
+  }
+  input.focus();
+  // Place cursor at end
+  input.setSelectionRange(input.value.length, input.value.length);
+  autoGrow();
+
+  let done = false;
+  function finish(save) {
+    if (done) return;
+    done = true;
+    if (save) {
+      const newText = input.value.trim();
+      setQuarterHeadlineGoal(quarterId, panelKey, { text: newText });
+    }
+    card.classList.remove('editing');
+    renderQuarterlyGoals();
+  }
+  input.addEventListener('input', autoGrow);
+  input.addEventListener('blur', () => finish(true));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); finish(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    e.stopPropagation();
+  });
+  input.addEventListener('click', e => e.stopPropagation());
+}
+
+function toggleQHGHit(card) {
+  const panelKey = card.dataset.panel;
+  const quarterId = card.dataset.quarter;
+  const goal = getQuarterHeadlineGoal(quarterId, panelKey);
+  if (!goal.text) return; // can't mark hit without a goal set
+  setQuarterHeadlineGoal(quarterId, panelKey, { hit: !goal.hit });
+  renderQuarterlyGoals();
+  if (!goal.hit) popSoundSoft();
+}
+
+// =================== ANNUAL GOALS ===================
+function getAnnualGoal(panelKey) {
+  return state.annualGoals[panelKey] || { text: '', hit: false };
+}
+function setAnnualGoal(panelKey, fields) {
+  const current = state.annualGoals[panelKey] || { text: '', hit: false };
+  state.annualGoals[panelKey] = { ...current, ...fields };
+  saveState();
+}
+
+// Get the same default layout (visible/hidden, ordered) for the Annual tab
+function getAnnualLayout() {
+  if (!state.annualGoalsLayout._order || !Array.isArray(state.annualGoalsLayout._order)) {
+    const ordered = QUARTER_HEADLINE_DEFAULT_ORDER.slice();
+    QUARTER_HEADLINE_DEFAULT_HIDDEN.forEach(k => {
+      if (!ordered.includes(k)) ordered.push(k);
+    });
+    QUARTER_HEADLINE_PANELS.forEach(p => {
+      if (!ordered.includes(p.key)) ordered.push(p.key);
+    });
+    state.annualGoalsLayout._order = ordered;
+  }
+  if (!state.annualGoalsLayout._hidden || !Array.isArray(state.annualGoalsLayout._hidden)) {
+    state.annualGoalsLayout._hidden = QUARTER_HEADLINE_DEFAULT_HIDDEN.slice();
+  }
+  return {
+    order: state.annualGoalsLayout._order,
+    hidden: state.annualGoalsLayout._hidden,
+  };
+}
+
+function hideAnnualCard(panelKey) {
+  const l = getAnnualLayout();
+  if (!state.annualGoalsLayout._hidden.includes(panelKey)) state.annualGoalsLayout._hidden.push(panelKey);
+  saveState();
+}
+function restoreAnnualCard(panelKey) {
+  state.annualGoalsLayout._hidden = (state.annualGoalsLayout._hidden || []).filter(k => k !== panelKey);
+  saveState();
+}
+function reorderAnnualCards(draggedKey, targetKey) {
+  const order = (state.annualGoalsLayout._order || []).slice();
+  const from = order.indexOf(draggedKey);
+  const to = order.indexOf(targetKey);
+  if (from < 0 || to < 0 || from === to) return;
+  order.splice(from, 1);
+  order.splice(to, 0, draggedKey);
+  state.annualGoalsLayout._order = order;
+  saveState();
+}
+
+// Auto-data reference for cards where we have real numbers to show
+function getAnnualAutoData(panelKey) {
+  switch (panelKey) {
+    case 'health': {
+      const ws = (state.weights || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+      if (ws.length < 2) return ws.length === 1 ? `Currently ${ws[0].value.toFixed(1)}kg` : null;
+      const first = ws[0];
+      const last = ws[ws.length - 1];
+      const diff = last.value - first.value;
+      const arrow = diff < 0 ? '↓' : diff > 0 ? '↑' : '·';
+      const sign = diff < 0 ? '−' : diff > 0 ? '+' : '';
+      return `Currently ${last.value.toFixed(1)}kg · ${arrow} ${sign}${Math.abs(diff).toFixed(1)}kg from start`;
+    }
+    case 'nuvo': {
+      const m = state.nuvo?.monthly || {};
+      const months = Object.keys(m).sort();
+      if (months.length === 0) return null;
+      const latest = m[months[months.length - 1]] || 0;
+      return `Latest month: £${Math.round(latest).toLocaleString()}/mo`;
+    }
+    case 'coaching': {
+      const m = state.coaching?.monthly || {};
+      const months = Object.keys(m).sort();
+      if (months.length === 0) return null;
+      const latest = m[months[months.length - 1]] || 0;
+      return `Latest month: £${Math.round(latest).toLocaleString()}/mo`;
+    }
+    case 'kokiri_income': {
+      // Sum up most recent month across all properties
+      const props = state.kokiriIncome?.properties || [];
+      if (props.length === 0) return null;
+      // For each property, get net (income - cost) for most recent month entry
+      let totalNet = 0;
+      let anyData = false;
+      props.forEach(p => {
+        const inc = p.income || [];
+        const cost = p.costs || [];
+        if (inc.length || cost.length) {
+          anyData = true;
+          const incTotal = inc.reduce((sum, x) => sum + (Number(x.amount) || 0), 0);
+          const costTotal = cost.reduce((sum, x) => sum + (Number(x.amount) || 0), 0);
+          totalNet += (incTotal - costTotal);
+        }
+      });
+      if (!anyData) return null;
+      return `Portfolio net: £${Math.round(totalNet).toLocaleString()}/mo`;
+    }
+    case 'content': {
+      // Count of done posts this year across all pillars
+      const pillars = state.content?.headlines || {};
+      let totalDone = 0;
+      Object.values(pillars).forEach(headlines => {
+        (headlines || []).forEach(h => {
+          (h.subtasks || []).forEach(st => {
+            if (st.done) totalDone++;
+          });
+        });
+      });
+      if (totalDone === 0) return null;
+      return `${totalDone} post${totalDone === 1 ? '' : 's'} done this year`;
+    }
+    default:
+      return null;
+  }
+}
+
+// How many quarters this card has been hit
+function getQuartersHitForPanel(panelKey) {
+  const qIds = ['q1-2026', 'q2-2026', 'q3-2026', 'q4-2026'];
+  let hit = 0;
+  qIds.forEach(qid => {
+    const g = (state.quarterHeadlineGoals[qid] || {})[panelKey];
+    if (g && g.hit) hit++;
+  });
+  return hit;
+}
+
+function renderAnnualGoals() {
+  const t = activeTab();
+  if (!t.panels?.includes('annual_goals')) return;
+  const wrap = document.getElementById('annual-goals-list');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+
+  const { order, hidden } = getAnnualLayout();
+  const visibleKeys = order.filter(k => !hidden.includes(k) && QUARTER_HEADLINE_PANELS.some(p => p.key === k));
+
+  // Overall summary at the top
+  const totalCards = visibleKeys.length;
+  let totalHit = 0;
+  let totalQHits = 0;
+  visibleKeys.forEach(k => {
+    if (getAnnualGoal(k).hit) totalHit++;
+    totalQHits += getQuartersHitForPanel(k);
+  });
+  const overallPct = totalCards > 0 ? Math.round((totalQHits / (totalCards * 4)) * 100) : 0;
+  const summary = document.createElement('div');
+  summary.className = 'ag-summary';
+  summary.innerHTML = `
+    <div class="ag-summary-head">
+      <span class="ag-summary-label">Overall progress this year</span>
+      <span class="ag-summary-pct">${overallPct}%</span>
+    </div>
+    <div class="ag-summary-bar"><div class="ag-summary-bar-fill" style="width:${overallPct}%"></div></div>
+    <div class="ag-summary-meta">${totalQHits} of ${totalCards * 4} quarter targets hit · ${totalHit} of ${totalCards} year-end goals marked complete</div>
+  `;
+  wrap.appendChild(summary);
+
+  const grid = document.createElement('div');
+  grid.className = 'ag-grid';
+  visibleKeys.forEach(panelKey => {
+    const p = QUARTER_HEADLINE_PANELS.find(x => x.key === panelKey);
+    if (!p) return;
+    const goal = getAnnualGoal(p.key);
+    const qHits = getQuartersHitForPanel(p.key);
+    const autoData = getAnnualAutoData(p.key);
+    const cardPct = Math.round((qHits / 4) * 100) + (goal.hit ? 5 : 0); // small bonus for marking annual complete
+    const displayPct = Math.min(100, cardPct);
+
+    // Quarter dots
+    let dots = '';
+    for (let i = 0; i < 4; i++) {
+      dots += `<span class="ag-dot${i < qHits ? ' on' : ''}"></span>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'ag-card' + (goal.hit ? ' hit' : '') + (!goal.text ? ' empty' : '');
+    card.style.setProperty('--ag-color', p.color);
+    card.dataset.panel = p.key;
+    card.innerHTML = `
+      <div class="ag-head">
+        <span class="ag-drag" title="Drag to reorder" aria-hidden="true" draggable="true">⋮⋮</span>
+        <span class="ag-label">${p.label}</span>
+        <div class="ag-dots" title="${qHits} of 4 quarters hit">${dots}</div>
+        <div class="ag-head-actions">
+          <button class="ag-hit" data-ag-hit="${p.key}" aria-label="Mark year-end goal complete" title="${goal.hit ? 'Mark not complete' : 'Mark year-end goal complete'}">
+            <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
+          </button>
+          <button class="ag-del" data-ag-del="${p.key}" aria-label="Remove card" title="Remove card">✕</button>
+        </div>
+      </div>
+      <div class="ag-text${goal.text ? '' : ' is-placeholder'}" data-ag-edit="${p.key}">${goal.text ? escapeHTML(goal.text) : '+ Set year-end goal'}</div>
+      ${autoData ? `<div class="ag-autodata">${escapeHTML(autoData)}</div>` : ''}
+      <div class="ag-bar"><div class="ag-bar-fill" style="width:${displayPct}%"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+
+  // Hidden cards row
+  const hiddenAvailable = hidden.filter(k => QUARTER_HEADLINE_PANELS.some(p => p.key === k));
+  if (hiddenAvailable.length > 0) {
+    const hiddenWrap = document.createElement('div');
+    hiddenWrap.className = 'ag-hidden-row';
+    let btns = '';
+    hiddenAvailable.forEach(k => {
+      const p = QUARTER_HEADLINE_PANELS.find(x => x.key === k);
+      if (!p) return;
+      btns += `<button class="ag-restore" data-ag-restore="${p.key}" style="--ag-color:${p.color}">+ ${p.label}</button>`;
+    });
+    hiddenWrap.innerHTML = `<span class="ag-hidden-label">Hidden:</span>${btns}`;
+    wrap.appendChild(hiddenWrap);
+  }
+}
+
+function startEditAG(card) {
+  if (card.classList.contains('editing')) return;
+  card.classList.add('editing');
+  const panelKey = card.dataset.panel;
+  const goal = getAnnualGoal(panelKey);
+  const textEl = card.querySelector('.ag-text');
+  const input = document.createElement('textarea');
+  input.className = 'ag-input';
+  input.value = goal.text || '';
+  input.rows = 3;
+  input.maxLength = 500;
+  input.placeholder = 'e.g. Reach +£6k/mo NUVO income by year end\n(Shift+Enter for new line)';
+  textEl.innerHTML = '';
+  textEl.appendChild(input);
+  function autoGrow() {
+    input.style.height = 'auto';
+    input.style.height = Math.max(60, input.scrollHeight) + 'px';
+  }
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+  autoGrow();
+  let done = false;
+  function finish(save) {
+    if (done) return;
+    done = true;
+    if (save) {
+      const newText = input.value.trim();
+      setAnnualGoal(panelKey, { text: newText });
+    }
+    card.classList.remove('editing');
+    renderAnnualGoals();
+  }
+  input.addEventListener('input', autoGrow);
+  input.addEventListener('blur', () => finish(true));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); finish(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    e.stopPropagation();
+  });
+  input.addEventListener('click', e => e.stopPropagation());
+}
+
+function toggleAGHit(card) {
+  const panelKey = card.dataset.panel;
+  const goal = getAnnualGoal(panelKey);
+  if (!goal.text) return;
+  setAnnualGoal(panelKey, { hit: !goal.hit });
+  renderAnnualGoals();
+  if (!goal.hit) popSoundSoft();
 }
 
 function quarterlyGoalRowHTML(g, isDone) {
@@ -9902,6 +10817,7 @@ function renderAll(animate = false, stickerJustEarned = false) {
   renderKokiriSourcing();
   renderContent();
   renderQuarterlyGoals();
+  renderAnnualGoals();
   renderGoals();
   applyCollapseState();
 }
@@ -10729,34 +11645,169 @@ function kiRefreshTotals() {
 
 // Quarterly goals
 document.getElementById('qgoals-list').addEventListener('click', e => {
-  const check = e.target.closest('.tg-check');
-  if (check) {
-    const row = check.closest('[data-qgoal-id]');
-    if (row) { toggleQuarterlyGoal(row.dataset.qgoalId); return; }
-  }
-  const del = e.target.closest('[data-qgoal-del]');
-  if (del) { deleteQuarterlyGoal(del.dataset.qgoalDel); return; }
-  const addBtn = e.target.closest('[data-qgoal-add-btn]');
-  if (addBtn) {
-    const cat = addBtn.dataset.qgoalAddBtn;
-    const input = document.querySelector(`[data-qgoal-add="${cat}"]`);
-    if (input) { addQuarterlyGoal(cat, input.value); input.value = ''; }
+  // Hit toggle button
+  const hitBtn = e.target.closest('[data-qhg-hit]');
+  if (hitBtn) {
+    const card = hitBtn.closest('.qhg-card');
+    if (card) toggleQHGHit(card);
     return;
   }
-  const txt = e.target.closest('.tg-task-text');
-  if (txt && txt.closest('[data-qgoal-id]')) {
-    startEditingQuarterlyGoal(txt);
+  // Delete button
+  const delBtn = e.target.closest('[data-qhg-del]');
+  if (delBtn) {
+    e.stopPropagation();
+    const card = delBtn.closest('.qhg-card');
+    if (card) {
+      hideQuarterCard(card.dataset.quarter, card.dataset.panel);
+      renderQuarterlyGoals();
+    }
+    return;
+  }
+  // Restore hidden card
+  const restoreBtn = e.target.closest('[data-qhg-restore]');
+  if (restoreBtn) {
+    e.stopPropagation();
+    restoreQuarterCard(activeTabId, restoreBtn.dataset.qhgRestore);
+    renderQuarterlyGoals();
+    return;
+  }
+  // Click anywhere else on the card to edit
+  const card = e.target.closest('.qhg-card');
+  if (card && !card.classList.contains('editing')) {
+    // Don't open editor if click landed on the drag handle
+    if (e.target.closest('.qhg-drag')) return;
+    startEditQHG(card);
     return;
   }
 });
-document.getElementById('qgoals-list').addEventListener('keydown', e => {
-  const input = e.target.closest('[data-qgoal-add]');
-  if (input && e.key === 'Enter') {
+
+// Drag and drop reordering (only the drag handle is draggable, not the whole card)
+(function setupQHGDrag() {
+  const wrap = document.getElementById('qgoals-list');
+  if (!wrap) return;
+  let dragKey = null;
+  wrap.addEventListener('dragstart', e => {
+    const handle = e.target.closest('.qhg-drag');
+    if (!handle) { e.preventDefault(); return; }
+    const card = handle.closest('.qhg-card');
+    if (!card || card.classList.contains('editing')) { e.preventDefault(); return; }
+    dragKey = card.dataset.panel;
+    card.classList.add('dragging');
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', dragKey); } catch (err) {}
+    }
+  });
+  wrap.addEventListener('dragend', e => {
+    wrap.querySelectorAll('.qhg-card.dragging').forEach(el => el.classList.remove('dragging'));
+    wrap.querySelectorAll('.qhg-card.drop-target').forEach(el => el.classList.remove('drop-target'));
+    dragKey = null;
+  });
+  wrap.addEventListener('dragover', e => {
+    const card = e.target.closest('.qhg-card');
+    if (!card || !dragKey || card.dataset.panel === dragKey) return;
     e.preventDefault();
-    addQuarterlyGoal(input.dataset.qgoalAdd, input.value);
-    input.value = '';
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    wrap.querySelectorAll('.qhg-card.drop-target').forEach(el => {
+      if (el !== card) el.classList.remove('drop-target');
+    });
+    card.classList.add('drop-target');
+  });
+  wrap.addEventListener('dragleave', e => {
+    const card = e.target.closest('.qhg-card');
+    if (card) card.classList.remove('drop-target');
+  });
+  wrap.addEventListener('drop', e => {
+    const card = e.target.closest('.qhg-card');
+    if (!card || !dragKey) return;
+    e.preventDefault();
+    const targetKey = card.dataset.panel;
+    if (dragKey === targetKey) return;
+    reorderQuarterCards(card.dataset.quarter, dragKey, targetKey);
+    renderQuarterlyGoals();
+    dragKey = null;
+  });
+})();
+
+// Annual Goals — click + drag
+document.getElementById('annual-goals-list').addEventListener('click', e => {
+  const hitBtn = e.target.closest('[data-ag-hit]');
+  if (hitBtn) {
+    const card = hitBtn.closest('.ag-card');
+    if (card) toggleAGHit(card);
+    return;
+  }
+  const delBtn = e.target.closest('[data-ag-del]');
+  if (delBtn) {
+    e.stopPropagation();
+    const card = delBtn.closest('.ag-card');
+    if (card) {
+      hideAnnualCard(card.dataset.panel);
+      renderAnnualGoals();
+    }
+    return;
+  }
+  const restoreBtn = e.target.closest('[data-ag-restore]');
+  if (restoreBtn) {
+    e.stopPropagation();
+    restoreAnnualCard(restoreBtn.dataset.agRestore);
+    renderAnnualGoals();
+    return;
+  }
+  const card = e.target.closest('.ag-card');
+  if (card && !card.classList.contains('editing')) {
+    if (e.target.closest('.ag-drag')) return;
+    startEditAG(card);
+    return;
   }
 });
+
+(function setupAGDrag() {
+  const wrap = document.getElementById('annual-goals-list');
+  if (!wrap) return;
+  let dragKey = null;
+  wrap.addEventListener('dragstart', e => {
+    const handle = e.target.closest('.ag-drag');
+    if (!handle) { e.preventDefault(); return; }
+    const card = handle.closest('.ag-card');
+    if (!card || card.classList.contains('editing')) { e.preventDefault(); return; }
+    dragKey = card.dataset.panel;
+    card.classList.add('dragging');
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', dragKey); } catch (err) {}
+    }
+  });
+  wrap.addEventListener('dragend', e => {
+    wrap.querySelectorAll('.ag-card.dragging').forEach(el => el.classList.remove('dragging'));
+    wrap.querySelectorAll('.ag-card.drop-target').forEach(el => el.classList.remove('drop-target'));
+    dragKey = null;
+  });
+  wrap.addEventListener('dragover', e => {
+    const card = e.target.closest('.ag-card');
+    if (!card || !dragKey || card.dataset.panel === dragKey) return;
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    wrap.querySelectorAll('.ag-card.drop-target').forEach(el => {
+      if (el !== card) el.classList.remove('drop-target');
+    });
+    card.classList.add('drop-target');
+  });
+  wrap.addEventListener('dragleave', e => {
+    const card = e.target.closest('.ag-card');
+    if (card) card.classList.remove('drop-target');
+  });
+  wrap.addEventListener('drop', e => {
+    const card = e.target.closest('.ag-card');
+    if (!card || !dragKey) return;
+    e.preventDefault();
+    const targetKey = card.dataset.panel;
+    if (dragKey === targetKey) return;
+    reorderAnnualCards(dragKey, targetKey);
+    renderAnnualGoals();
+    dragKey = null;
+  });
+})();
 const restBtnEl = document.getElementById('rest-btn');
 if (restBtnEl) restBtnEl.addEventListener('click', toggleRestDay);
 const unwellBtnEl = document.getElementById('unwell-btn');
