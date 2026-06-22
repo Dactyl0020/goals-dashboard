@@ -6000,6 +6000,9 @@ function ensureShape(s) {
   s.contentCalendars = { instagram: {}, nuvo: {}, linkedin: {} };
   s.contentCal = s.contentCal || {};
   s.mailingList = s.mailingList || { subscribers: 0, emails: [] };
+  // Force panels open that should never be collapsed
+  if (!s.collapsed) s.collapsed = {};
+  ['content-panel','nuvo-panel','nuvo-systems-panel','kokiri-panel','kokiri-income-panel','kokiri-sourcing-panel','coaching-panel','coaching-tasks-panel','personal-goals-panel','health-panel'].forEach(id => { s.collapsed[id] = false; });
   // Per-channel calendars: state.contentCalendars['instagram']['YYYY-MM-DD'] = [{id,text,done}]
   s.contentCalendars = s.contentCalendars || { instagram: {}, nuvo: {}, linkedin: {} };
   s.cycleData = s.cycleData || { lastPeriodDate: null, cycleLength: 28 };
