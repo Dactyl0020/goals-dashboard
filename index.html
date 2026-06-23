@@ -8129,36 +8129,43 @@ function getQ2Weeks() {
 function renderKokiri() {
   const t = activeTab();
   if (!t.panels?.includes('kokiri')) return;
-  // Restore view mode
-  if (state.kokiri?.viewMode === 'calendar') {
-    document.getElementById('kokiri-list-btn')?.classList.remove('active');
-    document.getElementById('kokiri-cal-btn')?.classList.add('active');
-    document.getElementById('weeks-list') && (document.getElementById('weeks-list').style.display = 'none');
-    document.getElementById('kokiri-calendar-view') && (document.getElementById('kokiri-calendar-view').style.display = '');
-    renderKokiriCalendar();
-    return;
-  } else {
-    document.getElementById('kokiri-list-btn')?.classList.add('active');
-    document.getElementById('kokiri-cal-btn')?.classList.remove('active');
-    document.getElementById('weeks-list') && (document.getElementById('weeks-list').style.display = '');
-    document.getElementById('kokiri-calendar-view') && (document.getElementById('kokiri-calendar-view').style.display = 'none');
+
+  // Always render project switcher first
+  const switcher = document.getElementById('project-switcher');
+  if (switcher) {
+    switcher.innerHTML = '';
+    state.kokiri.projects.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'proj-btn' + (p.id === activeProject ? ' active' : '');
+      btn.dataset.proj = p.id;
+      btn.textContent = p.name;
+      switcher.appendChild(btn);
+    });
+    const bothBtn = document.createElement('button');
+    bothBtn.className = 'proj-btn' + (activeProject === 'both' ? ' active' : '');
+    bothBtn.dataset.proj = 'both';
+    bothBtn.textContent = 'All';
+    switcher.appendChild(bothBtn);
+    // + Add Project goes after the switcher, not inside it
+    const addProjBtn = document.createElement('button');
+    addProjBtn.id = 'add-proj-btn';
+    addProjBtn.textContent = '+ Add Project';
+    addProjBtn.style.cssText = 'background:none;border:none;cursor:pointer;font-family:var(--sans);font-size:11px;color:var(--text-faint);padding:4px 0;display:block;margin-top:6px;';
+    switcher.after(addProjBtn);
   }
 
-  // Project switcher with Both option at the end
-  const switcher = document.getElementById('project-switcher');
-  switcher.innerHTML = '';
-  state.kokiri.projects.forEach(p => {
-    const btn = document.createElement('button');
-    btn.className = 'proj-btn' + (p.id === activeProject ? ' active' : '');
-    btn.dataset.proj = p.id;
-    btn.textContent = p.name;
-    switcher.appendChild(btn);
-  });
-  const bothBtn = document.createElement('button');
-  bothBtn.className = 'proj-btn' + (activeProject === 'both' ? ' active' : '');
-  bothBtn.dataset.proj = 'both';
-  bothBtn.textContent = 'Both';
-  switcher.appendChild(bothBtn);
+  // Switch view mode
+  const isCalView = state.kokiri?.viewMode === 'calendar';
+  document.getElementById('kokiri-list-btn')?.classList.toggle('active', !isCalView);
+  document.getElementById('kokiri-cal-btn')?.classList.toggle('active', isCalView);
+  const weeksList = document.getElementById('weeks-list');
+  const calView = document.getElementById('kokiri-calendar-view');
+  if (weeksList) weeksList.style.display = isCalView ? 'none' : '';
+  if (calView) calView.style.display = isCalView ? '' : 'none';
+
+  if (isCalView) { renderKokiriCalendar(); return; }
+
+  // Project switcher already rendered above
 
   const isBoth = activeProject === 'both';
   const projTasks = isBoth
@@ -13937,6 +13944,10 @@ document.addEventListener('click', e => {
   }
 });
 
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'add-proj-name') document.getElementById('add-proj-save')?.click();
+});
+
 // Add task to trip on Enter
 document.addEventListener('keydown', e => {
   const taskInput = e.target.closest('[data-hol-add-task]');
@@ -14203,6 +14214,25 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('#kcal-prev'))  { kokiriCalMonth--; if(kokiriCalMonth<0){kokiriCalMonth=11;kokiriCalYear--;} renderKokiriCalendar(); return; }
   if (e.target.closest('#kcal-next'))  { kokiriCalMonth++; if(kokiriCalMonth>11){kokiriCalMonth=0;kokiriCalYear++;} renderKokiriCalendar(); return; }
+
+  // Add project
+  if (e.target.closest('#add-proj-btn')) {
+    const existing = document.getElementById('add-proj-input-wrap');
+    if (existing) { existing.remove(); return; }
+    const wrap = document.createElement('div');
+    wrap.id = 'add-proj-input-wrap';
+    wrap.style.cssText = 'display:flex;gap:8px;margin-top:8px;align-items:center';
+    wrap.innerHTML = '<input id="add-proj-name" type="text" placeholder="Project name…" style="flex:1;background:var(--surface);border:1px solid var(--kokiri);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none"/><button id="add-proj-save" style="background:var(--kokiri);color:#000;border:none;border-radius:8px;padding:8px 14px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer">Add</button>';
+    document.getElementById('project-switcher').after(wrap);
+    setTimeout(() => document.getElementById('add-proj-name')?.focus(), 50);
+    return;
+  }
+  if (e.target.closest('#add-proj-save')) {
+    const name = document.getElementById('add-proj-name')?.value.trim();
+    if (name) { state.kokiri.projects.push({ id: uid(), name }); saveState(); renderKokiri(); }
+    document.getElementById('add-proj-input-wrap')?.remove();
+    return;
+  }
 
   // Day click opens modal
   const kcalDay = e.target.closest('[data-kcal-date]');
