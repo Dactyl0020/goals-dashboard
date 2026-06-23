@@ -5252,6 +5252,30 @@
     color: var(--text-soft) !important;
     border-color: var(--nuvo) !important;
   }
+
+  .annual-goal-card {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    display: flex; align-items: flex-start; gap: 10px;
+    border-left: 3px solid var(--accent, #5BC4E0);
+  }
+  .annual-goal-text { flex: 1; font-size: 14px; font-weight: 600; color: var(--text); }
+  .annual-goal-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 3px; }
+
+  /* Quarterly linked card */
+  .qg-linked-card {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .qg-linked-ref {
+    font-size: 10px; color: var(--text-faint); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .qg-linked-ref::before { content: '↑'; font-size: 11px; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -5356,6 +5380,22 @@
     <div class="panel-head">
       <h3>ANNUAL 2026<span class="panel-sub">Year-end goals · progress across the year</span></h3>
     </div>
+    <!-- New free-form annual goals -->
+    <div id="annual-goals-new-list"></div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+      <input type="text" id="annual-goal-input" placeholder="Add an annual goal (e.g. Get to 52kg by end of year)…" style="flex:1;background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none"/>
+      <select id="annual-goal-cat" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--text-soft);outline:none">
+        <option value="">No category</option>
+        <option value="nuvo">NUVO</option>
+        <option value="kokiri">Kokiri</option>
+        <option value="coaching">Coaching</option>
+        <option value="content">Content</option>
+        <option value="personal">Personal Goals</option>
+        <option value="misc">Misc</option>
+      </select>
+      <button id="annual-goal-add" style="background:var(--accent,#5BC4E0);color:#000;border:none;border-radius:8px;padding:9px 18px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer">Add Annual Goal</button>
+    </div>
+    <!-- Legacy annual goals -->
     <div id="annual-goals-list"></div>
   </section>
 
@@ -5886,6 +5926,8 @@ function ensureShape(s) {
   // Annual goals: state.annualGoals[panelKey] = { text: '', hit: false }
   s.annualGoals = s.annualGoals || {};
   s.annualGoalsLayout = s.annualGoalsLayout || {};
+  s.annualGoalsList = s.annualGoalsList || []; // [{id, text, category}] — new free-form annual goals
+  s.qGoalLinked = s.qGoalLinked || {}; // [annualId][qId] = {name, tasks:[]}
   s.history = s.history || {};
   s.habits = s.habits || {};
   s.habits.config = s.habits.config || JSON.parse(JSON.stringify(DEFAULT_HABITS));
@@ -6335,9 +6377,8 @@ function ensureShape(s) {
   s.friendsFamilyNotes = s.friendsFamilyNotes || { goals: [], calendar: {} };
   s.holidays = s.holidays || { trips: [], calendar: {} }; // trips:[{id,name,tasks:[{id,text,done}]}], calendar:{'YYYY-MM':[{id,name}]} // calendar: {'YYYY-MM': [{id, name, notes}]} // [{id, text, done}] // keyed by 'YYYY-MM' → { focus: '', notes: '' }
   // Free-form to-do tasks with categories
-  // Migrate: reset todo tasks to fresh start
-  s.todoTasks = [];
-  s.todoCategories = [];
+  s.todoTasks = s.todoTasks || [];
+  s.todoCategories = s.todoCategories || [];
   s.todoCategories = s.todoCategories || [];
   const defaultCats = ['NUVO', 'Kokiri', 'Coaching', 'Content Creation', 'Personal Goals', 'Misc'];
   defaultCats.forEach(c => { if (!s.todoCategories.includes(c)) s.todoCategories.push(c); });
@@ -11576,7 +11617,7 @@ function renderQuarterlyGoals() {
     content: 'Content', personal: 'Personal Goals', misc: 'Misc', '': 'None'
   };
 
-  let html = '';
+  let html = renderLinkedAnnualCards(qId);
 
   goals.forEach(g => {
     const colour = CAT_COLOURS[g.category] || '#B4C0CB';
@@ -11897,6 +11938,7 @@ function startEditAG(card) {
     }
     card.classList.remove('editing');
     renderAnnualGoals();
+  renderAnnualGoalsNew();
   }
   input.addEventListener('input', autoGrow);
   input.addEventListener('blur', () => finish(true));
@@ -13870,6 +13912,131 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'Enter' && e.target.id === 'hol-trip-input') document.getElementById('hol-trip-add')?.click();
 });
+
+// ============ ANNUAL GOALS (new free-form) ============
+const CAT_COLOURS_MAP = {
+  nuvo: 'var(--nuvo)', kokiri: 'var(--kokiri)', coaching: 'var(--coaching)',
+  content: 'var(--content)', personal: 'var(--health)', misc: 'var(--text-faint)'
+};
+
+function renderAnnualGoalsNew() {
+  const wrap = document.getElementById('annual-goals-new-list');
+  if (!wrap || !state) return;
+  const goals = state.annualGoalsList || [];
+  if (!goals.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = goals.map(g => {
+    const colour = CAT_COLOURS_MAP[g.category] || 'var(--text-soft)';
+    return `<div class="annual-goal-card" style="border-left-color:${colour}">
+      <div style="flex:1">
+        <div class="annual-goal-text">${escapeHTML(g.text)}</div>
+        ${g.category ? `<div class="annual-goal-cat" style="color:${colour}">${g.category.toUpperCase()}</div>` : ''}
+      </div>
+      <button data-ag-del="${g.id}" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:12px;opacity:0.5">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// In renderQuarterlyGoals, show linked cards at the top
+function renderLinkedAnnualCards(qId) {
+  const goals = state.annualGoalsList || [];
+  return goals.map(g => {
+    const colour = CAT_COLOURS_MAP[g.category] || 'var(--text-soft)';
+    if (!state.qGoalLinked) state.qGoalLinked = {};
+    if (!state.qGoalLinked[g.id]) state.qGoalLinked[g.id] = {};
+    if (!state.qGoalLinked[g.id][qId]) state.qGoalLinked[g.id][qId] = { name: '', tasks: [] };
+    const linked = state.qGoalLinked[g.id][qId];
+    const tasks = linked.tasks || [];
+    const taskRows = tasks.map(t => `
+      <div class="qg-task ${t.done?'done':''}">
+        <button class="qg-tick ${t.done?'on':''}" data-lq-tick="${g.id}" data-lq-qid="${qId}" data-task-id="${t.id}">
+          <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
+        </button>
+        <span class="qg-task-text">${escapeHTML(t.text)}</span>
+        <button class="qg-task-del" data-lq-del="${g.id}" data-lq-qid="${qId}" data-task-id="${t.id}">✕</button>
+      </div>`).join('');
+    return `<div class="qg-linked-card" style="border-left:3px solid ${colour}">
+      <div class="qg-linked-ref" style="color:${colour}">Annual goal: ${escapeHTML(g.text)}</div>
+      <input class="qg-name" data-lq-name="${g.id}" data-lq-qid="${qId}" value="${escapeHTML(linked.name)}" placeholder="What's your target this quarter?"/>
+      <div class="qg-tasks">${taskRows}</div>
+      <div class="qg-add-task">
+        <input type="text" class="qg-task-input" data-lq-add="${g.id}" data-lq-qid="${qId}" placeholder="+ Add task…"/>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Handlers
+document.addEventListener('click', e => {
+  // Add annual goal
+  if (e.target.closest('#annual-goal-add')) {
+    const inp = document.getElementById('annual-goal-input');
+    const cat = document.getElementById('annual-goal-cat')?.value || '';
+    const text = inp?.value.trim();
+    if (!text) return;
+    if (!state.annualGoalsList) state.annualGoalsList = [];
+    state.annualGoalsList.push({ id: uid(), text, category: cat });
+    saveState();
+    if (inp) inp.value = '';
+    renderAnnualGoalsNew();
+    renderQuarterlyGoals();
+    return;
+  }
+  // Delete annual goal
+  const agDel = e.target.closest('[data-ag-del]');
+  if (agDel) {
+    const id = agDel.dataset.agDel;
+    state.annualGoalsList = state.annualGoalsList.filter(g => g.id !== id);
+    saveState(); renderAnnualGoalsNew(); renderQuarterlyGoals();
+    return;
+  }
+  // Tick linked quarterly task
+  const lqTick = e.target.closest('[data-lq-tick]');
+  if (lqTick) {
+    const gId = lqTick.dataset.lqTick, qId = lqTick.dataset.lqQid, tId = lqTick.dataset.taskId;
+    const task = state.qGoalLinked?.[gId]?.[qId]?.tasks?.find(t => t.id === tId);
+    if (task) { task.done = !task.done; saveState(); renderQuarterlyGoals(); }
+    return;
+  }
+  // Delete linked quarterly task
+  const lqDel = e.target.closest('[data-lq-del]');
+  if (lqDel) {
+    const gId = lqDel.dataset.lqDel, qId = lqDel.dataset.lqQid, tId = lqDel.dataset.taskId;
+    const linked = state.qGoalLinked?.[gId]?.[qId];
+    if (linked) { linked.tasks = linked.tasks.filter(t => t.id !== tId); saveState(); renderQuarterlyGoals(); }
+    return;
+  }
+});
+
+// Save linked quarterly goal name on change
+document.addEventListener('change', e => {
+  const lqName = e.target.closest('[data-lq-name]');
+  if (lqName) {
+    const gId = lqName.dataset.lqName, qId = lqName.dataset.lqQid;
+    if (!state.qGoalLinked) state.qGoalLinked = {};
+    if (!state.qGoalLinked[gId]) state.qGoalLinked[gId] = {};
+    if (!state.qGoalLinked[gId][qId]) state.qGoalLinked[gId][qId] = { name: '', tasks: [] };
+    state.qGoalLinked[gId][qId].name = lqName.value;
+    saveState();
+    return;
+  }
+});
+
+// Add linked quarterly task on Enter
+document.addEventListener('keydown', e => {
+  const lqAdd = e.target.closest('[data-lq-add]');
+  if (lqAdd && e.key === 'Enter') {
+    const text = lqAdd.value.trim();
+    if (!text) return;
+    const gId = lqAdd.dataset.lqAdd, qId = lqAdd.dataset.lqQid;
+    if (!state.qGoalLinked) state.qGoalLinked = {};
+    if (!state.qGoalLinked[gId]) state.qGoalLinked[gId] = {};
+    if (!state.qGoalLinked[gId][qId]) state.qGoalLinked[gId][qId] = { name: '', tasks: [] };
+    state.qGoalLinked[gId][qId].tasks.push({ id: uid(), text, done: false });
+    saveState(); renderQuarterlyGoals();
+  }
+  if (e.key === 'Enter' && e.target.id === 'annual-goal-input') document.getElementById('annual-goal-add')?.click();
+});
+
 // Sidebar nav click handler
 document.getElementById('sidebar')?.addEventListener('click', e => {
   // Nav leaf: navigate to tab
