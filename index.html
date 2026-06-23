@@ -5276,6 +5276,14 @@
     display: flex; align-items: center; gap: 6px;
   }
   .qg-linked-ref::before { content: '↑'; font-size: 11px; }
+
+  .qg-drag-handle {
+    cursor: grab; color: var(--text-faint); font-size: 14px;
+    padding: 0 4px; flex-shrink: 0; user-select: none;
+  }
+  .qg-drag-handle:hover { color: var(--text-soft); }
+  .qg-drag-handle:active { cursor: grabbing; }
+  .qg-card[draggable="true"] { cursor: grabbing; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -5919,8 +5927,8 @@ function loadState() {
 }
 
 function ensureShape(s) {
-  s.goalsByTab = s.goalsByTab || {};
-  TABS.forEach(t => { if (!s.goalsByTab[t.id]) s.goalsByTab[t.id] = []; });
+  s.goalsByTab = {}; // Cleared — using new qGoals system
+  TABS.forEach(t => { s.goalsByTab[t.id] = []; });
   // Quarter headline goals: state.quarterHeadlineGoals[quarterId][panelKey] = { text: '...', hit: false }
   s.quarterHeadlineGoals = s.quarterHeadlineGoals || {};
   // Annual goals: state.annualGoals[panelKey] = { text: '', hit: false }
@@ -5930,7 +5938,7 @@ function ensureShape(s) {
   s.qGoalLinked = s.qGoalLinked || {}; // [annualId][qId] = {name, tasks:[]}
   s.history = s.history || {};
   s.habits = s.habits || {};
-  s.habits.config = s.habits.config || JSON.parse(JSON.stringify(DEFAULT_HABITS));
+  s.habits.config = []; // Clear old habit tasks — using new todo system
   // Migrate: remove weigh-in habit if it's still in the list (now tracked elsewhere)
   s.habits.config = s.habits.config.filter(h => h.id !== 'weighin');
   // Migrate: steps habit from binary to input
@@ -11605,46 +11613,46 @@ function renderQuarterlyGoals() {
   const goals = state.qGoals?.[qId] || [];
 
   const CAT_COLOURS = {
-    nuvo:     '#5BC4E0',
-    kokiri:   '#E89F6A',
-    coaching: '#F07878',
-    content:  '#B89EFF',
-    personal: '#5BE091',
-    misc:     '#B4C0CB',
+    nuvo:'#5BC4E0', kokiri:'#E89F6A', coaching:'#F07878',
+    content:'#B89EFF', personal:'#5BE091', misc:'#B4C0CB',
   };
   const CAT_LABELS = {
-    nuvo: 'NUVO', kokiri: 'Kokiri', coaching: 'Coaching',
-    content: 'Content', personal: 'Personal Goals', misc: 'Misc', '': 'None'
+    nuvo:'NUVO', kokiri:'Kokiri', coaching:'Coaching',
+    content:'Content', personal:'Personal Goals', misc:'Misc', '':'None'
   };
 
   let html = renderLinkedAnnualCards(qId);
 
-  goals.forEach(g => {
+  goals.forEach((g, idx) => {
     const colour = CAT_COLOURS[g.category] || '#B4C0CB';
-    const done = g.tasks?.filter(t => t.done).length || 0;
-    const total = g.tasks?.length || 0;
-    const taskRows = (g.tasks || []).map(t => `
-      <div class="qg-task ${t.done ? 'done' : ''}">
-        <button class="qg-tick ${t.done ? 'on' : ''}" data-qg-tick="${g.id}" data-task-id="${t.id}">
+    const done = (g.tasks||[]).filter(t=>t.done).length;
+    const total = (g.tasks||[]).length;
+    const taskRows = (g.tasks||[]).map(t => `
+      <div class="qg-task ${t.done?'done':''}">
+        <button class="qg-tick ${t.done?'on':''}" data-qg-tick="${g.id}" data-task-id="${t.id}">
           <svg viewBox="0 0 12 12"><polyline points="2.5,6.5 5,9 9.5,3.5"></polyline></svg>
         </button>
         <span class="qg-task-text">${escapeHTML(t.text)}</span>
         <button class="qg-task-del" data-qg-task-del="${g.id}" data-task-id="${t.id}">✕</button>
       </div>`).join('');
 
-    html += `<div class="qg-card" style="border-left:3px solid ${colour}">
+    const progress = total > 0 ? `<span style="font-size:10px;color:var(--text-faint);margin-left:auto">${done}/${total}</span>` : '';
+
+    html += `<div class="qg-card" draggable="false" data-qg-idx="${idx}" style="border-left:3px solid ${colour}">
       <div class="qg-card-head">
+        <span class="qg-drag-handle" data-qg-drag="${g.id}" title="Drag to reorder">⠿</span>
         <div class="qg-cat-dot" style="background:${colour}"></div>
         <input class="qg-name" data-qg-name="${g.id}" value="${escapeHTML(g.name)}" placeholder="Goal name…"/>
+        ${progress}
         <select class="qg-cat-select" data-qg-cat="${g.id}">
           <option value="">No category</option>
-          ${Object.entries(CAT_LABELS).filter(([k]) => k).map(([k,v]) =>
+          ${Object.entries(CAT_LABELS).filter(([k])=>k).map(([k,v])=>
             `<option value="${k}" ${g.category===k?'selected':''}>${v}</option>`
           ).join('')}
         </select>
         <button class="qg-del" data-qg-del="${g.id}">✕</button>
       </div>
-      <div class="qg-tasks">${taskRows}</div>
+      <div class="qg-tasks">${taskRows || '<div style="font-size:11px;color:var(--text-faint);padding:4px 0">No tasks yet — add one below.</div>'}</div>
       <div class="qg-add-task">
         <input type="text" class="qg-task-input" data-qg-add-task="${g.id}" placeholder="+ Add task…" maxlength="200"/>
       </div>
@@ -11653,6 +11661,39 @@ function renderQuarterlyGoals() {
 
   html += `<button class="qg-add-goal" id="qg-add-goal-btn">+ Add goal</button>`;
   wrap.innerHTML = html;
+
+  // Wire up drag-to-reorder on handles
+  initQGDrag(qId);
+}
+
+function initQGDrag(qId) {
+  let dragSrcIdx = null;
+  document.querySelectorAll('[data-qg-drag]').forEach(handle => {
+    const card = handle.closest('.qg-card');
+    handle.addEventListener('mousedown', () => { card.setAttribute('draggable','true'); });
+    handle.addEventListener('mouseleave', () => { if (dragSrcIdx === null) card.setAttribute('draggable','false'); });
+    card.addEventListener('dragstart', e => {
+      dragSrcIdx = parseInt(card.dataset.qgIdx);
+      card.style.opacity = '0.5';
+    });
+    card.addEventListener('dragend', () => {
+      card.style.opacity = '';
+      card.setAttribute('draggable','false');
+      dragSrcIdx = null;
+    });
+    card.addEventListener('dragover', e => { e.preventDefault(); card.style.boxShadow = '0 0 0 2px var(--nuvo)'; });
+    card.addEventListener('dragleave', () => { card.style.boxShadow = ''; });
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.style.boxShadow = '';
+      const dropIdx = parseInt(card.dataset.qgIdx);
+      if (dragSrcIdx === null || dragSrcIdx === dropIdx) return;
+      const goals = state.qGoals[qId];
+      const [moved] = goals.splice(dragSrcIdx, 1);
+      goals.splice(dropIdx, 0, moved);
+      saveState(); renderQuarterlyGoals();
+    });
+  });
 }
 
 function startEditQHG(card) {
