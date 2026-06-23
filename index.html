@@ -5345,7 +5345,6 @@
     <div class="todo-cat-pills" id="todo-cat-pills"></div>
 
     <!-- TASK LIST -->
-    <div class="habits-grid" id="habits-grid"></div>
     <div id="todo-task-list"></div>
 
     <!-- Mini calendar -->
@@ -6941,157 +6940,9 @@ function isStickerEarned(dateKey) {
 }
 
 function renderTracker(justEarned = false) {
-  if (!activeTab().panels?.includes('tracker')) return;
-  const d = dayState(viewDate);
-  const dateObj = new Date(viewDate);
-  (document.getElementById('current-date') || document.createElement('span')).textContent =
-    dateObj.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-  (document.getElementById('prev-day') || {}).disabled = false;
-  (document.getElementById('next-day') || {}).disabled = viewDate >= todayKey();
-  const restBtn = document.getElementById('rest-btn');
-  if (restBtn) {
-    restBtn.classList.toggle('on', d.rest);
-    restBtn.textContent = d.rest ? 'Resting ✓' : 'Rest day';
-  }
-  const unwellBtn = document.getElementById('unwell-btn');
-  if (unwellBtn) {
-    unwellBtn.classList.toggle('on', d.unwell);
-    unwellBtn.textContent = d.unwell ? 'Unwell ✓' : 'Unwell';
-  }
-
-  const grid = document.getElementById('habits-grid');
-  grid.innerHTML = '';
-  return; // habits-grid not used in new design
-  if (!(weighInDone && isViewingToday)) {
-    const weighRow = document.createElement('div');
-    weighRow.className = 'habit-row weighin-row' + (weighInDone ? ' done' : '');
-    if (d.rest) weighRow.classList.add('rest');
-    weighRow.innerHTML = `
-      <div class="habit-body" style="padding-left:4px">
-        <div class="habit-label">Weigh-in</div>
-        <div class="subtask-meta"><span class="from">HEALTH</span><span>${weighInDone ? '✓ Logged' : 'Step on the scales'}</span></div>
-      </div>
-      <button class="pill-btn" data-weighin-tick style="font-size:12px;padding:5px 12px">${weighInDone ? '✓ Done' : '+ Log'}</button>
-    `;
-    grid.appendChild(weighRow);
-  }
-
-  // Still render any legacy regular habits (if user re-adds via Edit ⚙)
-  state.habits.config.forEach((h) => {
-    const row = document.createElement('div');
-    row.className = 'habit-row';
-    if (d.rest) row.classList.add('rest');
-    if (d.unwell) row.classList.add('rest');
-    const filled = habitFilled(h, viewDate);
-    const max = habitMax(h);
-    if (filled >= max) row.classList.add('done');
-
-    const circles = document.createElement('div');
-    circles.className = 'habit-circles';
-    for (let i = 0; i < max; i++) {
-      const c = document.createElement('button');
-      c.className = 'h-check' + (i < filled ? ' on' : '');
-      c.dataset.habit = h.id;
-      c.dataset.idx = i;
-      c.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="5,13 10,18 19,7"></polyline></svg>`;
-      circles.appendChild(c);
-    }
-    row.appendChild(circles);
-
-    let targetDisplay = h.target;
-    if (h.kind === 'input' && h.inputType === 'weight') {
-      const w = state.weights.find(w => w.date === viewDate);
-      if (w) targetDisplay = `${w.value.toFixed(1)} kg ${viewDate === todayKey() ? 'today' : 'logged'}`;
-      else targetDisplay = viewDate === todayKey() ? 'tap to log today\'s weight' : 'tap to log';
-    }
-    if (h.kind === 'input' && h.inputType === 'steps') {
-      const entry = state.steps.find(s => s.date === viewDate);
-      const target = parseStepsTarget(h.target);
-      const days = daysElapsedInWeek(viewDate);
-      const weekTotal = sumStepsThroughDate(viewDate);
-      const weekTarget = target * days;
-      const dayLabel = viewDate === todayKey() ? 'today' : 'logged';
-      if (entry) {
-        const weekStr = `${(weekTotal/1000).toFixed(1)}k / ${(weekTarget/1000).toFixed(1)}k`;
-        const onPace = weekTotal >= weekTarget;
-        targetDisplay = `${entry.value.toLocaleString('en-GB')} ${dayLabel} · wk ${weekStr}${onPace ? ' ✓' : ''}`;
-      } else {
-        targetDisplay = viewDate === todayKey() ? `tap to log · ${target.toLocaleString('en-GB')}/day` : 'tap to log';
-      }
-    }
-
-    const body = document.createElement('div');
-    body.className = 'habit-body';
-    body.innerHTML = `<div class="habit-label">${escapeHTML(h.label)}</div><div class="habit-target">${escapeHTML(targetDisplay)}</div>`;
-    row.appendChild(body);
-
-    const edit = document.createElement('div');
-    edit.className = 'edit-actions';
-    edit.innerHTML = `
-      <input type="text" class="edit-label" value="${escapeAttr(h.label)}" placeholder="Label" maxlength="40"/>
-      <input type="text" class="edit-target" value="${escapeAttr(h.target)}" placeholder="Target" maxlength="40"/>
-      <button class="del" data-habit="${h.id}" title="Remove">✕</button>
-    `;
-    row.appendChild(edit);
-    grid.appendChild(row);
-  });
-
-  // Render the 4 task groups (Coaching, NUVO, Kokiri, Content)
-  if (false) {
-    renderTaskGroups(grid);
-  }
-
-  // (Removed: old weekday-pillar slots and theme display — content panel now uses headlines.)
-
-  // NUVO Systems subtasks scheduled for today (or overdue)
-
-  // Subtask rendering removed — using new To Do system
-
-  // Friendly empty state when nothing to do at all
-  if (todaysSubs.length === 0 && !d.rest && !d.unwell && state.habits.config.length === 0) {
-    const empty = document.createElement('div');
-    empty.style.cssText = 'text-align:center;padding:24px 16px;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;color:var(--text-faint);text-transform:uppercase;';
-    empty.textContent = '~ nothing scheduled today · enjoy the day off ~';
-    grid.appendChild(empty);
-  }
-
-  const stamp = document.getElementById('stamp');
-  const stampUnwell = document.getElementById('stamp-unwell');
-  const placeholder = document.getElementById('stamp-placeholder');
-  // Stamp/streak UI was removed — these elements no longer exist. Safe-guard with null checks.
-  if (stamp && stampUnwell && placeholder) {
-    const earned = isStickerEarned(viewDate);
-    const required = dailyRequiredCount(viewDate);
-    const done = dailyDoneCount(viewDate);
-    const stampDateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }).toUpperCase().replace(/\./g, '');
-    (document.getElementById('stamp-date') || document.createElement('span')).textContent = stampDateStr;
-    (document.getElementById('stamp-unwell-date') || document.createElement('span')).textContent = stampDateStr;
-    stamp.classList.remove('earned', 'just-earned');
-    stampUnwell.classList.remove('earned', 'just-earned');
-    stamp.style.display = 'none';
-    stampUnwell.style.display = 'none';
-    if (d.unwell) {
-      if (justEarned) { void stampUnwell.offsetWidth; stampUnwell.classList.add('just-earned'); }
-      stampUnwell.classList.add('earned');
-      stampUnwell.style.display = '';
-      placeholder.style.display = 'none';
-    } else if (earned) {
-      if (justEarned) { void stamp.offsetWidth; stamp.classList.add('just-earned', 'earned'); }
-      else stamp.classList.add('earned');
-      placeholder.style.display = 'none';
-      stamp.style.display = '';
-    } else {
-      placeholder.style.display = '';
-      const noHabits = state.habits.config.length === 0;
-      const ptEl = document.getElementById('placeholder-text');
-      if (ptEl) ptEl.textContent = noHabits
-        ? (done === 0 ? '~ tick today\'s posts to earn the stamp ~' : '~ keep going ~')
-        : (done === 0 ? '~ tick everything to earn the day\'s stamp ~' : '~ almost there ~');
-      const prEl = document.getElementById('progress-text');
-      if (prEl) prEl.textContent = `${done} of ${required}`;
-    }
-  }
-  renderStrip();
+  if (!activeTab()?.panels?.includes('tracker')) return;
+  // Old tracker rendering completely removed — using new To Do List system
+  renderTodoTasks();
 }
 
 function renderStrip() {
