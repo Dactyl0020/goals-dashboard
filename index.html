@@ -5329,11 +5329,10 @@
   <!-- DAILY TASKS -->
   <section class="panel" id="tracker">
     <div class="tracker-head">
-      <div>
-
-      </div>
-      <div class="controls">
-
+      <div style="display:flex;align-items:center;gap:10px">
+        <button id="todo-prev-day" class="cal-nav-btn">‹</button>
+        <span id="todo-viewing-date" style="font-size:13px;font-weight:700;color:var(--text-soft);min-width:160px;text-align:center"></span>
+        <button id="todo-next-day" class="cal-nav-btn">›</button>
       </div>
     </div>
     <!-- TASK INPUT -->
@@ -12326,7 +12325,14 @@ document.addEventListener('click', e => {
   // Mini cal navigation
   if (e.target.closest('#todo-cal-prev')) {
     todoCalMonth--; if (todoCalMonth < 0) { todoCalMonth = 11; todoCalYear--; }
-    renderTodoMiniCal(); return;
+    renderTodoMiniCal();
+  // Update the date header
+  const viewingDateLabel = document.getElementById('todo-viewing-date');
+  if (viewingDateLabel) {
+    const vd = new Date((todoCalSelectedDate || todayKey()) + 'T00:00:00');
+    const isToday = (todoCalSelectedDate || todayKey()) === todayKey();
+    viewingDateLabel.textContent = isToday ? 'Today — ' + vd.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}) : vd.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  } return;
   }
   if (e.target.closest('#todo-cal-next')) {
     todoCalMonth++; if (todoCalMonth > 11) { todoCalMonth = 0; todoCalYear++; }
@@ -12412,25 +12418,27 @@ function renderTodoTasks() {
 
   // Task list — grouped by category
   const list = document.getElementById('todo-task-list');
-  const allTasks = state.todoTasks || [];
 
-  // Build groups to render
+  // Only show tasks for the currently viewed date
+  const viewingDate = todoCalSelectedDate || todayKey();
+  const allTasks = (state.todoTasks || []).filter(t => t.date === viewingDate);
+
+  // Build groups by category
   let groups = [];
+  const catOrder = ['NUVO', 'Kokiri', 'Coaching', 'Content Creation', 'Personal Goals', 'Misc'];
   if (todoActiveCat === 'All') {
-    // Uncategorised first, then each category
     const uncategorised = allTasks.filter(t => !t.category);
     if (uncategorised.length) groups.push({ label: null, tasks: uncategorised });
-    cats.forEach(c => {
+    catOrder.forEach(c => {
       const tasks = allTasks.filter(t => t.category === c);
       if (tasks.length) groups.push({ label: c, tasks });
     });
   } else {
-    const tasks = allTasks.filter(t => t.category === todoActiveCat);
-    groups.push({ label: todoActiveCat, tasks });
+    groups.push({ label: todoActiveCat, tasks: allTasks.filter(t => t.category === todoActiveCat) });
   }
 
   if (!groups.length || !groups.some(g => g.tasks.length)) {
-    list.innerHTML = `<div style="padding:20px 4px;font-size:12px;color:var(--text-faint)">No tasks yet — add one above.</div>`;
+    const vd = new Date((todoCalSelectedDate || todayKey()) + 'T00:00:00'); const vdLabel = vd.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}); list.innerHTML = `<div style="padding:20px 4px;font-size:12px;color:var(--text-faint)">Nothing scheduled for ${vdLabel}.</div>`;
     return;
   }
 
@@ -12439,9 +12447,9 @@ function renderTodoTasks() {
     const colour = g.label ? todoCatColour(g.label) : 'var(--text-faint)';
     const taskRows = g.tasks.map(t => `
       <div class="todo-task-item ${t.done ? 'done' : ''}">
-        <button class="todo-check ${t.done ? 'on' : ''}" data-todo-check="${t.id}" style="${t.done?'background:'+colour+';border-color:'+colour:'border-color:'+colour}">${t.done ? '✓' : ''}</button>
-        <span class="todo-task-text">${t.text}</span>
-        <button class="todo-task-del" data-todo-del="${t.id}">✕</button>
+        <button class="todo-check ${t.done ? 'on' : ''}" data-todo-check="${t.id}" data-todo-source="${t.source||'todo'}" style="${t.done?'background:'+colour+';border-color:'+colour:'border-color:'+colour}">${t.done ? '✓' : ''}</button>
+        <span class="todo-task-text">${escapeHTML(t.text)}${t.date ? '<span style="font-size:10px;color:var(--text-faint);margin-left:6px">'+t.date+'</span>' : ''}</span>
+        ${t.source==='todo' ? '<button class="todo-task-del" data-todo-del="'+t.id+'">✕</button>' : '<span style="font-size:9px;color:var(--text-faint);margin-left:4px">→ '+t.category+'</span>'}
       </div>`).join('');
     return `<div class="todo-cat-group">
       ${g.label ? `<div class="todo-cat-group-head" style="border-left:3px solid ${colour}">
@@ -13902,6 +13910,22 @@ function addHolidayTask(tripId) {
   if (dateEl) dateEl.value = '';
 }
 
+
+// To Do date navigation
+document.addEventListener('click', e => {
+  if (e.target.closest('#todo-prev-day') || e.target.closest('#todo-next-day')) {
+    const isPrev = e.target.closest('#todo-prev-day');
+    const cur = new Date((todoCalSelectedDate || todayKey()) + 'T00:00:00');
+    cur.setDate(cur.getDate() + (isPrev ? -1 : 1));
+    const newKey = cur.getFullYear() + '-' + String(cur.getMonth()+1).padStart(2,'0') + '-' + String(cur.getDate()).padStart(2,'0');
+    todoCalSelectedDate = newKey;
+    // Sync mini calendar month
+    todoCalMonth = cur.getMonth();
+    todoCalYear = cur.getFullYear();
+    renderTodoTasks();
+    return;
+  }
+});
 // Sidebar nav click handler
 document.getElementById('sidebar')?.addEventListener('click', e => {
   // Nav leaf: navigate to tab
