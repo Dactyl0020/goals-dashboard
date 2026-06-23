@@ -5284,6 +5284,43 @@
   .qg-drag-handle:hover { color: var(--text-soft); }
   .qg-drag-handle:active { cursor: grabbing; }
   .qg-card[draggable="true"] { cursor: grabbing; }
+
+  .kokiri-view-btn.active { background: var(--kokiri) !important; color: #000 !important; border-color: var(--kokiri) !important; }
+  .kokiri-cal-grid {
+    display: grid; grid-template-columns: 120px repeat(28, 1fr);
+    gap: 2px; overflow-x: auto;
+  }
+  .kokiri-cal-header {
+    font-size: 9px; font-weight: 700; text-align: center;
+    color: var(--text-faint); padding: 4px 0;
+  }
+  .kokiri-cal-header.today { color: var(--kokiri); }
+  .kokiri-cal-task-label {
+    font-size: 11px; color: var(--text-soft); padding: 3px 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .kokiri-cal-cell {
+    height: 28px; border-radius: 3px; position: relative;
+  }
+  .kokiri-cal-cell.filled {
+    background: var(--kokiri); opacity: 0.85;
+  }
+  .kokiri-cal-cell.filled.start { border-radius: 6px 0 0 6px; }
+  .kokiri-cal-cell.filled.end { border-radius: 0 6px 6px 0; }
+  .kokiri-cal-cell.filled.single { border-radius: 6px; }
+  .kokiri-cal-cell.today-col { background: rgba(232,159,106,0.1); }
+  .kokiri-cal-add-row { margin-top: 12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .kokiri-cal-add-row input, .kokiri-cal-add-row select {
+    background: var(--surface); border: 1px solid var(--surface-edge);
+    border-radius: 8px; padding: 8px 12px; font-family: var(--sans);
+    font-size: 13px; color: var(--text); outline: none;
+  }
+  .kokiri-cal-add-row button {
+    background: var(--kokiri); color: #000; border: none;
+    border-radius: 8px; padding: 8px 16px; font-family: var(--sans);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -5549,11 +5586,16 @@
   <!-- KOKIRI GROUP -->
   <section class="panel theme-kokiri" id="kokiri-panel">
     <div class="panel-head">
-      <h3>KOKIRI | ACTIVE PROJECTS<span class="panel-sub editable" data-edit-panel-sub="kokiri-projects" title="Click to edit">Weekly tasks &amp; sub-tasks</span></h3>
+      <h3>KOKIRI | ACTIVE PROJECTS</h3>
+      <div style="display:flex;gap:6px">
+        <button class="cal-nav-btn kokiri-view-btn active" id="kokiri-list-btn">List</button>
+        <button class="cal-nav-btn kokiri-view-btn" id="kokiri-cal-btn">Calendar</button>
+      </div>
     </div>
     <div class="project-switcher" id="project-switcher"></div>
     <div class="project-meta" id="project-meta"></div>
     <div class="weeks-list" id="weeks-list"></div>
+    <div id="kokiri-calendar-view" style="display:none"></div>
   </section>
 
   <!-- KOKIRI INCOME -->
@@ -5664,6 +5706,41 @@
       </div>
       <div class="post-modal-actions" style="margin-top:8px">
         <button id="ff-cal-cancel" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:9px;font-size:13px;cursor:pointer;color:var(--text-soft);flex:1">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kokiri Calendar Modal -->
+  <div id="kcal-modal" class="post-modal hidden">
+    <div class="post-modal-card">
+      <div class="post-modal-date" id="kcal-modal-date" style="color:var(--kokiri)"></div>
+      <select id="kcal-modal-proj" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;width:100%"></select>
+      <input type="text" id="kcal-modal-text" placeholder="Task name…" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:10px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;width:100%"/>
+      <div style="display:flex;align-items:center;gap:8px">
+        <label style="font-size:11px;color:var(--text-faint)">End date (for multi-day tasks):</label>
+        <input type="date" id="kcal-modal-end" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:8px 10px;font-family:var(--sans);font-size:12px;color:var(--text);outline:none"/>
+      </div>
+      <div class="post-modal-actions">
+        <button id="kcal-modal-save" style="background:var(--kokiri);color:#000;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;flex:1">Add</button>
+        <button id="kcal-modal-cancel" style="background:var(--surface);border:none;border-radius:8px;padding:9px;font-size:13px;cursor:pointer;color:var(--text-soft);flex:1">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kokiri Calendar Modal -->
+  <div id="kcal-modal" class="post-modal hidden">
+    <div class="post-modal-card">
+      <div class="post-modal-date" id="kcal-modal-date" style="color:var(--kokiri)"></div>
+      <input type="text" id="kcal-modal-text" placeholder="Task name…" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:10px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;width:100%"/>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label style="font-size:11px;color:var(--text-faint)">End date:</label>
+        <input type="date" id="kcal-modal-end" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:8px 10px;font-family:var(--sans);font-size:12px;color:var(--text-soft);outline:none;cursor:pointer"/>
+        <label style="font-size:11px;color:var(--text-faint)">Project:</label>
+        <select id="kcal-modal-proj" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:8px 10px;font-family:var(--sans);font-size:12px;color:var(--text-soft);outline:none"></select>
+      </div>
+      <div class="post-modal-actions">
+        <button id="kcal-modal-save" style="background:var(--kokiri);color:#000;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;flex:1">Save</button>
+        <button id="kcal-modal-cancel" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:8px;padding:9px;font-size:13px;cursor:pointer;color:var(--text-soft);flex:1">Cancel</button>
       </div>
     </div>
   </div>
@@ -8052,6 +8129,20 @@ function getQ2Weeks() {
 function renderKokiri() {
   const t = activeTab();
   if (!t.panels?.includes('kokiri')) return;
+  // Restore view mode
+  if (state.kokiri?.viewMode === 'calendar') {
+    document.getElementById('kokiri-list-btn')?.classList.remove('active');
+    document.getElementById('kokiri-cal-btn')?.classList.add('active');
+    document.getElementById('weeks-list') && (document.getElementById('weeks-list').style.display = 'none');
+    document.getElementById('kokiri-calendar-view') && (document.getElementById('kokiri-calendar-view').style.display = '');
+    renderKokiriCalendar();
+    return;
+  } else {
+    document.getElementById('kokiri-list-btn')?.classList.add('active');
+    document.getElementById('kokiri-cal-btn')?.classList.remove('active');
+    document.getElementById('weeks-list') && (document.getElementById('weeks-list').style.display = '');
+    document.getElementById('kokiri-calendar-view') && (document.getElementById('kokiri-calendar-view').style.display = 'none');
+  }
 
   // Project switcher with Both option at the end
   const switcher = document.getElementById('project-switcher');
@@ -14018,6 +14109,151 @@ document.addEventListener('click', e => {
     return;
   }
 });
+
+// ============ KOKIRI CALENDAR VIEW ============
+let kokiriCalOffset = 0;
+let kcalModalDate = null;
+
+let kokiriCalMonth = new Date().getMonth();
+let kokiriCalYear = new Date().getFullYear();
+let kokiriModalDate = null;
+
+function renderKokiriCalendar() {
+  const wrap = document.getElementById('kokiri-calendar-view');
+  if (!wrap || !state) return;
+
+  const isBoth = activeProject === 'both';
+  const projTasks = isBoth ? state.kokiri.tasks.slice() : state.kokiri.tasks.filter(t => t.projectId === activeProject);
+  const datedTasks = projTasks.filter(t => t.date);
+
+  const todayStr = todayKey();
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+  const firstDay = new Date(kokiriCalYear, kokiriCalMonth, 1);
+  const lastDay = new Date(kokiriCalYear, kokiriCalMonth + 1, 0);
+  let startDow = firstDay.getDay() - 1; if (startDow < 0) startDow = 6;
+
+  // Project colours
+  const projColours = {};
+  (state.kokiri.projects || []).forEach((p, i) => {
+    projColours[p.id] = ['#E89F6A','#5BC4E0','#B89EFF','#5BE091'][i % 4];
+  });
+
+  let html = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <button class="cal-nav-btn" id="kcal-prev">‹</button>
+      <span style="font-size:15px;font-weight:700;color:var(--text)">${MONTHS[kokiriCalMonth]} ${kokiriCalYear}</span>
+      <button class="cal-nav-btn" id="kcal-next">›</button>
+    </div>
+    <div class="cal-grid">`;
+
+  DAYS.forEach(d => { html += `<div class="cal-dow-header">${d}</div>`; });
+  for (let i = 0; i < startDow; i++) html += `<div></div>`;
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const key = kokiriCalYear + '-' + String(kokiriCalMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const isToday = key === todayStr;
+    const dayTasks = datedTasks.filter(t => key >= t.date && key <= (t.endDate || t.date));
+
+    const taskCards = dayTasks.map(t => {
+      const colour = projColours[t.projectId] || 'var(--kokiri)';
+      const isStart = key === t.date;
+      const isEnd = key === (t.endDate || t.date);
+      const label = isStart ? escapeHTML(t.text) : (isEnd ? '↳ end' : '');
+      return `<div class="cal-post-card" style="border-left-color:${colour};background:${colour}22;${t.done?'opacity:0.4;text-decoration:line-through':''}" data-kcal-del="${t.id}" title="${escapeHTML(t.text)}">${label || '·'}</div>`;
+    }).join('');
+
+    html += `<div class="cal-day ${isToday?'today':''}" style="${isToday?'border-color:var(--kokiri);border-width:2px;':''}" data-kcal-date="${key}">
+      <div class="cal-day-num" style="${isToday?'color:var(--kokiri)':''}">${d}</div>
+      ${taskCards || '<div class="cal-add-hint">+ add</div>'}
+    </div>`;
+  }
+  html += `</div>`;
+
+  // Project colour key
+  html += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--surface-edge)">`;
+  (state.kokiri.projects || []).forEach(p => {
+    const colour = projColours[p.id] || 'var(--kokiri)';
+    html += `<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-faint)"><span style="width:10px;height:10px;border-radius:50%;background:${colour};flex-shrink:0"></span>${escapeHTML(p.name)}</div>`;
+  });
+  html += `</div>`;
+
+  wrap.innerHTML = html;
+}
+
+// Kokiri calendar handlers
+document.addEventListener('click', e => {
+  if (e.target.closest('#kokiri-list-btn')) {
+    state.kokiri.viewMode = 'list';
+    document.getElementById('kokiri-list-btn')?.classList.add('active');
+    document.getElementById('kokiri-cal-btn')?.classList.remove('active');
+    document.getElementById('weeks-list').style.display = '';
+    document.getElementById('kokiri-calendar-view').style.display = 'none';
+    return;
+  }
+  if (e.target.closest('#kokiri-cal-btn')) {
+    state.kokiri.viewMode = 'calendar';
+    document.getElementById('kokiri-cal-btn')?.classList.add('active');
+    document.getElementById('kokiri-list-btn')?.classList.remove('active');
+    document.getElementById('weeks-list').style.display = 'none';
+    document.getElementById('kokiri-calendar-view').style.display = '';
+    renderKokiriCalendar();
+    return;
+  }
+  if (e.target.closest('#kcal-prev'))  { kokiriCalMonth--; if(kokiriCalMonth<0){kokiriCalMonth=11;kokiriCalYear--;} renderKokiriCalendar(); return; }
+  if (e.target.closest('#kcal-next'))  { kokiriCalMonth++; if(kokiriCalMonth>11){kokiriCalMonth=0;kokiriCalYear++;} renderKokiriCalendar(); return; }
+
+  // Day click opens modal
+  const kcalDay = e.target.closest('[data-kcal-date]');
+  if (kcalDay && !e.target.closest('[data-kcal-del]')) {
+    kokiriModalDate = kcalDay.dataset.kcalDate;
+    const modal = document.getElementById('kcal-modal');
+    if (modal) {
+      const d = new Date(kokiriModalDate + 'T00:00:00');
+      document.getElementById('kcal-modal-date').textContent = d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+      document.getElementById('kcal-modal-text').value = '';
+      document.getElementById('kcal-modal-end').value = '';
+      // Populate project select
+      const sel = document.getElementById('kcal-modal-proj');
+      sel.innerHTML = (state.kokiri.projects||[]).map(p => `<option value="${p.id}">${escapeHTML(p.name)}</option>`).join('');
+      if (activeProject !== 'both') sel.value = activeProject;
+      modal.classList.remove('hidden');
+      setTimeout(() => document.getElementById('kcal-modal-text').focus(), 50);
+    }
+    return;
+  }
+  // Delete task from calendar
+  const kcalDel = e.target.closest('[data-kcal-del]');
+  if (kcalDel) {
+    e.stopPropagation();
+    const id = kcalDel.dataset.kcalDel;
+    state.kokiri.tasks = state.kokiri.tasks.filter(t => t.id !== id);
+    saveState(); renderKokiriCalendar();
+    return;
+  }
+  // Save modal
+  if (e.target.closest('#kcal-modal-save')) {
+    const text = document.getElementById('kcal-modal-text')?.value.trim();
+    const endDate = document.getElementById('kcal-modal-end')?.value;
+    const projId = document.getElementById('kcal-modal-proj')?.value;
+    if (!text) return;
+    state.kokiri.tasks.unshift({
+      id: uid(), projectId: projId || state.kokiri.projects[0]?.id,
+      weekStart: kokiriModalDate, text, date: kokiriModalDate,
+      endDate: endDate || kokiriModalDate,
+      completions: {}, done: false, createdAt: Date.now()
+    });
+    saveState();
+    document.getElementById('kcal-modal').classList.add('hidden');
+    renderKokiriCalendar();
+    return;
+  }
+  if (e.target.closest('#kcal-modal-cancel') || e.target.id === 'kcal-modal') {
+    document.getElementById('kcal-modal').classList.add('hidden');
+  }
+});
+
 // Sidebar nav click handler
 document.getElementById('sidebar')?.addEventListener('click', e => {
   // Nav leaf: navigate to tab
