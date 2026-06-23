@@ -6378,7 +6378,7 @@ function ensureShape(s) {
   s.friendsFamilyNotes = s.friendsFamilyNotes || { goals: [], calendar: {} };
   s.holidays = s.holidays || { trips: [], calendar: {} }; // trips:[{id,name,tasks:[{id,text,done}]}], calendar:{'YYYY-MM':[{id,name}]} // calendar: {'YYYY-MM': [{id, name, notes}]} // [{id, text, done}] // keyed by 'YYYY-MM' → { focus: '', notes: '' }
   // Free-form to-do tasks with categories
-  s.todoTasks = s.todoTasks || [];
+  s.todoTasks = s.todoTasks || []; // standalone tasks added directly on To Do List
   s.todoCategories = s.todoCategories || [];
   s.todoCategories = s.todoCategories || [];
   const defaultCats = ['NUVO', 'Kokiri', 'Coaching', 'Content Creation', 'Personal Goals', 'Misc'];
@@ -8255,8 +8255,9 @@ function addKokiriTask(weekStart, text, date, recurMode) {
   // Backwards-compat: boolean true means 'weekly'
   if (recurMode === true) recurMode = 'weekly';
   if (recurMode === false) recurMode = null;
+  const kokiriTaskId = uid();
   state.kokiri.tasks.unshift({
-    id: uid(),
+    id: kokiriTaskId,
     projectId: activeProject,
     weekStart,
     text: text.trim(),
@@ -8267,9 +8268,13 @@ function addKokiriTask(weekStart, text, date, recurMode) {
     createdAt: Date.now(),
     completedAt: null
   });
+  if (date) {
+    state.todoTasks = state.todoTasks || [];
+    state.todoTasks.unshift({ id: kokiriTaskId + '-todo', text: text.trim(), category: 'Kokiri', done: false, date, createdAt: Date.now() });
+  }
   saveState();
   renderKokiri();
-  renderTracker();
+  renderTodoTasks();
 }
 
 function editKokiriTaskDate(id, currentTagEl) {
@@ -9118,8 +9123,9 @@ function addNuvoSystemsSubtask(headlineId, text, date, recurMode) {
   if (recurMode === false) recurMode = null;
   const found = findHeadlineById(headlineId);
   if (!found) return;
+  const nuvoSubId = uid();
   found.headline.subtasks.push({
-    id: uid(),
+    id: nuvoSubId,
     text: text.trim(),
     date: date || null,
     recurrence: (recurMode && date) ? recurMode : null,
@@ -9129,6 +9135,17 @@ function addNuvoSystemsSubtask(headlineId, text, date, recurMode) {
     children: [],
     createdAt: Date.now()
   });
+  if (date) {
+    // Determine which panel this headline belongs to
+    let taskCategory = 'NUVO';
+    if ((state.coachingTasks?.headlines || []).find(h => h.id === headlineId)) taskCategory = 'Coaching';
+    else if ((state.kokiriSourcing?.headlines || []).find(h => h.id === headlineId ||
+      (h.properties || []).find(p => (p.subtasks || []).find(s => s.id === headlineId)))) taskCategory = 'Kokiri';
+    else if ((state.miscTasks?.headlines || []).find(h => h.id === headlineId)) taskCategory = 'Misc';
+    else if ((state.personalGoals?.headlines || []).find(h => h.id === headlineId)) taskCategory = 'Personal Goals';
+    state.todoTasks = state.todoTasks || [];
+    state.todoTasks.unshift({ id: nuvoSubId + '-todo', text: text.trim(), category: taskCategory, done: false, date, createdAt: Date.now() });
+  }
   saveState();
   renderTaskSystems();
   renderContent();
@@ -12395,68 +12412,63 @@ function renderTodoTasks() {
   if (!document.getElementById('todo-task-list')) return;
   renderTodoMiniCal();
 
-  const cats = state.todoCategories || [];
+  const viewingDate = todoCalSelectedDate || todayKey();
 
-  // Top pills: filter + category selector for new tasks
+  // Update date header
+  const viewingDateLabel = document.getElementById('todo-viewing-date');
+  if (viewingDateLabel) {
+    const vd = new Date(viewingDate + 'T00:00:00');
+    const isToday = viewingDate === todayKey();
+    viewingDateLabel.textContent = (isToday ? 'Today  ·  ' : '') + vd.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  }
+
+  // Only show tasks for this date
+  const dayTasks = (state.todoTasks || []).filter(t => t.date === viewingDate);
+  const catOrder = ['NUVO','Kokiri','Coaching','Content Creation','Personal Goals','Misc'];
+
+  // Category pills
   const pillsEl = document.getElementById('todo-cat-pills');
   if (pillsEl) {
-    const selectedCat = pillsEl.dataset.selected || '';
-    const allCount = (state.todoTasks || []).filter(t => !t.done).length;
-    // "All" pill
-    let pillHtml = `<button class="todo-cat-pill ${todoActiveCat==='All'?'selected':''} filter-pill" data-todo-filter="All" style="${todoActiveCat==='All'?'background:var(--nuvo);border-color:var(--nuvo);color:#000':''}">All <span style="opacity:0.6;font-size:10px">${allCount}</span></button>`;
-    cats.forEach(c => {
-      const colour = todoCatColour(c);
-      const count = (state.todoTasks || []).filter(t => t.category === c && !t.done).length;
-      const isFilter = todoActiveCat === c;
-      const isSel = selectedCat === c;
-      pillHtml += `<button class="todo-cat-pill ${isFilter?'selected':''}" data-todo-filter="${c}" data-todo-pill="${c}" style="${isFilter?'background:'+colour+';border-color:'+colour+';color:#000':'border-left:2px solid '+colour}">${c} <span style="opacity:0.6;font-size:10px">${count}</span></button>`;
-    });
-    pillHtml += `<button class="todo-cat-add" id="todo-add-cat" style="font-size:11px;padding:4px 10px">+ Category</button>`;
-    pillsEl.innerHTML = pillHtml;
-    pillsEl.dataset.selected = selectedCat;
-  }
-
-  // Task list — grouped by category
-  const list = document.getElementById('todo-task-list');
-
-  // Only show tasks for the currently viewed date
-  const viewingDate = todoCalSelectedDate || todayKey();
-  const allTasks = (state.todoTasks || []).filter(t => t.date === viewingDate);
-
-  // Build groups by category
-  let groups = [];
-  const catOrder = ['NUVO', 'Kokiri', 'Coaching', 'Content Creation', 'Personal Goals', 'Misc'];
-  if (todoActiveCat === 'All') {
-    const uncategorised = allTasks.filter(t => !t.category);
-    if (uncategorised.length) groups.push({ label: null, tasks: uncategorised });
+    const allCount = dayTasks.filter(t => !t.done).length;
+    let html = `<button class="todo-cat-pill ${todoActiveCat==='All'?'selected':''}" data-todo-filter="All" style="${todoActiveCat==='All'?'background:var(--nuvo);border-color:var(--nuvo);color:#000':''}">All <span style="opacity:0.6;font-size:10px">${allCount}</span></button>`;
     catOrder.forEach(c => {
-      const tasks = allTasks.filter(t => t.category === c);
-      if (tasks.length) groups.push({ label: c, tasks });
+      const colour = todoCatColour(c);
+      const count = dayTasks.filter(t => t.category === c && !t.done).length;
+      const on = todoActiveCat === c;
+      html += `<button class="todo-cat-pill ${on?'selected':''}" data-todo-filter="${c}" style="${on?'background:'+colour+';border-color:'+colour+';color:#000':'border-left:2px solid '+colour}">${c} <span style="opacity:0.6;font-size:10px">${count}</span></button>`;
     });
-  } else {
-    groups.push({ label: todoActiveCat, tasks: allTasks.filter(t => t.category === todoActiveCat) });
+    pillsEl.innerHTML = html;
   }
 
-  if (!groups.length || !groups.some(g => g.tasks.length)) {
-    const vd = new Date((todoCalSelectedDate || todayKey()) + 'T00:00:00'); const vdLabel = vd.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}); list.innerHTML = `<div style="padding:20px 4px;font-size:12px;color:var(--text-faint)">Nothing scheduled for ${vdLabel}.</div>`;
+  const list = document.getElementById('todo-task-list');
+  const filtered = todoActiveCat === 'All' ? dayTasks : dayTasks.filter(t => t.category === todoActiveCat);
+
+  if (!filtered.length) {
+    const vd = new Date(viewingDate + 'T00:00:00');
+    list.innerHTML = `<div style="padding:20px 4px;font-size:12px;color:var(--text-faint)">Nothing scheduled for ${vd.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}.</div>`;
     return;
   }
 
+  // Group by category
+  let groups = [];
+  const uncategorised = filtered.filter(t => !t.category || !catOrder.includes(t.category));
+  if (uncategorised.length) groups.push({ label: null, tasks: uncategorised });
+  catOrder.forEach(c => {
+    const tasks = filtered.filter(t => t.category === c);
+    if (tasks.length) groups.push({ label: c, tasks });
+  });
+
   list.innerHTML = groups.map(g => {
-    if (!g.tasks.length) return '';
     const colour = g.label ? todoCatColour(g.label) : 'var(--text-faint)';
-    const taskRows = g.tasks.map(t => `
-      <div class="todo-task-item ${t.done ? 'done' : ''}">
-        <button class="todo-check ${t.done ? 'on' : ''}" data-todo-check="${t.id}" data-todo-source="${t.source||'todo'}" style="${t.done?'background:'+colour+';border-color:'+colour:'border-color:'+colour}">${t.done ? '✓' : ''}</button>
-        <span class="todo-task-text">${escapeHTML(t.text)}${t.date ? '<span style="font-size:10px;color:var(--text-faint);margin-left:6px">'+t.date+'</span>' : ''}</span>
-        ${t.source==='todo' ? '<button class="todo-task-del" data-todo-del="'+t.id+'">✕</button>' : '<span style="font-size:9px;color:var(--text-faint);margin-left:4px">→ '+t.category+'</span>'}
+    const rows = g.tasks.map(t => `
+      <div class="todo-task-item ${t.done?'done':''}">
+        <button class="todo-check ${t.done?'on':''}" data-todo-check="${t.id}" style="${t.done?'background:'+colour+';border-color:'+colour:'border-color:'+colour}">${t.done?'✓':''}</button>
+        <span class="todo-task-text">${escapeHTML(t.text)}</span>
+        <button class="todo-task-del" data-todo-del="${t.id}">✕</button>
       </div>`).join('');
     return `<div class="todo-cat-group">
-      ${g.label ? `<div class="todo-cat-group-head" style="border-left:3px solid ${colour}">
-        <span style="color:${colour}">${g.label}</span>
-        <button class="todo-cat-del" data-todo-del-cat="${g.label}" title="Delete category">✕</button>
-      </div>` : ''}
-      <div class="todo-cat-group-tasks">${taskRows}</div>
+      ${g.label ? `<div class="todo-cat-group-head" style="border-left:3px solid ${colour}"><span style="color:${colour}">${g.label}</span></div>` : ''}
+      <div class="todo-cat-group-tasks">${rows}</div>
     </div>`;
   }).join('');
 }
@@ -12512,7 +12524,15 @@ document.addEventListener('click', e => {
   const checkBtn = e.target.closest('[data-todo-check]');
   if (checkBtn) {
     const id = checkBtn.dataset.todoCheck;
-    const task = (state.todoTasks || []).find(t => t.id === id);
+    const src = checkBtn.dataset.todoSource || 'todo';
+    let task;
+    if (src === 'todo') task = (state.todoTasks || []).find(t => t.id === id);
+    else if (src === 'kokiri') task = (state.kokiri?.tasks || []).find(t => t.id === id);
+    else if (src === 'nuvo') { state.nuvoSystems?.headlines?.forEach(h => { const st = (h.subtasks||[]).find(t=>t.id===id); if(st) task=st; }); }
+    else if (src === 'coaching') { state.coachingTasks?.headlines?.forEach(h => { const st = (h.subtasks||[]).find(t=>t.id===id); if(st) task=st; }); }
+    else if (src === 'beauty') task = (state.beautyTasks || []).find(t => t.id === id);
+    else if (src === 'friends') task = (state.friendsFamilyNotes?.goals || []).find(t => t.id === id);
+    else if (src === 'holiday') { (state.holidays?.trips||[]).forEach(trip => { const t2=(trip.tasks||[]).find(t=>t.id===id); if(t2) task=t2; }); }
     if (task) { task.done = !task.done; saveState(); renderTodoTasks(); }
     return;
   }
@@ -13519,7 +13539,12 @@ document.addEventListener('click', e => {
       const p = state.contentCal[unifiedModalDate].find(p => p.id === unifiedModalPostId);
       if (p) { p.text = text; p.account = account; }
     } else {
-      state.contentCal[unifiedModalDate].push({ id: uid(), text, account, done: false });
+      const newPostId = uid();
+      state.contentCal[unifiedModalDate].push({ id: newPostId, text, account, done: false });
+      // Sync to To Do List
+      state.todoTasks = state.todoTasks || [];
+      const acc = ACCOUNTS.find(a => a.id === account);
+      state.todoTasks.unshift({ id: newPostId + '-todo', text: (acc ? acc.label + ': ' : '') + text, category: 'Content Creation', done: false, date: unifiedModalDate, createdAt: Date.now() });
     }
     saveState();
     document.getElementById('post-modal').classList.add('hidden');
