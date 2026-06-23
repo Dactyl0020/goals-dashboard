@@ -12408,6 +12408,72 @@ function todoCatColour(catName) {
   return TODO_CAT_FALLBACKS[idx % TODO_CAT_FALLBACKS.length];
 }
 
+function getTasksForDate(dateKey) {
+  // Read directly from every panel — no copying
+  const tasks = [];
+
+  // Standalone tasks added directly on To Do List
+  (state.todoTasks || []).filter(t => t.date === dateKey).forEach(t =>
+    tasks.push({ id: t.id, text: t.text, category: t.category || 'Misc', done: !!t.done, source: 'todo' })
+  );
+
+  // Kokiri Active Projects
+  (state.kokiri?.tasks || []).filter(t => t.date === dateKey).forEach(t =>
+    tasks.push({ id: t.id, text: t.text, category: 'Kokiri', done: !!t.done, source: 'kokiri' })
+  );
+
+  // NUVO SOPs
+  (state.nuvoSystems?.headlines || []).forEach(h =>
+    (h.subtasks || []).filter(s => s.date === dateKey).forEach(s =>
+      tasks.push({ id: s.id, text: s.text, category: 'NUVO', done: !!s.done, source: 'nuvo' })
+    )
+  );
+
+  // Coaching
+  (state.coachingTasks?.headlines || []).forEach(h =>
+    (h.subtasks || []).filter(s => s.date === dateKey).forEach(s =>
+      tasks.push({ id: s.id, text: s.text, category: 'Coaching', done: !!s.done, source: 'coaching' })
+    )
+  );
+
+  // Personal Goals headlines
+  (state.personalGoals?.headlines || []).forEach(h =>
+    (h.subtasks || []).filter(s => s.date === dateKey).forEach(s =>
+      tasks.push({ id: s.id, text: s.text, category: 'Personal Goals', done: !!s.done, source: 'personal' })
+    )
+  );
+
+  // Beauty tasks
+  (state.beautyTasks || []).filter(t => t.date === dateKey).forEach(t =>
+    tasks.push({ id: t.id, text: t.text, category: 'Personal Goals', done: !!t.done, source: 'beauty' })
+  );
+
+  // Friends & Family tasks
+  (state.friendsFamilyNotes?.goals || []).filter(t => t.date === dateKey).forEach(t =>
+    tasks.push({ id: t.id, text: t.text, category: 'Personal Goals', done: !!t.done, source: 'friends' })
+  );
+
+  // Holidays
+  (state.holidays?.trips || []).forEach(trip =>
+    (trip.tasks || []).filter(t => t.date === dateKey).forEach(t =>
+      tasks.push({ id: t.id, text: t.text + ' (' + trip.name + ')', category: 'Personal Goals', done: !!t.done, source: 'holiday' })
+    )
+  );
+
+  // Content calendar
+  (state.contentCal?.[dateKey] || []).forEach(p => {
+    const acc = (typeof ACCOUNTS !== 'undefined' ? ACCOUNTS : []).find(a => a.id === p.account);
+    tasks.push({ id: p.id, text: (acc ? acc.label + ': ' : '') + p.text, category: 'Content Creation', done: !!p.done, source: 'content' });
+  });
+
+  // Mailing list
+  (state.mailingList?.emails || []).filter(e => e.date === dateKey).forEach(e =>
+    tasks.push({ id: e.id, text: e.subject + ' (Email)', category: 'Content Creation', done: !!e.sent, source: 'mailing' })
+  );
+
+  return tasks;
+}
+
 function renderTodoTasks() {
   if (!document.getElementById('todo-task-list')) return;
   renderTodoMiniCal();
@@ -12418,13 +12484,11 @@ function renderTodoTasks() {
   const viewingDateLabel = document.getElementById('todo-viewing-date');
   if (viewingDateLabel) {
     const vd = new Date(viewingDate + 'T00:00:00');
-    const isToday = viewingDate === todayKey();
-    viewingDateLabel.textContent = (isToday ? 'Today  ·  ' : '') + vd.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+    viewingDateLabel.textContent = (viewingDate === todayKey() ? 'Today  ·  ' : '') + vd.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   }
 
-  // Only show tasks for this date
-  const dayTasks = (state.todoTasks || []).filter(t => t.date === viewingDate);
-  const catOrder = ['NUVO','Kokiri','Coaching','Content Creation','Personal Goals','Misc'];
+  const dayTasks = getTasksForDate(viewingDate);
+  const catOrder = ['NUVO', 'Kokiri', 'Coaching', 'Content Creation', 'Personal Goals', 'Misc'];
 
   // Category pills
   const pillsEl = document.getElementById('todo-cat-pills');
@@ -12445,13 +12509,12 @@ function renderTodoTasks() {
 
   if (!filtered.length) {
     const vd = new Date(viewingDate + 'T00:00:00');
-    list.innerHTML = `<div style="padding:20px 4px;font-size:12px;color:var(--text-faint)">Nothing scheduled for ${vd.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}.</div>`;
+    list.innerHTML = `<div style="padding:20px 4px;font-size:12px;color:var(--text-faint)">Nothing scheduled for ${vd.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' })}.</div>`;
     return;
   }
 
-  // Group by category
   let groups = [];
-  const uncategorised = filtered.filter(t => !t.category || !catOrder.includes(t.category));
+  const uncategorised = filtered.filter(t => !catOrder.includes(t.category));
   if (uncategorised.length) groups.push({ label: null, tasks: uncategorised });
   catOrder.forEach(c => {
     const tasks = filtered.filter(t => t.category === c);
@@ -12462,9 +12525,9 @@ function renderTodoTasks() {
     const colour = g.label ? todoCatColour(g.label) : 'var(--text-faint)';
     const rows = g.tasks.map(t => `
       <div class="todo-task-item ${t.done?'done':''}">
-        <button class="todo-check ${t.done?'on':''}" data-todo-check="${t.id}" style="${t.done?'background:'+colour+';border-color:'+colour:'border-color:'+colour}">${t.done?'✓':''}</button>
+        <button class="todo-check ${t.done?'on':''}" data-todo-check="${t.id}" data-todo-source="${t.source}" style="${t.done?'background:'+colour+';border-color:'+colour:'border-color:'+colour}">${t.done?'✓':''}</button>
         <span class="todo-task-text">${escapeHTML(t.text)}</span>
-        <button class="todo-task-del" data-todo-del="${t.id}">✕</button>
+        ${t.source==='todo' ? `<button class="todo-task-del" data-todo-del="${t.id}">✕</button>` : ''}
       </div>`).join('');
     return `<div class="todo-cat-group">
       ${g.label ? `<div class="todo-cat-group-head" style="border-left:3px solid ${colour}"><span style="color:${colour}">${g.label}</span></div>` : ''}
@@ -12472,6 +12535,7 @@ function renderTodoTasks() {
     </div>`;
   }).join('');
 }
+
 
 function addTodoTask(text, category) {
   if (!text.trim()) return;
