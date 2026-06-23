@@ -12597,6 +12597,9 @@ document.addEventListener('click', e => {
     else if (src === 'beauty') task = (state.beautyTasks || []).find(t => t.id === id);
     else if (src === 'friends') task = (state.friendsFamilyNotes?.goals || []).find(t => t.id === id);
     else if (src === 'holiday') { (state.holidays?.trips||[]).forEach(trip => { const t2=(trip.tasks||[]).find(t=>t.id===id); if(t2) task=t2; }); }
+    else if (src === 'content') { Object.values(state.contentCal||{}).forEach(posts => { const p=posts.find(p=>p.id===id); if(p) task=p; }); }
+    else if (src === 'mailing') { task = (state.mailingList?.emails||[]).find(e=>e.id===id); if(task) { task.sent = !task.sent; saveState(); renderTodoTasks(); return; } }
+    else if (src === 'personal') { (state.personalGoals?.headlines||[]).forEach(h => { const st=(h.subtasks||[]).find(t=>t.id===id); if(st) task=st; }); }
     if (task) { task.done = !task.done; saveState(); renderTodoTasks(); }
     return;
   }
