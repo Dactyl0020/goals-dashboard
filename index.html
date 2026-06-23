@@ -13944,6 +13944,33 @@ document.addEventListener('click', e => {
   }
 });
 
+// Add task via holiday add button
+document.addEventListener('click', e => {
+  const holAddBtn = e.target.closest('[data-hol-add-btn]');
+  if (holAddBtn) {
+    const tripId = holAddBtn.dataset.holAddBtn;
+    const textEl = document.querySelector('[data-hol-add-task="' + tripId + '"]');
+    const dateEl = document.querySelector('[data-hol-task-date="' + tripId + '"]');
+    const text = textEl?.value.trim();
+    if (!text) return;
+    const date = dateEl?.value || '';
+    if (!state.holidays) state.holidays = { trips: [], calendar: {} };
+    const trip = (state.holidays.trips || []).find(t => t.id === tripId);
+    if (trip) {
+      if (!trip.tasks) trip.tasks = [];
+      trip.tasks.push({ id: uid(), text, date, done: false });
+      if (date) {
+        state.todoTasks = state.todoTasks || [];
+        state.todoTasks.unshift({ id: uid(), text: text + ' (Holiday)', category: 'Personal Goals', done: false, date, createdAt: Date.now() });
+      }
+      saveState(); renderPersonalGoals(); renderTodoTasks();
+    }
+    if (textEl) textEl.value = '';
+    if (dateEl) dateEl.value = '';
+    return;
+  }
+});
+
 // Add task to trip on Enter
 document.addEventListener('keydown', e => {
   const taskInput = e.target.closest('[data-hol-add-task]');
