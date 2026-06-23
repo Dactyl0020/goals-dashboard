@@ -5336,11 +5336,6 @@
 
       </div>
     </div>
-    <div class="date-nav">
-      <button id="prev-day" aria-label="Previous day">‹</button>
-      <div class="current" id="current-date">—</div>
-      <button id="next-day" aria-label="Next day">›</button>
-    </div>
     <!-- TASK INPUT -->
     <div class="todo-input-row">
       <input type="text" id="todo-input" placeholder="Add a task…" autocomplete="off"/>
@@ -5947,7 +5942,7 @@ function ensureShape(s) {
     stepsHabit.kind = 'input';
     stepsHabit.inputType = 'steps';
   }
-  s.habits.daily = s.habits.daily || {};
+  s.habits.daily = {}; // reset daily habits data
   s.weights = s.weights || [];
   // Seed weight data - merge in any missing dates
   const seedWeights = [
@@ -6195,7 +6190,7 @@ function ensureShape(s) {
   });
 
   // Misc Tasks: per-tab, same shape as nuvoSystems but scoped per tab
-  s.miscTasks = s.miscTasks || {};
+  s.miscTasks = {}; // cleared — old system
   Object.keys(s.miscTasks).forEach(tabId => {
     const tabData = s.miscTasks[tabId];
     if (!tabData.headlines) tabData.headlines = [];
@@ -6951,8 +6946,8 @@ function renderTracker(justEarned = false) {
   const dateObj = new Date(viewDate);
   (document.getElementById('current-date') || document.createElement('span')).textContent =
     dateObj.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-  document.getElementById('prev-day').disabled = false;
-  document.getElementById('next-day').disabled = viewDate >= todayKey();
+  (document.getElementById('prev-day') || {}).disabled = false;
+  (document.getElementById('next-day') || {}).disabled = viewDate >= todayKey();
   const restBtn = document.getElementById('rest-btn');
   if (restBtn) {
     restBtn.classList.toggle('on', d.rest);
@@ -6966,12 +6961,7 @@ function renderTracker(justEarned = false) {
 
   const grid = document.getElementById('habits-grid');
   grid.innerHTML = '';
-
-  const isViewingToday = viewDate === todayKey();
-
-  // Daily weigh-in row (always present, no number shown) — hidden when done on today
-  const todaysWeight = state.weights.find(w => w.date === viewDate);
-  const weighInDone = !!todaysWeight;
+  return; // habits-grid not used in new design
   if (!(weighInDone && isViewingToday)) {
     const weighRow = document.createElement('div');
     weighRow.className = 'habit-row weighin-row' + (weighInDone ? ' done' : '');
@@ -7054,75 +7044,8 @@ function renderTracker(justEarned = false) {
   // (Removed: old weekday-pillar slots and theme display — content panel now uses headlines.)
 
   // NUVO Systems subtasks scheduled for today (or overdue)
-  const todaysSubs = (!d.rest && !d.unwell) ? subtasksForTrackerDate(viewDate) : [];
-  // Sort so pinned (priority) tasks bubble to the top, then by overdue, then keep original order
-  todaysSubs.sort((a, b) => {
-    const aPinned = !!a.subtask.pinned ? 1 : 0;
-    const bPinned = !!b.subtask.pinned ? 1 : 0;
-    if (aPinned !== bPinned) return bPinned - aPinned;
-    const aOver = a.overdue ? 1 : 0;
-    const bOver = b.overdue ? 1 : 0;
-    if (aOver !== bOver) return bOver - aOver;
-    return 0;
-  });
-  todaysSubs.forEach(item => {
-    const st = item.subtask;
-    const h = item.headline;
-    const done = isSubtaskDone(st, viewDate);
-    // Hide ticked tasks when viewing today (they reappear next week / next cycle for recurring ones)
-    if (done && isViewingToday) return;
-    const row = document.createElement('div');
-    row.className = 'habit-row subtask' + (done ? ' done' : '');
-    // Apply different border tint for coaching tasks vs nuvo systems vs personal
-    if (item.sysKey === 'coachingTasks') {
-      row.style.setProperty('--subtask-accent', 'var(--coaching)');
-      row.classList.add('subtask-coaching');
-    } else if (item.sysKey === 'personalGoals') {
-      // Use the headline's pastel colour for the row tint
-      const headlineColor = getPastelHexForHeadline(item.headline);
-      row.style.setProperty('--subtask-pastel', headlineColor);
-      row.classList.add('subtask-personal');
-    } else if (item.sysKey === 'miscTasks') {
-      row.classList.add('subtask-misc');
-    } else if (item.sysKey === 'content') {
-      row.classList.add('subtask-content');
-    } else if (item.sysKey === 'kokiriSourcing') {
-      row.classList.add('subtask-sourcing');
-    } else if (item.sysKey === 'kokiriProjects') {
-      row.classList.add('subtask-kokiri');
-    } else if (item.sysKey === 'kokiriProjectsSub') {
-      row.classList.add('subtask-kokiri');
-    }
-    if (st.pinned) row.classList.add('pinned');
-    const overdueTag = item.overdue ? `<span class="overdue-tag">Overdue${st.date ? ' · ' + formatSubtaskDate(st.date) : ''}</span>` : '';
-    let tickAttr;
-    let starAttr;
-    if (item.sysKey === 'kokiriProjects') {
-      tickAttr = `data-kokiri-tracker="${item.kokiriTaskId}"`;
-      starAttr = `data-pin-kokiri="${item.kokiriTaskId}"`;
-    } else if (item.sysKey === 'kokiriProjectsSub') {
-      tickAttr = `data-kokiri-sub-tracker="${item.kokiriSubId}" data-kokiri-parent-tracker="${item.kokiriParentId}"`;
-      starAttr = `data-pin-kokiri-sub="${item.kokiriSubId}" data-pin-kokiri-parent="${item.kokiriParentId}"`;
-    } else {
-      tickAttr = `data-subtask-tracker="${st.id}"`;
-      starAttr = `data-pin-subtask="${st.id}"`;
-    }
-    row.innerHTML = `
-      <button class="pin-star ${st.pinned ? 'on' : ''}" ${starAttr} aria-label="${st.pinned ? 'Unpin priority' : 'Mark as priority'}" title="${st.pinned ? 'Unpin priority' : 'Mark as priority'}">
-        <svg viewBox="0 0 24 24" fill="${st.pinned ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 15,9 22,9.5 17,14.5 18.5,22 12,18.5 5.5,22 7,14.5 2,9.5 9,9"></polygon></svg>
-      </button>
-      <div class="habit-circles">
-        <button class="h-check ${done ? 'on' : ''}" ${tickAttr} aria-label="Toggle">
-          <svg viewBox="0 0 24 24"><polyline points="5,13 10,18 19,7"></polyline></svg>
-        </button>
-      </div>
-      <div class="habit-body">
-        <div class="habit-label">${escapeHTML(st.text)}</div>
-        <div class="subtask-meta"><span class="from">${escapeHTML(item.sysLabel)}</span><span>${escapeHTML(h.title)}</span>${overdueTag}</div>
-      </div>
-    `;
-    grid.appendChild(row);
-  });
+
+  // Subtask rendering removed — using new To Do system
 
   // Friendly empty state when nothing to do at all
   if (todaysSubs.length === 0 && !d.rest && !d.unwell && state.habits.config.length === 0) {
@@ -11881,6 +11804,7 @@ function getQuartersHitForPanel(panelKey) {
 }
 
 function renderAnnualGoals() {
+  renderAnnualGoalsNew();
   const t = activeTab();
   if (!t.panels?.includes('annual_goals')) return;
   const wrap = document.getElementById('annual-goals-list');
@@ -13794,7 +13718,7 @@ function renderHolidaysSection(wrap) {
           <div class="qg-add-task" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <input type="text" class="qg-task-input" style="flex:1;min-width:140px" data-hol-add-task="${trip.id}" placeholder="+ Add task…"/>
             <input type="date" class="qg-task-date" data-hol-task-date="${trip.id}" style="background:var(--surface);border:1px solid var(--surface-edge);border-radius:6px;padding:5px 8px;font-family:var(--sans);font-size:12px;color:var(--text-soft);outline:none"/>
-            <button class="qg-task-add-btn" data-hol-add-btn="${trip.id}" style="background:var(--health);color:#000;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer">Add</button>
+            <button class="qg-task-add-btn" onclick="addHolidayTask('${trip.id}')" style="background:var(--health);color:#000;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer">Add</button>
           </div>
         </div>`;
       }).join('');
@@ -14104,6 +14028,28 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'Enter' && e.target.id === 'annual-goal-input') document.getElementById('annual-goal-add')?.click();
 });
+
+
+function addHolidayTask(tripId) {
+  const textEl = document.querySelector('[data-hol-add-task="' + tripId + '"]');
+  const dateEl = document.querySelector('[data-hol-task-date="' + tripId + '"]');
+  const text = textEl?.value.trim();
+  if (!text) return;
+  const date = dateEl?.value || '';
+  if (!state.holidays) state.holidays = { trips: [], calendar: {} };
+  const trip = (state.holidays.trips || []).find(t => t.id === tripId);
+  if (trip) {
+    if (!trip.tasks) trip.tasks = [];
+    trip.tasks.push({ id: uid(), text, date, done: false });
+    if (date) {
+      state.todoTasks = state.todoTasks || [];
+      state.todoTasks.unshift({ id: uid(), text: text + ' (Holiday)', category: 'Personal Goals', done: false, date, createdAt: Date.now() });
+    }
+    saveState(); renderPersonalGoals(); renderTodoTasks();
+  }
+  if (textEl) textEl.value = '';
+  if (dateEl) dateEl.value = '';
+}
 
 // Sidebar nav click handler
 document.getElementById('sidebar')?.addEventListener('click', e => {
