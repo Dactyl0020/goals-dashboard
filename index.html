@@ -12585,7 +12585,25 @@ function renderTodoTasks() {
     viewingDateLabel.textContent = (viewingDate === todayKey() ? 'Today  ·  ' : '') + vd.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   }
 
+  // Get tasks for this date, plus rolled-over undone tasks from past dates
   const dayTasks = getTasksForDate(viewingDate);
+  if (viewingDate <= todayKey()) {
+    // Add undone tasks from previous dates (rollover)
+    const allSourceDates = new Set();
+    // Collect all task dates from all sources
+    (state.todoTasks || []).forEach(t => { if (t.date && t.date < viewingDate && !t.done) allSourceDates.add(t.date); });
+    (state.kokiri?.tasks || []).forEach(t => { if (t.date && t.date < viewingDate && !t.done) allSourceDates.add(t.date); });
+    (state.nuvoSystems?.headlines || []).forEach(h => (h.subtasks||[]).forEach(s => { if (s.date && s.date < viewingDate && !s.done) allSourceDates.add(s.date); }));
+    (state.coachingTasks?.headlines || []).forEach(h => (h.subtasks||[]).forEach(s => { if (s.date && s.date < viewingDate && !s.done) allSourceDates.add(s.date); }));
+    (state.beautyTasks||[]).forEach(t => { if (t.date && t.date < viewingDate && !t.done) allSourceDates.add(t.date); });
+    (state.friendsFamilyNotes?.goals||[]).forEach(t => { if (t.date && t.date < viewingDate && !t.done) allSourceDates.add(t.date); });
+    (state.holidays?.trips||[]).forEach(trip => (trip.tasks||[]).forEach(t => { if (t.date && t.date < viewingDate && !t.done) allSourceDates.add(t.date); }));
+    allSourceDates.forEach(d => {
+      getTasksForDate(d).filter(t => !t.done).forEach(t => {
+        if (!dayTasks.find(x => x.id === t.id)) dayTasks.push({ ...t, overdue: true });
+      });
+    });
+  }
   const catOrder = ['NUVO', 'Kokiri', 'Coaching', 'Content Creation', 'Personal Goals', 'Misc'];
 
   // Category pills
@@ -12624,7 +12642,7 @@ function renderTodoTasks() {
     const rows = g.tasks.map(t => `
       <div class="todo-task-item ${t.done?'done':''}">
         <button class="todo-check ${t.done?'on':''}" data-todo-check="${t.id}" data-todo-source="${t.source}" style="${t.done?'background:'+colour+';border-color:'+colour:'border-color:'+colour}">${t.done?'✓':''}</button>
-        <span class="todo-task-text">${escapeHTML(t.text)}</span>
+        <span class="todo-task-text">${escapeHTML(t.text)}${t.overdue ? '<span style="font-size:9px;background:rgba(232,96,106,0.2);color:#E8606A;border-radius:4px;padding:1px 5px;margin-left:6px">overdue</span>' : ''}</span>
         ${t.source==='todo' ? `<button class="todo-task-del" data-todo-del="${t.id}">✕</button>` : ''}
       </div>`).join('');
     return `<div class="todo-cat-group">
